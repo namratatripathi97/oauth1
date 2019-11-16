@@ -64,6 +64,19 @@
                                 @enderror
                             </div>
                         </div>
+                         <div class="form-group row">
+                            <label for="username" class="col-md-4 col-form-label text-md-right">{{ __('Api Call') }}</label> 
+
+                            <div class="col-md-6">  
+                                <input id="apicall" type="text" class="form-control @error('apicall') is-invalid @enderror" name="apicall" value="{{ old('apicall') }}"  autocomplete="apicall" autofocus>  
+  
+                                @error('apicall')   
+                                    <span class="invalid-feedback" role="alert">  
+                                        <strong>{{ $message }}</strong>  
+                                    </span>  
+                                @enderror
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label for="username" class="col-md-4 col-form-label text-md-right">{{ __('Username') }}</label> 
 
