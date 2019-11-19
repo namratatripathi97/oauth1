@@ -47,7 +47,7 @@ class SocialController extends Controller
 	 }
 	 public function addClient(Request $request)
 	 {
-  	  
+
 	 	$request=$request->all();            
 	 	$url="https://oauth.redwoodtechnologysolutions.com/wp/oauth/public/api/".$request['name']."/".$request['client_name']."/".$request['apicall']."";
 	 	Credential::create($request);            
@@ -57,7 +57,7 @@ class SocialController extends Controller
 	 	//return "Client Save successfully";   
   
 	 	//return view('client');      
-	 }
+	 }  
 	  public function addIntegrationName(Request $request)
 	 {
   
@@ -82,12 +82,19 @@ class SocialController extends Controller
 			$lname = $_POST['1_6'];         
 			$email = $_POST['2']; 
 			$phone = $_POST['3'];        
-			$resume_status = $_POST['4'];      
+			$resume_status = $_POST['4'];       
 			$filedata=$_POST['5'];           
 			$job=$_POST['7'];
-			$job_id=explode('-', $job)[1];            
-			$applicant_name=$fname.' '.$lname;   
+			$job_id=explode('-', $job)[1];        
+			$applicant_name=$fname.' '.$lname;  
   
+			/*$post = $_POST;                      
+  			$fname = $_POST['fname'];
+			$lname = $_POST['lname'];      */
+			   
+		  
+
+
 			//$applicant_name="rahul jshii";   
 			//$filedata="https://jobs.tracker-rms.com/wp-content/uploads/gravity_forms/1-9c988dc1818c14684b17edf95218545c/2019/11/283559722.pdf";   
 			
@@ -363,13 +370,46 @@ class SocialController extends Controller
 									$err = curl_error($curl);            
 									curl_close($curl);  
 									if ($err) {     
-									 echo "cURL Error #:" . $err;
+									 echo "cURL Error #:" . $err;   
 									} else {
 									 echo $response;  
-
+									 $responseTest = json_decode($response);  
 									} 
+ 
+									if($resume_status=="Yes")  
+										{       
+											$changedEntityId =$responseTest->changedEntityId; 
+											$url1=$resturl."file/Candidate/".$changedEntityId."?BhRestToken=".$bhtoken;     
+											$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
+			
+												$curl1 = curl_init();
+												curl_setopt_array($curl1, array(     
+												 CURLOPT_URL => $url1,               
+												 CURLOPT_RETURNTRANSFER => true,           
+												 CURLOPT_ENCODING => "",    
+												 CURLOPT_MAXREDIRS => 10,      
+												 CURLOPT_TIMEOUT => 30,    
+												 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+												 CURLOPT_CUSTOMREQUEST => "PUT",
+												 CURLOPT_POSTFIELDS => $postResume1,          
+												 CURLOPT_HTTPHEADER => array(            
+												   "Content-Type: application/json",      
+												 ),   
+												));
+												$response1 = curl_exec($curl1);       
+												$err1 = curl_error($curl1);            
+												curl_close($curl1);  
+												if ($err1) {     
+												 echo "cURL Error #:" . $err1;
+												} else {    
+												 echo $response1;  
+
+												}     
+
+										}
+									
   
-			} 
+			}  
 	 		        
 	 }   
 
