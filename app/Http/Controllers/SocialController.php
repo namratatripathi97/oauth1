@@ -67,30 +67,43 @@ class SocialController extends Controller
 	 }
 	public function executeApi($name,$clientname,$apicall)
 	{
-
+ 
 			$credential_details = Credential::where('name',$name)->where('client_name',$clientname)->first();
 	 		$username=$credential_details->username;
 		    $password=$credential_details->password;
-			$apiurl=$credential_details->url;
+			$apiurl=$credential_details->url; 
+			$id=$credential_details->id; 
 			$client_id=$credential_details->client_id;  
 			$apikey=$credential_details->client_secret;     
 			$refresh_token=$credential_details->refresh_token;  
 			$access_token=$credential_details->access_token;    
   	   
-  			$post = $_POST;                      
-  			$fname = $_POST['1_3'];
-			$lname = $_POST['1_6'];         
+  			$post = $_POST;                         
+  			$fname = $_POST['1_3'];   
+			$lname = $_POST['1_6'];           
 			$email = $_POST['2']; 
-			$phone = $_POST['3'];        
+			$phone = $_POST['3'];          
 			$resume_status = $_POST['4'];       
 			$filedata=$_POST['5'];           
-			$job=$_POST['7'];
-			$job_id=explode('-', $job)[1];        
-			$applicant_name=$fname.' '.$lname;  
-  
+			$job=$_POST['7'];   
+			//$job="JOB-1007";     
+			if (!empty($job)) {      
+ 				 $job_id=explode('-', $job)[1];  
+			}  
+			else
+			{   
+				$job_id=" ";  
+			} 
 			/*$post = $_POST;                      
-  			$fname = $_POST['fname'];
-			$lname = $_POST['lname'];      */
+  			$fname = $_POST['fname'];  
+			$lname = $_POST['lname'];   
+			$fname="Lokesh";  
+			$lname="Jain";     
+			$job_id='1007';   
+			$resume_status="Yes";  */             
+			$applicant_name=$fname.' '.$lname;  
+  			 
+			
 			   
 		  
 
@@ -326,12 +339,16 @@ class SocialController extends Controller
 									curl_setopt($ch, CURLOPT_POST, true);
 									curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);   
 									curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-									$result = curl_exec($ch);       
+									$result = curl_exec($ch);        
 									   
 									$response = json_decode($result);
 									$access_token = $response->access_token; 
- 
-									      
+ 									$refresh_token =$response->refresh_token;    
+
+ 									$credentials_update=Credential::find($id);
+ 									$credentials_update->access_token  = $access_token;
+									$credentials_update->refresh_token = $refresh_token; 
+									$credentials_update->save();            
   
 									//$access_token=$access_token;   
 									$url1="https://rest.bullhornstaffing.com/rest-services/login";  
@@ -375,6 +392,36 @@ class SocialController extends Controller
 									 echo $response;  
 									 $responseTest = json_decode($response);  
 									} 
+
+									// post a job 
+
+									$url2=$resturl."entity/JobSubmission?BhRestToken=".$bhtoken;     
+									$candidateId =$responseTest->changedEntityId; 
+									$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead"}';             
+									$curl2 = curl_init();
+									curl_setopt_array($curl2, array(        
+									 CURLOPT_URL => $url2,           
+									 CURLOPT_RETURNTRANSFER => true,           
+									 CURLOPT_ENCODING => "",      
+									 CURLOPT_MAXREDIRS => 10,      
+									 CURLOPT_TIMEOUT => 30,    
+									 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,             
+									 CURLOPT_CUSTOMREQUEST => "PUT", 
+									 CURLOPT_POSTFIELDS => $postJob2,          
+									 CURLOPT_HTTPHEADER => array(            
+									   "Content-Type: application/json",        
+									 ),   
+									));
+									$response2 = curl_exec($curl2);       
+									$err2 = curl_error($curl2);             
+									curl_close($curl2);  
+									if ($err2) {     
+									 echo "cURL Error #:" . $err2;   
+									} else {
+									 echo $response2;  
+									 //$responseTest2 = json_decode($response);  
+									} 
+									//end post job
  
 									if($resume_status=="Yes")  
 										{       
@@ -411,6 +458,6 @@ class SocialController extends Controller
   
 			}  
 	 		        
-	 }   
+	 }     
 
 }
