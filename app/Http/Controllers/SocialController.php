@@ -86,14 +86,18 @@ class SocialController extends Controller
 			$resume_status = $_POST['4'];       
 			$filedata=$_POST['5'];           
 			$job=$_POST['7'];   
-			//$job="JOB-1007";     
-			if (!empty($job)) {      
+			//$job="JOB-1007";
+			if ((!empty($job)) AND (strpos($job,'JOB-') !== false)) {			
+			//if (!empty($job)) {      
  				 $job_id=explode('-', $job)[1];  
 			}  
-			else
+			else if(!empty($job))
 			{   
+				$job_id=$job;  
+			}
+			else {
 				$job_id=" ";  
-			} 
+			}
 			/*$post = $_POST;                      
   			$fname = $_POST['fname'];  
 			$lname = $_POST['lname'];   
@@ -397,7 +401,8 @@ class SocialController extends Controller
 
 									$url2=$resturl."entity/JobSubmission?BhRestToken=".$bhtoken;     
 									$candidateId =$responseTest->changedEntityId; 
-									$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead"}';             
+									$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead"}';  
+									//echo $postJob2; exit;									
 									$curl2 = curl_init();
 									curl_setopt_array($curl2, array(        
 									 CURLOPT_URL => $url2,           
