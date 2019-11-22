@@ -82,38 +82,41 @@ class SocialController extends Controller
   			$fname = $_POST['1_3'];   
 			$lname = $_POST['1_6'];           
 			$email = $_POST['2']; 
-			$phone = $_POST['3'];          
+			$phone = $_POST['3'];            
 			$resume_status = $_POST['4'];       
 			$filedata=$_POST['5'];           
-			$job=$_POST['7'];   
-			//$job="JOB-1007";
+			$job=$_POST['7'];  
+			//$job="JOB-1007";     
+			
 			if ((!empty($job)) AND (strpos($job,'JOB-') !== false)) {			
-			//if (!empty($job)) {      
- 				 $job_id=explode('-', $job)[1];  
-			}  
-			else if(!empty($job))
-			{   
-				$job_id=$job;  
-			}
-			else {
-				$job_id=" ";  
-			}
+			//if (!empty($job)) { 
+				$job_id=explode('-', $job)[1];
+			} else if(!empty($job)) {
+				$job_id=$job;
+			} else {
+				$job_id=" "; 
+			} 
+			
+			
+ 
 			/*$post = $_POST;                      
   			$fname = $_POST['fname'];  
-			$lname = $_POST['lname'];   
-			$fname="Lokesh";  
-			$lname="Jain";     
-			$job_id='1007';   
-			$resume_status="Yes";  */             
-			$applicant_name=$fname.' '.$lname;  
+			$lname = $_POST['lname'];  */ 
+			/*$fname="Ganesh";  
+			$lname="Jain";           
+			$email="ganesh.jain@gmail.com";    
+			$phone="9829412345";      
+			$job_id='1007';        
+			$resume_status="Yes";    */          
+			$applicant_name=$fname.' '.$lname;    
   			 
-			
+			  
 			   
 		  
 
-
+  
 			//$applicant_name="rahul jshii";   
-			//$filedata="https://jobs.tracker-rms.com/wp-content/uploads/gravity_forms/1-9c988dc1818c14684b17edf95218545c/2019/11/283559722.pdf";   
+			//$filedata="https://jobs.tracker-rms.com/wp-content/uploads/gravity_forms/1-9c988dc1818c14684b17edf95218545c/2019/11/01simple1.pdf";   
 			
  			                       
  
@@ -330,8 +333,6 @@ class SocialController extends Controller
 			if($apicall=='createCandidate')   
 			{   
 
-
-
 									$url = $apiurl; 
 									   
 									$postdata  = "grant_type=refresh_token";  
@@ -359,7 +360,7 @@ class SocialController extends Controller
 									$postdata1  = "version=*";
 									$postdata1 .= "&access_token=".$access_token; 
 									   
-									 
+									   
 									$ch1 = curl_init($url1);
 									curl_setopt($ch1, CURLOPT_POST, true);
 									curl_setopt($ch1, CURLOPT_POSTFIELDS, $postdata1);   
@@ -369,12 +370,14 @@ class SocialController extends Controller
 									$response1 = json_decode($result1);
 									$resturl = $response1->restUrl;  
 									$bhtoken = $response1->BhRestToken;       
- 
+      
 									
-									$url=$resturl."entity/Candidate?BhRestToken=".$bhtoken;     
-									$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'"}';           
+									$url=$resturl."entity/Candidate?BhRestToken=".$bhtoken;            
+
+       
+									$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","phone": "'.$phone.'"}';               
 									$curl = curl_init();
-									curl_setopt_array($curl, array(      
+									curl_setopt_array($curl, array(         
 									 CURLOPT_URL => $url,           
 									 CURLOPT_RETURNTRANSFER => true,         
 									 CURLOPT_ENCODING => "",    
@@ -401,8 +404,7 @@ class SocialController extends Controller
 
 									$url2=$resturl."entity/JobSubmission?BhRestToken=".$bhtoken;     
 									$candidateId =$responseTest->changedEntityId; 
-									$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead"}';  
-									//echo $postJob2; exit;									
+									$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead"}';             
 									$curl2 = curl_init();
 									curl_setopt_array($curl2, array(        
 									 CURLOPT_URL => $url2,           
@@ -427,9 +429,18 @@ class SocialController extends Controller
 									 //$responseTest2 = json_decode($response);  
 									} 
 									//end post job
- 
+  
 									if($resume_status=="Yes")  
 										{       
+											$ext = pathinfo($filedata, PATHINFO_EXTENSION);
+											$filename=$fname.' '.$lname.'.'.$ext;
+											$filecontent = file_get_contents($filedata);                
+								 			Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
+								   
+											$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);  
+								  
+											$file = chunk_split(base64_encode($path)); 
+
 											$changedEntityId =$responseTest->changedEntityId; 
 											$url1=$resturl."file/Candidate/".$changedEntityId."?BhRestToken=".$bhtoken;     
 											$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
@@ -448,7 +459,7 @@ class SocialController extends Controller
 												   "Content-Type: application/json",      
 												 ),   
 												));
-												$response1 = curl_exec($curl1);       
+												$response1 = curl_exec($curl1);         
 												$err1 = curl_error($curl1);            
 												curl_close($curl1);  
 												if ($err1) {     
