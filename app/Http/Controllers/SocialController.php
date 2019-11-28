@@ -49,7 +49,23 @@ class SocialController extends Controller
 	 {
 
 	 	$request=$request->all();            
-	 	$url="https://oauth.redwoodtechnologysolutions.com/wp/oauth/public/api/".$request['name']."/".$request['client_name']."/".$request['apicall']."";
+	 	$name=$request['name']; 
+	 	$apicall=$request['apicall'];  
+	 	if($name=="TrackerRms")
+	 	{
+	 		$call="createResource";   
+	 	}
+	 	else if($name=="Bullhorn")
+	 	{
+	 		$call="createCandidate";
+	 	}  
+	 	else  
+	 	{
+	 		$call=$apicall; 
+	 	}
+	 	
+	 	
+	 	$url="https://oauth.redwoodtechnologysolutions.com/wp/oauth/public/api/".$name."/".$request['client_name']."/".$call.""; 
 	 	Credential::create($request);            
   		     
   		//return redirect('api/view-client')->with('status', 'Client Created successfully !');  
@@ -368,10 +384,28 @@ class SocialController extends Controller
 									$result1 = curl_exec($ch1);     
 
 									$response1 = json_decode($result1);
-									$resturl = $response1->restUrl;  
+									$resturl = $response1->restUrl;   
 									$bhtoken = $response1->BhRestToken;       
       
-									
+
+
+      								//code for resume parse start here 
+									/*$result_parse=json_decode($test);
+									$parsedescription=$result_parse->candidate->description;       
+									if($resume_status=="Yes")  
+									   {   
+									      $description=$parsedescription; 
+									   }
+									else 
+									  {
+									    $description="".$fname." ".$lname." \r\n Phone: ".$phone." \r\n Email: ".$email."\r\n";                          
+									  }  
+ 									$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","phone": "'.$phone.'","description":"'.$description.'"}';*/ 
+ 									//code end here   
+
+
+
+
 									$url=$resturl."entity/Candidate?BhRestToken=".$bhtoken;            
 
        
