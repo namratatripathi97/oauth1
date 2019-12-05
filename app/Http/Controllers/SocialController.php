@@ -45,6 +45,23 @@ class SocialController extends Controller
 	 	
 	 	return view('client',["integrationname"=>$integrationname]);           
 	 }
+	 public function indeedApply()
+	 {
+	 	$apitoken=$_GET['apitoken'];  
+	 	$jobid=$_GET['jobid'];  
+	 	$joblocation=$_GET['joblocation'];  
+	 	$jobcompanyname=$_GET['jobcompanyname'];  
+	 	$jobtitle=$_GET['jobtitle'];  
+	 	$joburl=$_GET['joburl'];  
+	 	$posturl=$_GET['posturl'];  
+	 	 
+	 	 return view('indeed',["apitoken"=>$apitoken,"jobid"=>$jobid,"joblocation"=>$joblocation,"jobcompanyname"=>$jobcompanyname,"joburl"=>$joburl,"jobtitle"=>$jobtitle,"jobtitle"=>$posturl]);      
+
+	 }
+	  public function indeedRedirect()
+	  {
+	  	return view('indeed-redirect');  
+	  }
 	 public function addClient(Request $request)
 	 {
 

@@ -25,6 +25,27 @@ Route::get('/callback/{provider}', 'SocialController@callback');
 Route::post('/api/{name}/{client}/{call}','SocialController@executeApi');  
 Route::get('/api/view-client','SocialController@viewClient')->name('view-client');              
 Route::post('/api/addClient','SocialController@addClient')->name('addClient');          
-Route::post('/api/addIntegrationName','SocialController@addIntegrationName')->name('addIntegrationName');                
+Route::post('/api/addIntegrationName','SocialController@addIntegrationName')->name('addIntegrationName');               
+
+Route::get('/api/indeed','SocialController@indeedApply');     
+Route::get('/api/indeed-redirect','SocialController@indeedRedirect');      
+
+
+//http://oauth.redwoodtechnologysolutions.com/wp/oauth/public/api/indeed?apitoken=aa102235a5ccb18bd3668c0e14aa3ea7e2503cfac2a7a9bf3d6549899e125af4&jobid=eca53bf1169ee76e590d&joblocation=Charlotte, NC&jobcompanyname=Coast Personnel Services&jobtitle=Quality Technician&joburl=https://www.indeedjobs.com/redwood-technology-solutions/jobs/eca53bf1169ee76e590d&posturl=https://dradisindeedapply.sandbox.indeed.net/process-indeedapply
+
+/*  
+  <span class="indeed-apply-widget"  
+data-indeed-apply-apitoken="aa102235a5ccb18bd3668c0e14aa3ea7e2503cfac2a7a9bf3d6549899e125af4" 
+data-indeed-apply-jobid="eca53bf1169ee76e590d"      
+data-indeed-apply-joblocation="Charlotte, NC"   
+data-indeed-apply-jobcompanyname="Coast Personnel Services" 
+data-indeed-apply-jobtitle="Quality Technician" 
+data-indeed-apply-joburl="https://www.indeedjobs.com/redwood-technology-solutions/jobs/eca53bf1169ee76e590d" 
+data-indeed-apply-locale="en" 
+data-indeed-apply-posturl="https://dradisindeedapply.sandbox.indeed.net/process-indeedapply" 
+data-indeed-apply-continueurl="https://www.indeedjobs.com/redwood-technology-solutions/jobs/eca53bf1169ee76e590d" 
+data-indeed-apply-jobmeta="indeed-career-pages"     
+data-indeed-apply-resume="REQUIRED" 
+data-indeed-apply-questions="nigma://Wmh2bl9XElVTFEddREA?locale=en_US&amp;v=3"></span>  */
        
 //Route::post('/api/TrackerRms/Bruce/createResource','SocialController@executeApi');             
