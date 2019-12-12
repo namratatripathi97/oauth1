@@ -111,16 +111,17 @@ class SocialController extends Controller
 	public function executeApi($name,$clientname,$apicall)
 	{
  
- 			function mysql_escape_mimic($inp) {
-    if(is_array($inp))
-        return array_map(__METHOD__, $inp);
+ 			function mysql_escape_mimic($inp) 
+ 			{
+			    if(is_array($inp))
+			        return array_map(__METHOD__, $inp);
 
-    if(!empty($inp) && is_string($inp)) {
-        return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), array('\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'), $inp);
-    }
-  
-    return $inp;
-}   
+			    if(!empty($inp) && is_string($inp)) {
+			        return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), array('\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'), $inp);
+			    }
+			  
+			    return $inp;
+			}   
 			$credential_details = Credential::where('name',$name)->where('client_name',$clientname)->first();
 	 		$username=$credential_details->username;
 		    $password=$credential_details->password;
@@ -443,13 +444,13 @@ class SocialController extends Controller
 					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,          
 					 CURLOPT_CUSTOMREQUEST => "POST",
 					 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
-					 CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\"}",   
-					 CURLOPT_HTTPHEADER => array(         
+					 CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"Jobs +\"}",   
+					 CURLOPT_HTTPHEADER => array(            
 					   "Authorization: Bearer ".$access_token, 
 					   "Content-Type: application/json"
 					 ),     
 					));
-					$response = curl_exec($curl);       
+					$response = curl_exec($curl);          
 					$err = curl_error($curl);    
 					print_r($err);    
 					curl_close($curl);
@@ -653,14 +654,15 @@ if ($err) {
 
 									$url=$resturl."entity/Candidate";              
 
-       	$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","phone": "'.$phone.'","description":"'.$description.'"}';
-       								             
+       	//$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","phone": "'.$phone.'","description":"'.$description.'"}';
+
+									$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","source": "Jobs +","phone": "'.$phone.'","description":"'.$description.'"}';   
 									$curl = curl_init();
 									curl_setopt_array($curl, array(               
 									 CURLOPT_URL => $url,             
 									 CURLOPT_RETURNTRANSFER => true,           
 									 CURLOPT_ENCODING => "",         
-									 CURLOPT_MAXREDIRS => 10,       
+									 CURLOPT_MAXREDIRS => 10,        
 									 CURLOPT_TIMEOUT => 30,    
 									 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
 									 CURLOPT_CUSTOMREQUEST => "PUT",  
