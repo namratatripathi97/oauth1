@@ -121,7 +121,18 @@ class SocialController extends Controller
 			    }
 			  
 			    return $inp;
-			}   
+			} 
+			function mysql_escape_mimic1($inp) 
+ 			{
+			    if(is_array($inp))
+			        return array_map(__METHOD__, $inp);
+
+			    if(!empty($inp) && is_string($inp)) {
+			        return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), array('\\\\', '\\0', '', '', "\\'", '\\"', '\\Z'), $inp);
+			    }
+			    
+			    return $inp;
+			}  
 			$credential_details = Credential::where('name',$name)->where('client_name',$clientname)->first();
 	 		$username=$credential_details->username;
 		    $password=$credential_details->password;
@@ -136,7 +147,7 @@ class SocialController extends Controller
   			$fname = $_POST['1_3'];   
 			$lname = $_POST['1_6'];           
 			$email = $_POST['2']; 
-			$phone = $_POST['3'];            
+			$phone = $_POST['3'];                 
 			$resume_status = $_POST['4'];       
 			$filedata=$_POST['5'];           
 			$job=$_POST['7'];
@@ -432,21 +443,30 @@ class SocialController extends Controller
 
 					$response = json_decode($result);
 					$access_token = $response->access_token;
-					$instance_url = $response->instance_url;   
+					$instance_url = $response->instance_url;     
 
-					$curl = curl_init();
-					curl_setopt_array($curl, array( 
-					 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact", 
+					  
+
+					   
+					$curl = curl_init();  
+					curl_setopt_array($curl, array(          
+					 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
+					 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
+					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/ts2__Application__c",    
+					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Candidate",   
+					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Account", 
 					 CURLOPT_RETURNTRANSFER => true, 
-					 CURLOPT_ENCODING => "",    
-					 CURLOPT_MAXREDIRS => 10,  
-					 CURLOPT_TIMEOUT => 30,
-					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,          
-					 CURLOPT_CUSTOMREQUEST => "POST",
+					 CURLOPT_ENCODING => "",       
+					 CURLOPT_MAXREDIRS => 10,    
+					 CURLOPT_TIMEOUT => 30,            
+					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+					 CURLOPT_CUSTOMREQUEST => "POST",  
 					 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
-					 CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"Jobs +\"}",   
-					 CURLOPT_HTTPHEADER => array(            
-					   "Authorization: Bearer ".$access_token, 
+					 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",              
+					//CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"0033s0000105RnsAAE\",  \"ts2__Job__c\": \"a0K3s00000BpizZEAR\"}", 
+					 CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"Jobs +\"}",       
+					 CURLOPT_HTTPHEADER => array(             
+					   "Authorization: Bearer ".$access_token,           
 					   "Content-Type: application/json"
 					 ),     
 					));
@@ -458,12 +478,93 @@ class SocialController extends Controller
 					 echo "cURL Error #:" . $err;
 					} else {   
 					 echo $response;
-					      
+					 $response1 = json_decode($response);
+					 $contact_id = $response1->id;  
 					//echo 'appid'.$applicant_id;  
 					}
-					echo "<br/>";  
-					echo "created contact";     
+					echo "<br/>";               
+					echo "cid".$contact_id;  
+					echo "created contact";    
+					// Create Application
+					$curl = curl_init();  
+					curl_setopt_array($curl, array(          
+					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
+					 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
+					 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/ts2__Application__c",    
+					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Candidate",   
+					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Account", 
+					 CURLOPT_RETURNTRANSFER => true, 
+					 CURLOPT_ENCODING => "",       
+					 CURLOPT_MAXREDIRS => 10,    
+					 CURLOPT_TIMEOUT => 30,            
+					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+					 CURLOPT_CUSTOMREQUEST => "POST",  
+					 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
+					 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",                 
+					CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\",  \"ts2__Job__c\": \"".$job_id."\"}", 
+					 //CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"Jobs +\"}",       
+					 CURLOPT_HTTPHEADER => array(               
+					   "Authorization: Bearer ".$access_token,           
+					   "Content-Type: application/json"
+					 ),     
+					));
+					$response = curl_exec($curl);          
+					$err = curl_error($curl);    
+					print_r($err);    
+					curl_close($curl);
+					if ($err) {
+					 echo "cURL Error #:" . $err;
+					} else {   
+					 echo $response;   
+					  echo "applicant create"; 
+					 $response1 = json_decode($response);
+					 //$contact_id = $response1->id;  
+					//echo 'appid'.$applicant_id;  
+					}   
 
+					if($resume_status=="Yes")
+					{   
+								$ext = pathinfo($filedata, PATHINFO_EXTENSION);
+								$filename=$fname.' '.$lname.'.'.$ext;
+								$filecontent = file_get_contents($filedata);                
+								 Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
+								   
+
+								$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);  
+								  
+								$file = chunk_split(base64_encode($path));     
+   								$file = mysql_escape_mimic1($file);
+   								  
+$parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","ContentType": "application/'.$ext.'","Body": "'.$file.'"}'; 
+
+     
+								$curl = curl_init();  
+							 curl_setopt_array($curl, array(            
+							 CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
+							 CURLOPT_RETURNTRANSFER => true, 
+							 CURLOPT_ENCODING => "",       
+							 CURLOPT_MAXREDIRS => 10,    
+							 CURLOPT_TIMEOUT => 30,            
+							 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+							 CURLOPT_CUSTOMREQUEST => "POST",   
+							 CURLOPT_POSTFIELDS => $parseResumeCand,        
+							 CURLOPT_HTTPHEADER => array(                 
+							   "Authorization: Bearer ".$access_token,             
+							   "Content-Type: application/json"
+							 ),     
+							));
+							$response = curl_exec($curl);            
+							$err = curl_error($curl);    
+							print_r($err);    
+							curl_close($curl);
+							if ($err) {
+							 echo "cURL Error #:" . $err;  
+							} else {    
+							 echo $response;
+							 echo "resume upload"; 
+							 $response1 = json_decode($response);
+							}  
+					}
 
 			}	
 			if($apicall=='createCandidate')   
@@ -569,7 +670,7 @@ exit;
 											$err = curl_error($resource);   
 											curl_close($resource);    
 											if ($err) {          
-									 echo "cURL Error #:" . $err;   
+									 echo "cURL Error #:" . $err;     
 									} else {
 											$result_parse=json_decode($result);      
 											$parsedescription=$result_parse->candidate->description;   
