@@ -67,7 +67,8 @@ class SocialController extends Controller
 	 public function addClient(Request $request)
 	 {
 
-	 	$request=$request->all();            
+	 	$request=$request->all();       
+	 	/*dd($request);*/       
 	 	$name=$request['name']; 
 	 	$apicall=$request['apicall'];  
 	 	if($name=="TrackerRms")
@@ -80,7 +81,7 @@ class SocialController extends Controller
 	 	} 
 	 	else if($name=="Jobscience")
 	 	{
-	 		$call="createContact";
+	 		$call="createContact";    
 	 	}
 	 	else if($name=="Hephaestus")
 	 	{
@@ -142,7 +143,15 @@ class SocialController extends Controller
 			$apikey=$credential_details->client_secret;     
 			$refresh_token=$credential_details->refresh_token;  
 			$access_token=$credential_details->access_token;    
-  	   
+			$source=$credential_details->source;
+  	   		if(empty($source))
+  	   		{
+  	   			$jobSource="Jobs +";      
+  	   		}
+  	   		else
+  	   		{
+  	   			$jobSource=$source;   
+  	   		}      
   			$post = $_POST;                         
   			$fname = $_POST['1_3'];   
 			$lname = $_POST['1_6'];           
@@ -210,7 +219,7 @@ class SocialController extends Controller
      
 						/*$postResource = '{"trackerrms": {"createResource": {"credentials": {"username": "'.$username.'","password": "'.$password.'"},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short"},"resource": {"firstname": "'.$fname.'", "lastname": "'.$lname.'", "fullname": "'.$fname.' '.$lname.'", "cellphone": "'.$phone.'", "email": "'.$email.'","jobtitle": " ","company": " ","address1": " ","address2": " ","city": " ","state": " ","zipcode": " ","country": " ","workphone": "","homephone": "'.$phone.'","linkedin": "","dateofbirth": "","nationality": "","languages": "","education": "","source": "Jobs +","jobhistory": [{"company": "","jobtitle": "","startdate": "","enddate": "","description": ""}],"salary": 0,"note": "","image": ""}}}}';    */            
    
-							$postResource = '{"trackerrms": {"createResource": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'", "lastname": "'.$lname.'", "fullname": "'.$fname.' '.$lname.'", "cellphone": "'.$phone.'", "email": "'.$email.'","jobtitle": " ","company": " ","address1": " ","address2": " ","city": " ","state": " ","zipcode": " ","country": " ","workphone": "","homephone": "'.$phone.'","linkedin": "","dateofbirth": "","nationality": "","languages": "","education": "","source": "Jobs +","jobhistory": [{"company": "","jobtitle": "","startdate": "","enddate": "","description": ""}],"salary": 0,"note": "'.$note.'","image": ""}}}}';      
+							$postResource = '{"trackerrms": {"createResource": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'", "lastname": "'.$lname.'", "fullname": "'.$fname.' '.$lname.'", "cellphone": "'.$phone.'", "email": "'.$email.'","jobtitle": " ","company": " ","address1": " ","address2": " ","city": " ","state": " ","zipcode": " ","country": " ","workphone": "","homephone": "'.$phone.'","linkedin": "","dateofbirth": "","nationality": "","languages": "","education": "","source": "'.$jobSource.'","jobhistory": [{"company": "","jobtitle": "","startdate": "","enddate": "","description": ""}],"salary": 0,"note": "'.$note.'","image": ""}}}}';          
    
 							/*print_r($postResource); 
 							exit; */                               
@@ -259,7 +268,7 @@ class SocialController extends Controller
 								$file = chunk_split(base64_encode($path));     
 
 								$apicall="createResourceFromResume";   
-								$postResume='{"trackerrms": {"createResourceFromResume": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'","lastname": "'.$lname.'","fullname": "'.$fname.' '.$lname.'","jobtitle": " ","email": "'.$email.'","source": "Jobs +","note": "'.$note.'"},"file": {"filename": "'.$filename.'","data": "'.$file.'"}}}}';          
+								$postResume='{"trackerrms": {"createResourceFromResume": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'","lastname": "'.$lname.'","fullname": "'.$fname.' '.$lname.'","jobtitle": " ","email": "'.$email.'","source": "'.$jobSource.'","note": "'.$note.'"},"file": {"filename": "'.$filename.'","data": "'.$file.'"}}}}';          
              
 
      							/*echo $postResume;
@@ -324,7 +333,7 @@ class SocialController extends Controller
 
 					/*$postResume = '{"trackerrms": {"createResource": {"credentials": {"username": "'.$username.'","password": "'.$password.'"},"instructions":{"overwriteresource": true,"assigntoopportunity": 16541,"assigntolist": "short"},"resource": {"firstname": "'.$fname.'", "lastname": "'.$lname.'", "fullname": "'.$fname.' '.$lname.'", "cellphone": "'.$phone.'", "email": "'.$email.'","jobtitle": " ","company": " ","address1": " ","address2": " ","city": " ","state": " ","zipcode": " ","country": " ","workphone": "","homephone": "'.$phone.'","cellphone": "'.$phone.'","linkedin": "","dateofbirth": "","nationality": "","languages": "","education": "","source": "Jobs +","jobhistory": [{"company": "","jobtitle": "","startdate": "","enddate": "","description": ""}],"salary": 0,"note": "","image": ""}}}}';*/
 
-					$postResume='{"trackerrms": {"createResourceFromResume": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions": {"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short"},"resource": {"firstname": "'.$fname.'","lastname": "'.$lname.'","fullname": "'.$fname.' '.$lname.'","jobtitle": " ","email": "'.$email.'","source": "Jobs +","note": "'.$note.'},"file": {"filename": "'.$fname.' '.$lname.'Resume.docx","data": "'.$attach_resume.'"}}}}';     
+					$postResume='{"trackerrms": {"createResourceFromResume": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions": {"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short"},"resource": {"firstname": "'.$fname.'","lastname": "'.$lname.'","fullname": "'.$fname.' '.$lname.'","jobtitle": " ","email": "'.$email.'","source": "'.$jobSource.'","note": "'.$note.'},"file": {"filename": "'.$fname.' '.$lname.'Resume.docx","data": "'.$attach_resume.'"}}}}';       
 	     
 					$curl = curl_init();    
 					curl_setopt_array($curl, array(        
@@ -385,19 +394,27 @@ class SocialController extends Controller
 
 					if($resume_status=="Yes")  
 										{       
-											$ext = pathinfo($filedata, PATHINFO_EXTENSION);
+											/*$ext = pathinfo($filedata, PATHINFO_EXTENSION);
 											$filename=$fname.' '.$lname.'.'.$ext;
 											$filecontent = file_get_contents($filedata);                
 								 			Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
 											$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);  
-											$file = chunk_split(base64_encode($path));
+											$file = chunk_split(base64_encode($path));*/
+											
+											$file = base64_encode(file_get_contents($filedata));
 										} 
 										else
-										{
-											$file=" "; 
+										{ 
+											//$filedata="https://oauth.redwoodtechnologysolutions.com/wp/oauth/prod-pdf-generate.php?name=Hello%20Suresh&email=hello@gmail.com&phone=299999"; 
+											//$filedata="https://oauth.redwoodtechnologysolutions.com/wp/oauth/prod-pdf-generate.php?name=".$fname."%20".$lname."&email=".$email."&phone=".$phone;           
+											$filedata="https://oauth.redwoodtechnologysolutions.com/wp/oauth/prod-pdf-generate.php?name=".$fname."%20".$lname."&email=".$email."&phone=".$phone;       
+											 
+											$file = base64_encode(file_get_contents($filedata));        
+											    
+											/*$name=$fname.' '.$lname;      
+											$file=base64_encode($name);   */
 										}
-					$applicants='{"username": "'.$username.'","password": "'.$password.'","candidate_first_name": "'.$fname.'","candidate_last_name": "'.$lname.'","candidate_email": "'.$email.'","candidate_phone_number": "'.$phone.'","job_id": "'.$job_id.'","resume": "'.$file.'"}';     
-
+					$applicants='{"username": "'.$username.'","password": "'.$password.'","Candidate first name": "'.$fname.'","Candidate last name": "'.$lname.'","Candidate email": "'.$email.'","Candidate phone number": "'.$phone.'","Job ID": "'.$job_id.'","Resume": "'.$file.'"}';     
 					$curl = curl_init();       
 					curl_setopt_array($curl, array(            
 					 CURLOPT_URL => $apiurl.$apicall,   
@@ -464,7 +481,7 @@ class SocialController extends Controller
 					 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
 					 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",              
 					//CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"0033s0000105RnsAAE\",  \"ts2__Job__c\": \"a0K3s00000BpizZEAR\"}", 
-					 CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"Jobs +\"}",       
+					 CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"".$jobSource."\"}",           
 					 CURLOPT_HTTPHEADER => array(             
 					   "Authorization: Bearer ".$access_token,           
 					   "Content-Type: application/json"
@@ -644,11 +661,12 @@ $description=$parsedescription;
 echo $description;   
 exit;  
 */
-						$url = 'https://rest42.bullhornstaffing.com/rest-services/182p/resume/parseToCandidate?format=text&populateDescription=html';
-											$header = array('bhresttoken: '.$bhtoken,'Content-Type: multipart/form-data');
+						//$url = 'https://rest42.bullhornstaffing.com/rest-services/182p/resume/parseToCandidate?format=text&populateDescription=html';
+						$url=$resturl."resume/parseToCandidate?format=text&populateDescription=html";
+						$header = array('bhresttoken: '.$bhtoken,'Content-Type: multipart/form-data');
     
-								//$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/Paul Dhaliwal.pdf','application/pdf','Paul Dhaliwal');
-					$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name);
+						//$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/Paul Dhaliwal.pdf','application/pdf','Paul Dhaliwal');
+						$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name);
 									//$cfile = new \CurlFile('/var/www/html/wp/oauth/storage/app/public/Monish Soni.pdf','application/pdf','Monish Soni');
 											// Assign POST data          
 											$fields = array('file' => $cfile);           
@@ -757,11 +775,11 @@ if ($err) {
 
        	//$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","phone": "'.$phone.'","description":"'.$description.'"}';
 
-									$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","source": "Jobs +","phone": "'.$phone.'","description":"'.$description.'"}';   
+									$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';   
 									$curl = curl_init();
 									curl_setopt_array($curl, array(               
 									 CURLOPT_URL => $url,             
-									 CURLOPT_RETURNTRANSFER => true,           
+									 CURLOPT_RETURNTRANSFER => true,            
 									 CURLOPT_ENCODING => "",         
 									 CURLOPT_MAXREDIRS => 10,        
 									 CURLOPT_TIMEOUT => 30,    
@@ -857,11 +875,12 @@ if ($err) {
  
 												}      
 
-										}
+										}     
 									
   
 			}  
 	 		        
 	 }     
-
+  
 }
+     

@@ -22,8 +22,9 @@ class CreateCredentialsTable extends Migration
             $table->string('password')->nullable();   
             $table->string('client_id')->nullable();
             $table->string('client_secret')->nullable();
-            $table->string('access_token')->nullable();
+            $table->string('access_token')->nullable();   
             $table->string('refresh_token')->nullable();   
+            $table->string('source')->nullable(); 
             $table->timestamps();   
         });
     }
@@ -38,3 +39,4 @@ class CreateCredentialsTable extends Migration
         Schema::dropIfExists('credentials');
     }
 }
+   
