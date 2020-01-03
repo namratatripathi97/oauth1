@@ -775,8 +775,8 @@ if ($err) {
 
        	//$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","phone": "'.$phone.'","description":"'.$description.'"}';
 
-									$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';   
-									$curl = curl_init();
+									$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';   
+									$curl = curl_init();          
 									curl_setopt_array($curl, array(               
 									 CURLOPT_URL => $url,             
 									 CURLOPT_RETURNTRANSFER => true,            
@@ -788,14 +788,14 @@ if ($err) {
 									 CURLOPT_POSTFIELDS => $postResume,          
 									 CURLOPT_HTTPHEADER => array(      
 									   "BhRestToken: ".$bhtoken,           
-									   "Content-Type: application/json",        
+									   "Content-Type: application/json",           
 									 ),   
 									));
 									$response = curl_exec($curl);       
 									$err = curl_error($curl);            
 									curl_close($curl);  
 									if ($err) {     
-									 echo "cURL Error #:" . $err;   
+									 echo "cURL Error #:" . $err;       
 									} else {  
 									 echo $response;  
 									 $responseTest = json_decode($response);  
@@ -804,14 +804,14 @@ if ($err) {
 									// post a job 
 
 									$url2=$resturl."entity/JobSubmission";     
-									$candidateId =$responseTest->changedEntityId;     
-									/*echo 'candidateId';  
-									echo $candidateId;
+									$candidateId =$responseTest->changedEntityId;         
+									/*echo 'candidateId';      
+									echo $candidateId;   
 									exit;*/
-									$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead"}';             
-									$curl2 = curl_init();
+									$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Candidate"}';             
+									$curl2 = curl_init();  
 									curl_setopt_array($curl2, array(            
-									 CURLOPT_URL => $url2,           
+									 CURLOPT_URL => $url2,              
 									 CURLOPT_RETURNTRANSFER => true,             
 									 CURLOPT_ENCODING => "",      
 									 CURLOPT_MAXREDIRS => 10,      
