@@ -767,74 +767,163 @@ if ($err) {
 } else {
   echo $response;
   $responseTest = json_decode($response);   
-} */  
+} */      
 
-  
+  								   //Code for check the candidate status in bullhorn 
 
-									$url=$resturl."entity/Candidate";              
-
-       	//$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","phone": "'.$phone.'","description":"'.$description.'"}';
-
-									$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';   
-									$curl = curl_init();          
-									curl_setopt_array($curl, array(               
-									 CURLOPT_URL => $url,             
-									 CURLOPT_RETURNTRANSFER => true,            
-									 CURLOPT_ENCODING => "",         
-									 CURLOPT_MAXREDIRS => 10,        
-									 CURLOPT_TIMEOUT => 30,    
-									 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
-									 CURLOPT_CUSTOMREQUEST => "PUT",  
-									 CURLOPT_POSTFIELDS => $postResume,          
-									 CURLOPT_HTTPHEADER => array(      
-									   "BhRestToken: ".$bhtoken,           
-									   "Content-Type: application/json",           
-									 ),   
-									));
-									$response = curl_exec($curl);       
-									$err = curl_error($curl);            
-									curl_close($curl);  
-									if ($err) {     
-									 echo "cURL Error #:" . $err;       
-									} else {  
-									 echo $response;  
-									 $responseTest = json_decode($response);  
-									}  
-									    
-									// post a job 
-
-									$url2=$resturl."entity/JobSubmission";     
-									$candidateId =$responseTest->changedEntityId;         
-									/*echo 'candidateId';      
-									echo $candidateId;   
-									exit;*/
-									$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Candidate"}';             
-									$curl2 = curl_init();  
-									curl_setopt_array($curl2, array(            
-									 CURLOPT_URL => $url2,              
-									 CURLOPT_RETURNTRANSFER => true,             
-									 CURLOPT_ENCODING => "",      
-									 CURLOPT_MAXREDIRS => 10,      
-									 CURLOPT_TIMEOUT => 30,    
-									 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,             
-									 CURLOPT_CUSTOMREQUEST => "PUT", 
-									 CURLOPT_POSTFIELDS => $postJob2,          
-									 CURLOPT_HTTPHEADER => array(     
-									   "BhRestToken: ".$bhtoken,         
-									   "Content-Type: application/json",         
-									 ),    
-									));
-									$response2 = curl_exec($curl2);       
-									$err2 = curl_error($curl2);             
-									curl_close($curl2);  
-									if ($err2) {     
-									 echo "cURL Error #:" . $err2;   
-									} else {   
-									 echo $response2;  
-									 //$responseTest2 = json_decode($response);  
+								   $url=$resturl."find?query=$email&countPerEntity=1";
+									$header = array('bhresttoken: '.$bhtoken);        
+									$resource = curl_init();             
+									curl_setopt($resource, CURLOPT_URL, $url);           
+									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
+									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);           
+									$result = json_decode(curl_exec($resource));  
+									curl_close($resource);
+									   
+									if(empty($result->data)) 
+									{
+										$email_status='';      
+									}
+									else
+									{
+										$email_status=$result->data[0]->entityId;   
 									} 
-									//end post job
-  
+									            
+									     
+									           
+									$url=$resturl."find?query=$phone&countPerEntity=1";        
+									$header = array('bhresttoken: '.$bhtoken); 
+									$resource = curl_init();             
+									curl_setopt($resource, CURLOPT_URL, $url);               
+									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);       
+									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);         
+									$result = json_decode(curl_exec($resource));  
+									curl_close($resource);         
+									     
+
+									if(empty($result->data)) 
+									{
+										$phone_status='';         
+									}  
+									else
+									{
+										$phone_status=$result->data[0]->entityId;   
+									}
+
+									if( (!empty($email_status)) && (!empty($phone_status)) )
+									{
+									   $candidateId=$email_status;  
+									}
+									else   
+									{       
+				
+
+										$url=$resturl."entity/Candidate";         
+	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';   
+										$curl = curl_init();          
+										curl_setopt_array($curl, array(               
+										 CURLOPT_URL => $url,             
+										 CURLOPT_RETURNTRANSFER => true,            
+										 CURLOPT_ENCODING => "",         
+										 CURLOPT_MAXREDIRS => 10,        
+										 CURLOPT_TIMEOUT => 30,    
+										 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+										 CURLOPT_CUSTOMREQUEST => "PUT",  
+										 CURLOPT_POSTFIELDS => $postResume,          
+										 CURLOPT_HTTPHEADER => array(      
+										   "BhRestToken: ".$bhtoken,           
+										   "Content-Type: application/json",           
+										 ),   
+										));
+										$response = curl_exec($curl);       
+										$err = curl_error($curl);            
+										curl_close($curl);  
+										if ($err) {     
+										 echo "cURL Error #:" . $err;       
+										} else {  
+										 echo $response;  
+										 $responseTest = json_decode($response);  
+										}  
+										$candidateId =$responseTest->changedEntityId; 
+									}    
+
+									//Check candiate apply for the job or not
+
+									$url=$resturl."search/JobSubmission?query=candidate.id:$candidateId&fields=*";                                             
+									$header = array('bhresttoken: '.$bhtoken);                 
+									$resource = curl_init();                       
+									curl_setopt($resource, CURLOPT_URL, $url);           
+									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);        
+									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);             
+									$result = json_decode(curl_exec($resource));  
+									curl_close($resource);    
+									
+
+									foreach ($result->data as $rows)       
+									{
+										$rows->JOBID = $rows->jobOrder->id;                        
+									}          
+ 									  
+ 									if(in_array($job_id, array_column($result->data, 'JOBID'))) 
+ 									{    
+									    //echo 'not apply for the job'; 
+									}  
+									else   
+									{ 
+										// post a job       
+											//echo 'apply';   
+
+											$url2=$resturl."entity/JobSubmission";        
+											        
+											
+											$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Candidate"}';             
+											$curl2 = curl_init();  
+											curl_setopt_array($curl2, array(            
+											 CURLOPT_URL => $url2,              
+											 CURLOPT_RETURNTRANSFER => true,             
+											 CURLOPT_ENCODING => "",      
+											 CURLOPT_MAXREDIRS => 10,      
+											 CURLOPT_TIMEOUT => 30,    
+											 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,             
+											 CURLOPT_CUSTOMREQUEST => "PUT", 
+											 CURLOPT_POSTFIELDS => $postJob2,          
+											 CURLOPT_HTTPHEADER => array(     
+											   "BhRestToken: ".$bhtoken,         
+											   "Content-Type: application/json",         
+											 ),    
+											));
+											$response2 = curl_exec($curl2);            
+											$err2 = curl_error($curl2);                   
+											curl_close($curl2);  
+											if ($err2) {     
+											 echo "cURL Error #:" . $err2;   
+											} else {   
+											 echo $response2;  
+											 //$responseTest2 = json_decode($response);  
+											} 
+											//end post job
+									} 
+
+
+
+									/*if($result->total==0)
+									{
+										$applyjobid=0;
+									}
+									else   
+									{
+										$applyjobid=$result->data[0]->jobOrder->id;	
+									}    
+									echo 'jobid';
+									echo $job_id; 
+									echo 'appid';       
+									echo $applyjobid;
+									exit; */         
+									/*if($applyjobid!=$job_id)
+									{       
+	
+											
+  									}*/
 									if($resume_status=="Yes")  
 										{          
 											$ext = pathinfo($filedata, PATHINFO_EXTENSION);
@@ -846,13 +935,13 @@ if ($err) {
 								  
 											$file = chunk_split(base64_encode($path)); 
 
-											$changedEntityId =$responseTest->changedEntityId; 
+											$changedEntityId =$candidateId;       
 											$url1=$resturl."file/Candidate/".$changedEntityId."";        
 									$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
 			   
 												$curl1 = curl_init();
 												curl_setopt_array($curl1, array(     
-												 CURLOPT_URL => $url1,               
+												 CURLOPT_URL => $url1,                
 												 CURLOPT_RETURNTRANSFER => true,           
 												 CURLOPT_ENCODING => "",    
 												 CURLOPT_MAXREDIRS => 10,      
@@ -883,4 +972,4 @@ if ($err) {
 	 }     
   
 }
-     
+         
