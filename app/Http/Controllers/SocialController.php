@@ -876,7 +876,7 @@ if ($err) {
 											$url2=$resturl."entity/JobSubmission";        
 											        
 											
-											$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Candidate"}';             
+											$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Applicant"}';                    
 											$curl2 = curl_init();  
 											curl_setopt_array($curl2, array(            
 											 CURLOPT_URL => $url2,              
