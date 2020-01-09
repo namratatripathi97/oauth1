@@ -68,29 +68,48 @@ class SocialController extends Controller
 	 {
 
 	 	$request=$request->all();       
-	 	/*dd($request);*/       
+	 	$url=$request['url'];               
 	 	$name=$request['name']; 
 	 	$apicall=$request['apicall'];  
 	 	if($name=="TrackerRms")
-	 	{
-	 		$call="createResource";   
-	 	}
+	 	{  
+	 		$call="createResource";
+
+	 		if($url==null)
+	 		{
+	 			$request['url'] ='https://evoapi.tracker-rms.com/api/widget/';          
+	 		}
+	 	} 
 	 	else if($name=="Bullhorn")
 	 	{
 	 		$call="createCandidate";
-	 	} 
+	 		if($url==null)
+	 		{
+	 			$request['url'] ='https://auth.bullhornstaffing.com/oauth/token';          
+	 		}
+
+	 	}     
 	 	else if($name=="Jobscience")
 	 	{
 	 		$call="createContact";    
+	 		if($url==null)
+	 		{
+	 			$request['url'] ='https://login.salesforce.com/services/oauth2/token';          
+	 		}
 	 	}
-	 	else if($name=="Hephaestus")
+	 	else if($name=="Hephaestus")   
 	 	{
 	 		$call="applicants";
+	 		if($url==null)
+	 		{
+	 			$request['url'] ='https://federatedstaffing.com/ins/api/';          
+	 		}        
 	 	}    
 	 	else    
 	 	{
-	 		$call=$apicall; 
+	 		$call=$apicall;    
 	 	}
+	 	
 	 	
 	 	
 	 	$url="https://oauth.redwoodtechnologysolutions.com/wp/oauth/public/api/".$name."/".$request['client_name']."/".$call.""; 
@@ -582,6 +601,83 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 							 $response1 = json_decode($response);
 							}  
 					}
+
+			}
+			if($apicall=='createLead')   
+			{
+				if($clientname=='bridgeview')   
+				{   
+					/*Code for only 'bridgeview' CLient */
+
+									$url = $apiurl;   
+									   
+									$postdata  = "grant_type=refresh_token";  
+									$postdata .= "&refresh_token=".$refresh_token;
+									$postdata .= "&client_id=".$client_id;         
+									$postdata .= "&client_secret=".$apikey;           
+
+									$ch = curl_init($url);      
+									curl_setopt($ch, CURLOPT_POST, true);
+									curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);        
+									curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+									$result = curl_exec($ch);        
+									   
+									$response = json_decode($result);
+									$access_token = $response->access_token; 
+ 									$refresh_token =$response->refresh_token;    
+
+ 									$credentials_update=Credential::find($id);
+ 									$credentials_update->access_token  = $access_token;
+									$credentials_update->refresh_token = $refresh_token; 
+									$credentials_update->save();            
+  
+									//$access_token=$access_token;   
+									$url1="https://rest.bullhornstaffing.com/rest-services/login";  
+									$postdata1  = "version=*";
+									$postdata1 .= "&access_token=".$access_token; 
+									   
+									   
+									$ch1 = curl_init($url1);
+									curl_setopt($ch1, CURLOPT_POST, true);
+									curl_setopt($ch1, CURLOPT_POSTFIELDS, $postdata1);   
+									curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
+									$result1 = curl_exec($ch1);     
+
+									$response1 = json_decode($result1);
+									$resturl = $response1->restUrl;     
+									$bhtoken = $response1->BhRestToken;     
+
+									$description="".$fname." ".$lname." \r\n Phone: ".$phone." \r\n Email: ".$email."\r\n"; 
+									$url=$resturl."entity/Lead";         
+	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "New Lead","leadSource": "'.$jobSource.'","phone": "'.$phone.'","mobile": "'.$phone.'","description":"'.mysql_escape_mimic($description).'"}';   
+
+	 								     
+										$curl = curl_init();          
+										curl_setopt_array($curl, array(                      
+										 CURLOPT_URL => $url,             
+										 CURLOPT_RETURNTRANSFER => true,            
+										 CURLOPT_ENCODING => "",         
+										 CURLOPT_MAXREDIRS => 10,        
+										 CURLOPT_TIMEOUT => 30,    
+										 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+										 CURLOPT_CUSTOMREQUEST => "PUT",  
+										 CURLOPT_POSTFIELDS => $postResume,          
+										 CURLOPT_HTTPHEADER => array(      
+										   "BhRestToken: ".$bhtoken,           
+										   "Content-Type: application/json",           
+										 ),   
+										));
+										$response = curl_exec($curl);       
+										$err = curl_error($curl);            
+										curl_close($curl);    
+										if ($err) {     
+										 echo "cURL Error #:" . $err;       
+										} else {  
+										 echo $response;  
+										 $responseTest = json_decode($response);  
+										}   
+										echo "successfully";    
+				}   
 
 			}	
 			if($apicall=='createCandidate')   
