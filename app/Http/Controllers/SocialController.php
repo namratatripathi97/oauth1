@@ -604,8 +604,8 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 
 			}
 			if($apicall=='createLead')   
-			{
-				if($clientname=='bridgeview')   
+			{     
+				if($clientname=='bridgeview')
 				{   
 					/*Code for only 'bridgeview' CLient */
 
@@ -645,15 +645,16 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 
 									$response1 = json_decode($result1);
 									$resturl = $response1->restUrl;     
-									$bhtoken = $response1->BhRestToken;     
+									$bhtoken = $response1->BhRestToken;                  
 
 									$description="".$fname." ".$lname." \r\n Phone: ".$phone." \r\n Email: ".$email."\r\n"; 
-									$url=$resturl."entity/Lead";         
-	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "New Lead","leadSource": "'.$jobSource.'","phone": "'.$phone.'","mobile": "'.$phone.'","description":"'.mysql_escape_mimic($description).'"}';   
 
+									$url=$resturl."entity/Lead";         
+	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "New Lead","comments": "2020 salary guide download","leadSource": "'.$jobSource.'","phone": "'.$phone.'","mobile": "'.$phone.'","description":"'.mysql_escape_mimic($description).'"}';   
+    
 	 								     
-										$curl = curl_init();          
-										curl_setopt_array($curl, array(                      
+										$curl = curl_init();           
+										curl_setopt_array($curl, array(                         
 										 CURLOPT_URL => $url,             
 										 CURLOPT_RETURNTRANSFER => true,            
 										 CURLOPT_ENCODING => "",         
@@ -668,7 +669,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 										 ),   
 										));
 										$response = curl_exec($curl);       
-										$err = curl_error($curl);            
+										$err = curl_error($curl);             
 										curl_close($curl);    
 										if ($err) {     
 										 echo "cURL Error #:" . $err;       
@@ -676,10 +677,10 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 										 echo $response;  
 										 $responseTest = json_decode($response);  
 										}   
-										echo "successfully";    
+										echo "successfully";     
 				}   
 
-			}	
+			}
 			if($apicall=='createCandidate')   
 			{   
 
