@@ -5,15 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Validator,Redirect,Response,File;
 use Socialite;
-use App\User;  
-use App\Credential;   
+use App\User;     
+use App\Credential;    
 use App\IntegrationName;   
 use Illuminate\Support\Facades\Storage;   
 use CURLFile;  
  
-class SocialController extends Controller
+class SocialController extends Controller 
 {
-    
+     
 	 public function redirect($provider)
 	 {
 	     return Socialite::driver($provider)->redirect();
@@ -104,13 +104,21 @@ class SocialController extends Controller
 	 		{
 	 			$request['url'] ='https://federatedstaffing.com/ins/api/';          
 	 		}        
-	 	}    
+	 	}  
+	 	else if($name=="JobAdder")      
+	 	{
+	 		$call="newApplicant";
+	 		if($url==null)    
+	 		{
+	 			$request['url'] ='https://id.jobadder.com/connect/token';          
+	 		}        
+	 	}  
 	 	else    
 	 	{
-	 		$call=$apicall;    
+	 		$call=$apicall; 
 	 	}
 	 	
-	 	
+	 	                    
 	 	
 	 	$url="https://oauth.redwoodtechnologysolutions.com/wp/oauth/public/api/".$name."/".$request['client_name']."/".$call.""; 
 	 	Credential::create($request);            
@@ -378,6 +386,100 @@ class SocialController extends Controller
 
 					}
   
+			}   
+			if($apicall=='newApplicant')       
+			{ 
+					  
+
+					$url = $apiurl;
+
+					$postdata  = "grant_type=refresh_token";    
+					$postdata .= "&client_id=".$client_id; 
+					$postdata .= "&client_secret=".$apikey;        
+					$postdata .= "&refresh_token=".$refresh_token;    
+
+					$ch = curl_init($url);
+					curl_setopt($ch, CURLOPT_POST, true);  
+					curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);   
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					$result = curl_exec($ch);     
+
+					$response = json_decode($result); 
+					$access_token = $response->access_token;
+					$instance_url = $response->api;  
+					//$reference="85799";      
+					        
+
+					$curl = curl_init();
+					curl_setopt_array($curl, array(   
+					 CURLOPT_URL => $instance_url."jobboards/113383/ads/".$job_id."/applications",
+					 CURLOPT_RETURNTRANSFER => true,
+					 CURLOPT_ENCODING => "", 
+					 CURLOPT_MAXREDIRS => 10,   
+					 CURLOPT_TIMEOUT => 30,
+					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,          
+					 CURLOPT_CUSTOMREQUEST => "POST",
+					 CURLOPT_POSTFIELDS => "{  \"firstName\": \"".$fname."\",  \"lastName\": \"".$lname."\",  \"email\": \"".$email."\",  \"phone\": \"".$phone."\"}",
+					 CURLOPT_HTTPHEADER => array(       
+					   "Authorization: Bearer ".$access_token, 
+					   "Content-Type: application/json"   
+					 ),
+					));
+					$response = curl_exec($curl);            
+					$err = curl_error($curl);
+					print_r($err); 
+					curl_close($curl);
+					if ($err) {
+					 echo "cURL Error #:" . $err;
+					} else {
+					 echo $response;     
+					 $response1 = json_decode($response);
+					echo $applicant_id = $response1->applicationId;
+					echo $resumeLink = $response1->links->resume;                      
+					//echo 'appid'.$applicant_id;     
+					}            
+
+					/*if($resume_status=="Yes")  
+					{   
+
+						$ext = pathinfo($filedata, PATHINFO_EXTENSION);   
+						$filename=$fname.' '.$lname.'.'.$ext;
+						$filecontent = file_get_contents($filedata);                
+						Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
+						$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext); 
+
+						$url=$resumeLink;             
+
+						$header = array('Authorization: Bearer '.$access_token,'Content-Type: multipart/form-data');               
+						    
+    					  
+						$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name);
+						
+						$fields = array('file' => $cfile);            
+						            
+						$resource = curl_init();   
+						curl_setopt($resource, CURLOPT_URL, $url);        
+						curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
+						curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);  
+						curl_setopt($resource, CURLOPT_POST, 1);
+						curl_setopt($resource, CURLOPT_POSTFIELDS, $fields);
+						echo $result = curl_exec($resource);       
+
+											echo 'dd';   
+
+
+
+
+
+
+
+
+					}
+					else
+					{
+
+					}*/   
+   
 			}      
 			if($apicall=='getRecords')   
 			{ 
@@ -602,9 +704,9 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 							}  
 					}
 
-			}
+			}	
 			if($apicall=='createLead')   
-			{     
+			{
 				if($clientname=='bridgeview')
 				{   
 					/*Code for only 'bridgeview' CLient */
@@ -966,14 +1068,14 @@ if ($err) {
 									    //echo 'not apply for the job'; 
 									}  
 									else   
-									{ 
+									{    
 										// post a job       
 											//echo 'apply';   
 
 											$url2=$resturl."entity/JobSubmission";        
 											        
 											
-											$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Applicant"}';                    
+											$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Applicant"}';                       
 											$curl2 = curl_init();  
 											curl_setopt_array($curl2, array(            
 											 CURLOPT_URL => $url2,              
@@ -1069,4 +1171,4 @@ if ($err) {
 	 }     
   
 }
-         
+               
