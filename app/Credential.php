@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Credential extends Model
 {
-    protected $fillable = [
+    protected $fillable = [    
 
-         'name', 'client_name', 'url', 'username', 'password', 'client_id', 'client_secret', 'access_token', 'refresh_token', 'source'
+         'name', 'client_name', 'url', 'username', 'password', 'client_id', 'client_secret', 'access_token', 'refresh_token', 'source', 'board_id'
 
      ];
            
 }
-  
+   

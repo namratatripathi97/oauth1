@@ -15,7 +15,7 @@ class SocialController extends Controller
 {
      
 	 public function redirect($provider)
-	 {
+	 {   
 	     return Socialite::driver($provider)->redirect();
 	 }
 	 public function callback($provider)  
@@ -125,11 +125,11 @@ class SocialController extends Controller
   		     
   		//return redirect('api/view-client')->with('status', 'Client Created successfully !');  
   		return response('Client Created successfully ! '.$url.'', 200)->header('Content-Type', 'text/plain');        
-	 	//return "Client Save successfully";   
+	 	//return "Client Save successfully";     
   
 	 	//return view('client');      
 	 }  
-	  public function addIntegrationName(Request $request)
+	  public function addIntegrationName(Request $request) 
 	 {
   
 	 	$request=$request->all();
@@ -388,14 +388,12 @@ class SocialController extends Controller
   
 			}   
 			if($apicall=='newApplicant')       
-			{ 
-					  
-
-					$url = $apiurl;
-
-					$postdata  = "grant_type=refresh_token";    
+			{      
+					$board_id=$credential_details->board_id;
+					$url = $apiurl;    
+					$postdata  = "grant_type=refresh_token";
 					$postdata .= "&client_id=".$client_id; 
-					$postdata .= "&client_secret=".$apikey;        
+					$postdata .= "&client_secret=".$apikey;              
 					$postdata .= "&refresh_token=".$refresh_token;    
 
 					$ch = curl_init($url);
@@ -405,41 +403,52 @@ class SocialController extends Controller
 					$result = curl_exec($ch);     
 
 					$response = json_decode($result); 
-					$access_token = $response->access_token;
-					$instance_url = $response->api;  
-					//$reference="85799";      
-					        
+					$access_token = $response->access_token;     
+					       
+					$instance_url = $response->api;          
 
-					$curl = curl_init();
-					curl_setopt_array($curl, array(   
-					 CURLOPT_URL => $instance_url."jobboards/113383/ads/".$job_id."/applications",
-					 CURLOPT_RETURNTRANSFER => true,
-					 CURLOPT_ENCODING => "", 
+					              
+					//$reference="85799";      
+					 /*echo $instance_url."jobboards/113590/ads/".$job_id."/applications";
+					 exit;*/                      
+    
+					$curl = curl_init();                   
+					curl_setopt_array($curl, array(    
+					//CURLOPT_URL => "https://us1api.jobadder.com/v2/jobboards/113590/ads/93519/applications",       
+					                             
+					 CURLOPT_URL => $instance_url."jobboards/".$board_id."/ads/".$job_id."/applications",
+						/*CURLOPT_URL => $instance_url."jobboards", */  
+					 //CURLOPT_URL => "https://us1api.jobadder.com/v2/jobboards/113590/ads/".$job_id."/applications",
+					 CURLOPT_RETURNTRANSFER => true,        
+					 CURLOPT_ENCODING => "",               
 					 CURLOPT_MAXREDIRS => 10,   
 					 CURLOPT_TIMEOUT => 30,
 					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,          
 					 CURLOPT_CUSTOMREQUEST => "POST",
 					 CURLOPT_POSTFIELDS => "{  \"firstName\": \"".$fname."\",  \"lastName\": \"".$lname."\",  \"email\": \"".$email."\",  \"phone\": \"".$phone."\"}",
-					 CURLOPT_HTTPHEADER => array(       
+					 CURLOPT_HTTPHEADER => array(          
 					   "Authorization: Bearer ".$access_token, 
 					   "Content-Type: application/json"   
 					 ),
 					));
-					$response = curl_exec($curl);            
+					$response = curl_exec($curl);              
+
 					$err = curl_error($curl);
 					print_r($err); 
+					//print_r($response); 
 					curl_close($curl);
 					if ($err) {
 					 echo "cURL Error #:" . $err;
-					} else {
-					 echo $response;     
-					 $response1 = json_decode($response);
-					echo $applicant_id = $response1->applicationId;
-					echo $resumeLink = $response1->links->resume;                      
-					//echo 'appid'.$applicant_id;     
-					}            
+					} else {    
+						echo $response;     
+						$response1 = json_decode($response);
+						$applicant_id = $response1->applicationId;
+						$resumeLink = $response1->links->resume;                      
+						echo 'appid'.$applicant_id;    
+						     
+					}
 
-					/*if($resume_status=="Yes")  
+					if($resume_status=="Yes")
 					{   
 
 						$ext = pathinfo($filedata, PATHINFO_EXTENSION);   
@@ -451,36 +460,28 @@ class SocialController extends Controller
 						$url=$resumeLink;             
 
 						$header = array('Authorization: Bearer '.$access_token,'Content-Type: multipart/form-data');               
-						    
-    					  
-						$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name);
+						
+						$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);
+						$cfile->setMimeType('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);
 						
 						$fields = array('file' => $cfile);            
 						            
-						$resource = curl_init();   
+						$resource = curl_init();        
 						curl_setopt($resource, CURLOPT_URL, $url);        
 						curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
 						curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);  
 						curl_setopt($resource, CURLOPT_POST, 1);
 						curl_setopt($resource, CURLOPT_POSTFIELDS, $fields);
-						echo $result = curl_exec($resource);       
-
-											echo 'dd';   
-
-
-
-
-
-
-
+						echo $result = curl_exec($resource);        
+						echo 'dd';  
 
 					}
 					else
 					{
 
-					}*/   
+					}    
    
-			}      
+			}       
 			if($apicall=='getRecords')   
 			{ 
 					$getRecord='{"trackerrms": {"getRecords": {"credentials": {"username": "'.$username.'","password": "'.$password.'"},"instructions": {"recordtype": "R","state": "","searchtext": "","onlyrecords": true}}}}';  
@@ -1168,7 +1169,7 @@ if ($err) {
   
 			}  
 	 		        
-	 }     
+	 }       
   
 }
-               
+                 

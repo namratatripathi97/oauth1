@@ -37,7 +37,19 @@
                                 @enderror 
                             </div>
                         </div>
+                        <div class="form-group row" id="board_div" style="display: none; ">  
+                            <label for="board_id" class="col-md-4 col-form-label text-md-right">{{ __('Board ID') }}</label> 
 
+                            <div class="col-md-6">
+                                <input id="board_id" type="text" class="form-control @error('board_id') is-invalid @enderror" name="board_id" value="{{ old('board_id') }}" autocomplete="board_id" autofocus>
+
+                                @error('board_id')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong> 
+                                    </span>
+                                @enderror    
+                            </div>
+                        </div>      
                         <div class="form-group row">
                             <label for="client_name" class="col-md-4 col-form-label text-md-right">{{ __('Client Name') }}</label> 
 
@@ -190,8 +202,23 @@
 @section('scripts')
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>  
     <script>
+           
+       
         $(document).ready(function()
         {
+             $('#name').on('change', function() {        
+                var select=this.value;
+                if(select=='JobAdder')   
+                {
+                    $("#board_div").show();    
+                    $("#board_id").attr("required","true");         
+                }
+                else
+                {       
+                    $("#board_div").hide();        
+                    $('#board_id').removeAttr('required');    
+                }   
+            });   
            /* alert('ss'); */
                $('#submitClient').submit(function() {  
                 event.preventDefault();  
@@ -217,4 +244,3 @@
          
     </script>
 @stop
-    
