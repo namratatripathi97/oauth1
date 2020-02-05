@@ -10,10 +10,61 @@ use App\Credential;
 use App\IntegrationName;   
 use Illuminate\Support\Facades\Storage;   
 use CURLFile;  
+use PHPMailer\PHPMailer\PHPMailer;  
+use PHPMailer\PHPMailer\Exception;            
  
 class SocialController extends Controller 
 {
-     
+        
+     function sendEmail($integration_name,$client_name)
+     {          
+
+     		 			      
+     		$subject="Tokens revoked for ".$client_name." for ".$integration_name."";    
+
+     		$message  = '';
+$message .= "Hey!" ."<br><br>";
+$message .= "Logins have changed for ".$client_name." and ".$integration_name."<br><br>";
+$message .= "Thanks!"."<br><br>";         
+              
+     		$email="gaurav.ideabox@outlook.com";              
+     		$addcc="bruce@staffingfuture.com";                            
+     		$setfrom="oauthsupport@staffingfuture.com";   
+     		/*$email="himstrived@gmail.com";              
+     		$addcc="rahul.sharma@thinklayer.co.in";                                   
+     		$setfrom="oauthsupport@staffingfuture.com"; */             
+ 
+
+     		    $mail = new PHPMailer(true); // notice the \  you have to use root namespace here
+			    try 
+			    {
+			        $mail->isSMTP(); // tell to use smtp
+			        $mail->CharSet = "utf-8"; // set charset to utf8
+			        $mail->SMTPAuth = true;  // use smpt auth
+			        $mail->SMTPSecure = "tls"; // or ssl
+			        $mail->Host = "smtp.sendgrid.net";       
+			        $mail->Port = 587; // most likely something different for you. This is the mailtrap.io port i use for testing. 
+			        $mail->Username = "apikey";
+			        $mail->Password = "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";
+			        $mail->setFrom($setfrom, "oAuth Support Staffing Future");
+			        $mail->Subject = $subject;     
+			        $mail->MsgHTML($message);                     
+			        $mail->addAddress($email, "Gaurav Pareek");
+			        $mail->addCC($addcc);       
+			        $mail->send();    
+			    }   
+			    catch (phpmailerException $e) 
+			    {     
+			        dd($e);
+			    } catch (Exception $e) 
+			    {
+			        dd($e);   
+			    }
+			    //echo "Send successfully";  
+    			/*die("Send successfully");  */     
+
+            
+     }
 	 public function redirect($provider)
 	 {   
 	     return Socialite::driver($provider)->redirect();
@@ -41,8 +92,10 @@ class SocialController extends Controller
 	   return $user;      
 	 }
 	 public function viewClient()
-	 {
-	 	$integrationname=IntegrationName::all();  
+	 {   
+	 	$integrationname=IntegrationName::all();             
+	 	  
+	 	/*dd($sendAlert);    */                      
 	 	
 	 	return view('client',["integrationname"=>$integrationname]);           
 	 }
@@ -70,7 +123,7 @@ class SocialController extends Controller
 	 	$request=$request->all();       
 	 	$url=$request['url'];               
 	 	$name=$request['name']; 
-	 	$apicall=$request['apicall'];  
+	 	$apicall=$request['apicall'];    
 	 	if($name=="TrackerRms")
 	 	{  
 	 		$call="createResource";
@@ -167,7 +220,7 @@ class SocialController extends Controller
 			$apiurl=$credential_details->url; 
 			$id=$credential_details->id; 
 			$client_id=$credential_details->client_id;  
-			$apikey=$credential_details->client_secret;     
+			$apikey=$credential_details->client_secret;                 
 			$refresh_token=$credential_details->refresh_token;  
 			$access_token=$credential_details->access_token;    
 			$source=$credential_details->source;
@@ -402,13 +455,21 @@ class SocialController extends Controller
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 					$result = curl_exec($ch);     
 
-					$response = json_decode($result); 
-					print_r($response);
-					echo $access_token = $response->access_token; 					       
-					echo $instance_url = $response->api;                
-
-  
-
+					$response = json_decode($result);    
+					if(isset($response->access_token))
+					{
+						echo $access_token = $response->access_token; 					       
+						echo  $instance_url = $response->api;
+						/*$sendAlert=$this->sendEmail($name,$clientname);     
+						echo 'send mail';*/         
+					}           
+					else    
+					{ 
+						$sendAlert=$this->sendEmail($name,$clientname);     
+						echo 'send mail';  
+					}          
+					    
+  					/*exit;  */          
 					/*$curl = curl_init();                   
 					curl_setopt_array($curl, array(   
 					CURLOPT_URL => $instance_url."jobboards",      
@@ -612,9 +673,19 @@ class SocialController extends Controller
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 					$result = curl_exec($ch);     
     
-					$response = json_decode($result);  
-					$access_token = $response->access_token; 
-					$instance_url = $response->instance_url;     
+					$response = json_decode($result);        
+					if(isset($response->access_token))
+					{
+						$access_token = $response->access_token; 
+						$instance_url = $response->instance_url;   
+					}   
+					else    
+					{
+						$sendAlert=$this->sendEmail($name,$clientname);     
+						echo 'send mail';  
+					}
+
+					   
 					        
 					// CODE FOR CONVERT PDF, DOC TO HTML
 
@@ -651,8 +722,19 @@ class SocialController extends Controller
 									$result = curl_exec($ch);   
 									     
 									$response = json_decode($result);
-									$access_token_bullhorn = $response->access_token;        
- 									$refresh_token_bullhorn =$response->refresh_token;      
+
+									if(isset($response->access_token))   
+									{
+										$access_token_bullhorn = $response->access_token;        
+ 										$refresh_token_bullhorn =$response->refresh_token;       
+									}   
+									else    
+									{  
+										$sendAlert=$this->sendEmail($name,$clientname);     
+										echo 'send mail';  
+									}
+
+									     
  									      
  									$credentials_update=Credential::find($id_bullhorn);   
  									$credentials_update->access_token  = $access_token_bullhorn;
@@ -925,8 +1007,17 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									$result = curl_exec($ch);        
 									   
 									$response = json_decode($result);
-									$access_token = $response->access_token; 
- 									$refresh_token =$response->refresh_token;    
+									if(isset($response->access_token))   
+									{
+										$access_token = $response->access_token; 
+ 										$refresh_token =$response->refresh_token;     
+									}     
+									else    
+									{  
+										$sendAlert=$this->sendEmail($name,$clientname);     
+										echo 'send mail';  
+									}
+									  
 
  									$credentials_update=Credential::find($id);
  									$credentials_update->access_token  = $access_token;
@@ -1000,8 +1091,16 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									$result = curl_exec($ch);        
 									   
 									$response = json_decode($result);
-									$access_token = $response->access_token; 
- 									$refresh_token =$response->refresh_token;    
+									if(isset($response->access_token))   
+									{
+										$access_token = $response->access_token; 
+ 										$refresh_token =$response->refresh_token;     
+									}     
+									else    
+									{  
+										$sendAlert=$this->sendEmail($name,$clientname);     
+										echo 'send mail';  
+									}    
 
  									$credentials_update=Credential::find($id);
  									$credentials_update->access_token  = $access_token;
@@ -1108,7 +1207,7 @@ exit;
 									else    
 									  {
 									  		$description="".$fname." ".$lname." oauth.redwoodtechnologysolutions.com Phone: ".$phone." oauth.redwoodtechnologysolutions.com Email: ".$email."oauth.redwoodtechnologysolutions.com";  
-									  }  
+									  }      
    
 									 /* echo $description;
 									  exit; */  
@@ -1374,4 +1473,4 @@ if ($err) {
 	 }       
   
 }
-                 
+                       
