@@ -118,7 +118,7 @@ class SocialController extends Controller
 	 		$call=$apicall; 
 	 	}
 	 	
-	 	                    
+	 	                      
 	 	
 	 	$url="https://oauth.redwoodtechnologysolutions.com/wp/oauth/public/api/".$name."/".$request['client_name']."/".$call.""; 
 	 	Credential::create($request);            
@@ -387,7 +387,7 @@ class SocialController extends Controller
 					}
   
 			}   
-			if($apicall=='newApplicant')       
+			if($apicall=='newApplicant')        
 			{      
 					$board_id=$credential_details->board_id;
 					$url = $apiurl;    
@@ -403,29 +403,21 @@ class SocialController extends Controller
 					$result = curl_exec($ch);     
 
 					$response = json_decode($result); 
-					$access_token = $response->access_token;     
-					       
-					$instance_url = $response->api;          
+					print_r($response);
+					echo $access_token = $response->access_token; 					       
+					echo $instance_url = $response->api;                
 
-					              
-					//$reference="85799";      
-					 /*echo $instance_url."jobboards/113590/ads/".$job_id."/applications";
-					 exit;*/                      
-    
-					$curl = curl_init();                   
-					curl_setopt_array($curl, array(    
-					//CURLOPT_URL => "https://us1api.jobadder.com/v2/jobboards/113590/ads/93519/applications",       
-					                             
-					 CURLOPT_URL => $instance_url."jobboards/".$board_id."/ads/".$job_id."/applications",
-						/*CURLOPT_URL => $instance_url."jobboards", */  
-					 //CURLOPT_URL => "https://us1api.jobadder.com/v2/jobboards/113590/ads/".$job_id."/applications",
+  
+
+					/*$curl = curl_init();                   
+					curl_setopt_array($curl, array(   
+					CURLOPT_URL => $instance_url."jobboards",      
 					 CURLOPT_RETURNTRANSFER => true,        
 					 CURLOPT_ENCODING => "",               
 					 CURLOPT_MAXREDIRS => 10,   
 					 CURLOPT_TIMEOUT => 30,
 					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,          
-					 CURLOPT_CUSTOMREQUEST => "POST",
-					 CURLOPT_POSTFIELDS => "{  \"firstName\": \"".$fname."\",  \"lastName\": \"".$lname."\",  \"email\": \"".$email."\",  \"phone\": \"".$phone."\"}",
+					 CURLOPT_CUSTOMREQUEST => "GET",
 					 CURLOPT_HTTPHEADER => array(          
 					   "Authorization: Bearer ".$access_token, 
 					   "Content-Type: application/json"   
@@ -435,19 +427,57 @@ class SocialController extends Controller
 
 					$err = curl_error($curl);
 					print_r($err); 
+					curl_close($curl);
+					if ($err) {  
+					 echo "cURL Error #:" . $err;
+					} else {       
+						echo $response;     
+					}
+					exit;   */    
+					              
+					//$reference="85799";
+					//https://us1api.jobadder.com/v2/jobboards/113383/ads"
+					//echo $instance_url."jobboards/".$board_id."/ads/".$job_id."/applications";		
+					//exit;
+					 /*echo $instance_url."jobboards/113590/ads/".$job_id."/applications";
+					 exit;*/                      
+    				//$instance_url."jobboards/".$board_id."/ads/".$job_id."/applications";
+
+					$curl = curl_init();                     
+					curl_setopt_array($curl, array(    
+					//CURLOPT_URL => "https://us1api.jobadder.com/v2/jobboards/113590/ads/93519/applications",					                             
+					 CURLOPT_URL => $instance_url."jobboards/".$board_id."/ads/".$job_id."/applications",
+						/*CURLOPT_URL => $instance_url."jobboards", */  
+					 //CURLOPT_URL => "https://us1api.jobadder.com/v2/jobboards/113590/ads/".$job_id."/applications",
+					 CURLOPT_RETURNTRANSFER => true,        
+					 CURLOPT_ENCODING => "",               
+					 CURLOPT_MAXREDIRS => 10,   
+					 CURLOPT_TIMEOUT => 30,
+					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					 CURLOPT_CUSTOMREQUEST => "POST",
+					 CURLOPT_POSTFIELDS => "{  \"firstName\": \"".$fname."\",  \"lastName\": \"".$lname."\",  \"email\": \"".$email."\",  \"phone\": \"".$phone."\"}",
+					 CURLOPT_HTTPHEADER => array(               
+					   "Authorization: Bearer ".$access_token, 
+					   "Content-Type: application/json"   
+					 ),
+					));
+					$response = curl_exec($curl);              
+
+					$err = curl_error($curl);
+					//print_r($err); 
 					//print_r($response); 
 					curl_close($curl);
 					if ($err) {
 					 echo "cURL Error #:" . $err;
-					} else {    
+					} else {      
 						echo $response;     
 						$response1 = json_decode($response);
 						$applicant_id = $response1->applicationId;
 						$resumeLink = $response1->links->resume;                      
 						echo 'appid'.$applicant_id;    
 						     
-					}
-
+					}    
+					/*exit; */  
 					if($resume_status=="Yes")
 					{   
 
@@ -461,10 +491,12 @@ class SocialController extends Controller
 
 						$header = array('Authorization: Bearer '.$access_token,'Content-Type: multipart/form-data');               
 						
-						$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);
+						/*$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);*/
+						$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name.'.'.$ext);          
 						$cfile->setMimeType('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);
+
 						
-						$fields = array('file' => $cfile);            
+						$fields = array('file' => $cfile);                  
 						            
 						$resource = curl_init();        
 						curl_setopt($resource, CURLOPT_URL, $url);        
@@ -574,21 +606,162 @@ class SocialController extends Controller
 					$postdata .= "&client_secret=".$apikey;        
 					$postdata .= "&refresh_token=".$refresh_token;    
 
-					$ch = curl_init($url);
+					$ch = curl_init($url);   
 					curl_setopt($ch, CURLOPT_POST, true);  
 					curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);   
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 					$result = curl_exec($ch);     
-
-					$response = json_decode($result);
-					$access_token = $response->access_token;
+    
+					$response = json_decode($result);  
+					$access_token = $response->access_token; 
 					$instance_url = $response->instance_url;     
+					        
+					// CODE FOR CONVERT PDF, DOC TO HTML
 
-					  
+					$name="Bullhorn";
+					$clientname="Peter";
 
-					   
+					if(($name=="Bullhorn") && ($clientname=="Peter"))
+					{
+						$credential_details = Credential::where('name',$name)->where('client_name',$clientname)->first();
+				 		$username_bullhorn=$credential_details->username;
+					    $password_bullhorn=$credential_details->password;
+						$apiurl_bullhorn=$credential_details->url; 
+						$id_bullhorn=$credential_details->id; 
+						$client_id_bullhorn=$credential_details->client_id;  
+						$apikey_bullhorn=$credential_details->client_secret;     
+						$refresh_token_bullhorn=$credential_details->refresh_token;  
+						$access_token_bullhorn=$credential_details->access_token;    
+						$source_bullhorn=$credential_details->source; 
+						
+  
+  
+    
+
+									$url = $apiurl_bullhorn;
+
+									$postdata  = "grant_type=refresh_token";
+									$postdata .= "&refresh_token=".$refresh_token_bullhorn;
+									$postdata .= "&client_id=".$client_id_bullhorn;
+									$postdata .= "&client_secret=".$apikey_bullhorn;
+									$ch = curl_init($url);
+									curl_setopt($ch, CURLOPT_POST, true);
+									curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+									curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+									$result = curl_exec($ch);   
+									     
+									$response = json_decode($result);
+									$access_token_bullhorn = $response->access_token;        
+ 									$refresh_token_bullhorn =$response->refresh_token;      
+ 									      
+ 									$credentials_update=Credential::find($id_bullhorn);   
+ 									$credentials_update->access_token  = $access_token_bullhorn;
+									$credentials_update->refresh_token = $refresh_token_bullhorn;
+									$credentials_update->save();  
+									//$access_token=$access_token;
+									$url1="https://rest.bullhornstaffing.com/rest-services/login";
+									$postdata1  = "version=*";
+									$postdata1 .= "&access_token=".$access_token_bullhorn;
+									$ch1 = curl_init($url1);     
+									curl_setopt($ch1, CURLOPT_POST, true);
+									curl_setopt($ch1, CURLOPT_POSTFIELDS, $postdata1);    
+									curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
+									$result1 = curl_exec($ch1);
+									$response1 = json_decode($result1);
+									$resturl_bullhorn = $response1->restUrl; 
+									$bhtoken_bullhorn = $response1->BhRestToken;     
+									             
+									if($resume_status=="Yes")   
+									   { 
+									   	  $ext = pathinfo($filedata, PATHINFO_EXTENSION);
+										  $filename=$fname.' '.$lname.'.'.$ext;
+										  $filecontent = file_get_contents($filedata);
+								 		  Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);
+										  $path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);
+										 
+						$url=$resturl_bullhorn."resume/parseToCandidate?format=text&populateDescription=html";
+						$header = array('bhresttoken: '.$bhtoken_bullhorn,'Content-Type: multipart/form-data');
+						$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name);
+								
+											// Assign POST data
+											$fields = array('file' => $cfile);
+									
+											$resource = curl_init();
+											curl_setopt($resource, CURLOPT_URL, $url);
+											curl_setopt($resource, CURLOPT_HTTPHEADER, $header);
+											curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);
+											curl_setopt($resource, CURLOPT_POST, 1);
+											curl_setopt($resource, CURLOPT_POSTFIELDS, $fields);
+											$result = curl_exec($resource);
+											/*echo $result;
+											exit;*/    
+											$err = curl_error($resource);
+											curl_close($resource);
+											if ($err) {
+									 echo "cURL Error #:" . $err;
+									} else {
+											$result_parse=json_decode($result);
+											$parsedescription=$result_parse->candidate->description;
+											$description=$parsedescription;
+											//$description = mysql_escape_mimic($description);  
+
+
+   
+
+											//$description = json_encode($description);
+											// string(16) ""<html><\/html>""
+											/*var_dump($escaped);*/
+
+											//$description = json_encode($description, JSON_UNESCAPED_SLASHES);
+											// string(15) ""<html></html>""
+											//var_dump($unescaped);  
+      
+
+											/*$text = str_replace("\n", "", $description);
+											$data = preg_replace('/oauth.redwoodtechnologysolutions.com\s+/m', ' ', $description);
+											$lines = explode("oauth.redwoodtechnologysolutions.com", $data);*/
+											/*$description = htmlspecialchars(trim(strip_tags($description)));
+											$description = trim(preg_replace('/\s+/', ' ', $description)); */
+											//$description = mysql_escape_mimic($description);
+											//echo 'successfully';
+											//$description = str_replace(' ', '', $description);
+										}
+									   }
+									else
+									  {   
+									  		//$description="".$fname." ".$lname." oauth.redwoodtechnologysolutions.com Phone: ".$phone." oauth.redwoodtechnologysolutions.com Email: ".$email."oauth.redwoodtechnologysolutions.com";
+
+									  		$description="".$fname." ".$lname."Phone: ".$phone."Email: ".$email."";      
+									  }
+
+
+					}     
+
+					//$postContact='{"FirstName": "'.$fname.'","LastName": "'.$lname.'","Email": "'.$email.'","Phone": "'.$phone.'","LeadSource": "'.$jobSource.'","ts2__Text_Resume__c":"'.$description.'"}';   
+
+					//$description="<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=utf-8\"><style>\tp.std   { margin-top: 0; margin-bottom: 0; border: 0 0 0 0; }</style></HEAD><BODY><!-- [[[ PDF.Page--><BR> &nbsp;&nbsp;<BR>2006 Balsam Way, Round Rock, TX 78665 ? M80.daynajq@gmail.com &nbsp;? (512) 803-7456 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>OBJECTIVES <BR>With over 16 years of outstanding customer service and satisfaction, advocating equanimity and dignity while &nbsp;<BR>promoting conscientiousness and ethics through character cultivation are my personal policies. These personal <BR>policies facilitate fundamental connections with the folks involved in all my endeavors. All of my clients and <BR>coworkers after working with me can attest that they are not just a number, but an invaluable asset. Unfortunately, <BR>due to an &nbsp;accident, I am unable to continue my career in Emergency Medical Services. Fortunately I am still able to <BR>continue to do what I love, bringing positivity into people’s lives! &nbsp;<BR>EDUCATION &nbsp;<BR>EMTS Academy &nbsp;<BR>November 2015 &nbsp;? &nbsp;&nbsp;&nbsp;Emergency Medical Technician – B &nbsp;<BR>? &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>2011 &nbsp;&nbsp;&nbsp;Austin Community College &nbsp;<BR>Majors: Business, Anthropology <BR>&nbsp;&nbsp;<BR>CERTIFICATIONS &amp; SKILLS <BR>American Sign Language (ASL) ? &nbsp;Intermediate level of communication &amp; interpreting &nbsp;<BR>? &nbsp;<BR>TABC Certification ? July 2019 <BR>? &nbsp;<BR>Advanced Life Support ? October 2017 <BR>? &nbsp;<BR>CPR &amp; AED ? July 2019 &nbsp;&nbsp;<BR>? &nbsp;<BR>FEMA ?October 2015 &nbsp;<BR>Introduction to Hazardous Materials ? ·Emergency Management Institute <BR>?<BR>OSHA &nbsp;Safety in the Workplace Compliance ? 2015 <BR>? <BR>HIPPA and Patient Confidentiality ? 2015 <BR>? &nbsp;<BR>NREMT ?December 2015 &nbsp;<BR>·Registry #: E3225836 &nbsp;<BR>· ? &nbsp;<BR>EMT – B Certification ?November 2015 <BR>EMTS Academy <BR>DAYNA JON QUILLIN <BR>&nbsp;&nbsp;| P a g e 1<BR> <BR><!-- ]]] PDF.Page--><P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P><!-- [[[ PDF.Page--><BR>REFERENCES <BR>Sean Mullin &nbsp;? &nbsp;Former Supervisor &nbsp;? (512) 658-2948 ? &nbsp;seanmullin@me.com <BR>Seth Spurgers &nbsp;&nbsp;? &nbsp;Former Supervisor &nbsp;? (512) 263-0700 ? sspurgers@goldsgym.com <BR>Corey Savala &nbsp;&nbsp;? &nbsp;Former Supervisor &nbsp;? &nbsp;&nbsp;csavala@goldsgym.com <BR>Dorsie Martin &nbsp;? &nbsp;Former Coworker &nbsp;? (512) 284-5847 &nbsp;<BR>EXPERIENCE &nbsp;<BR>Favor Deliveries ? &nbsp;&nbsp;&nbsp;&nbsp;1705 Guadalupe St, Austin, TX <BR>Runner ? &nbsp;June 2017 – Currently an independent contractor <BR>? <BR>Uncle Gary’s Bar ? Farm to Market Road &nbsp;Pflugerville, TX <BR>Bartender ? June 2019 – Currently Employed <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;? &nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Acadian Ambulance ? 4100 E. Ed Bluestein Blvd. Austin, TX <BR>EMT-B ? October 2017 – March 2018 <BR>? &nbsp;<BR>Golds Gym ? 12480 Bee Cave Rd, Bee Cave, TX &nbsp;<BR>Housekeeping; Kid’s Club ? &nbsp;June 2015 – February 2017 &nbsp;<BR>? &nbsp;&nbsp;<BR>The Great Vapor Caper ? &nbsp;1807 Red Fox Rd. &nbsp;<BR>Owner &nbsp;&amp; CEO ? &nbsp;&nbsp;June 2012 – January 2016 &nbsp;<BR>? <BR>Target ? 2300 W Ben White Blvd, Austin, TX &nbsp;&nbsp;<BR>Logistics Early AM; Instocks; Team lead/Manager &nbsp;? October 2011 – May 2012 &nbsp;<BR>? &nbsp;<BR>Black Sheep Lodge ? 2108 S Lamar Blvd, Austin, TX &nbsp;<BR>Waitress; Bartender ? July 2010 – February 2011 &nbsp;<BR>? &nbsp;<BR>Cherry Creek Catfish ? 5712 Manchaca Rd, Austin, TX &nbsp;<BR>Manager; Waitress, Bartender, Hostess,, Line Cook ? &nbsp;December 2008 – July 2010 &nbsp;<BR>? &nbsp;<BR>Chilis ? Buda, TX &amp; Austin, TX &nbsp;<BR>Waitress ? &nbsp;November 2005 – November 2009 &nbsp;<BR>Thank you so much for your time reviewing my resume! <BR>I sincerely hope my words have sparked your interest and look forward to our future pursuits! <BR>&nbsp;Have a great and productive day! <BR>&nbsp;&nbsp;<BR>&nbsp;&nbsp;| P a g e 2<BR> <BR><!-- ]]] PDF.Page--><P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P><!-- [[[ PDF.Page--><BR> <BR>&nbsp;&nbsp;| P a g e 3<BR> <BR><!-- ]]] PDF.Page--><P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P></BODY></HTML>";    
+					$html_content=$description;           
+					 
+$json_array=array(
+'FirstName'=>$fname,
+'LastName'=>$lname,    
+'Email'=>$email,        
+'Phone'=>$phone,
+'LeadSource'=>$jobSource,
+'ts2__Text_Resume__c'=>$html_content    
+); 
+/*$json_array=array(
+'FirstName'=>$fname,
+'LastName'=>$lname,   
+'Email'=>$email,        
+'Phone'=>$phone,
+'LeadSource'=>$jobSource    
+); */         
+$postContact=json_encode($json_array);                           
+
+					                       
 					$curl = curl_init();  
-					curl_setopt_array($curl, array(          
+					curl_setopt_array($curl, array(                 
 					 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
 					 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
 					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/ts2__Application__c",    
@@ -603,29 +776,30 @@ class SocialController extends Controller
 					 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
 					 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",              
 					//CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"0033s0000105RnsAAE\",  \"ts2__Job__c\": \"a0K3s00000BpizZEAR\"}", 
-					 CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"".$jobSource."\"}",           
+					 //CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"".$jobSource."\",\"ts2__Text_Resume__c\": \"".$description."\"}",   
+					 CURLOPT_POSTFIELDS => $postContact,                
 					 CURLOPT_HTTPHEADER => array(             
-					   "Authorization: Bearer ".$access_token,           
-					   "Content-Type: application/json"
+					   "Authorization: Bearer ".$access_token,                  
+					   "Content-Type: application/json"         
 					 ),     
 					));
 					$response = curl_exec($curl);          
-					$err = curl_error($curl);    
+					$err = curl_error($curl);      
 					print_r($err);    
-					curl_close($curl);
+					curl_close($curl); 
 					if ($err) {
 					 echo "cURL Error #:" . $err;
 					} else {   
-					 echo $response;
+					 
 					 $response1 = json_decode($response);
 					 $contact_id = $response1->id;  
 					//echo 'appid'.$applicant_id;  
 					}
 					echo "<br/>";               
-					echo "cid".$contact_id;  
-					echo "created contact";    
+					echo "CONTACT_ID:".$contact_id;    
+					 echo "<br/>";            
 					// Create Application
-					$curl = curl_init();  
+					$curl = curl_init();     
 					curl_setopt_array($curl, array(          
 					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
 					 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
@@ -655,14 +829,21 @@ class SocialController extends Controller
 					 echo "cURL Error #:" . $err;
 					} else {   
 					 echo $response;   
-					  echo "applicant create"; 
-					 $response1 = json_decode($response);
-					 //$contact_id = $response1->id;  
-					//echo 'appid'.$applicant_id;  
-					}   
+					  //echo "applicant create"; 
+					 $response1 = json_decode($response);   
+					 $applicant_id = $response1->id;  
+					echo 'Applicant ID:'.$applicant_id;       
+					}       
+
+
+
+
+
+
+
 
 					if($resume_status=="Yes")
-					{   
+					{      
 								$ext = pathinfo($filedata, PATHINFO_EXTENSION);
 								$filename=$fname.' '.$lname.'.'.$ext;
 								$filecontent = file_get_contents($filedata);                
@@ -673,15 +854,32 @@ class SocialController extends Controller
 								  
 								$file = chunk_split(base64_encode($path));     
    								$file = mysql_escape_mimic1($file);
-   								  
-$parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","ContentType": "application/'.$ext.'","Body": "'.$file.'"}'; 
+   								/*$parseResumeCand='{
+"ContactId" : "0033s000010uhP1AAI",
+"Name" : "test1212.txt",
+"ContentType": "text/plain",      
+"Body" : "hello testing"  
+}';*/
+
+
+   		/*$post_text=[
+    "Name" => $filename,
+	"body" => base64_encode(file_get_contents($filedata)),
+	"parentId" => $contact_id,
+];
+$parseResumeCand=json_encode($post_text);   */   
 
      
+$parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","ContentType": "application/'.$ext.'","Body": "'.$file.'"}'; 
+  
+     
 								$curl = curl_init();  
-							 curl_setopt_array($curl, array(            
-							 CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
+							 curl_setopt_array($curl, array(          
+							 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Attachment/",      
+							  CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
+							 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ResumeAddUpdateBackend",  
 							 CURLOPT_RETURNTRANSFER => true, 
-							 CURLOPT_ENCODING => "",       
+							 CURLOPT_ENCODING => "",          
 							 CURLOPT_MAXREDIRS => 10,    
 							 CURLOPT_TIMEOUT => 30,            
 							 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
@@ -696,11 +894,12 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 							$err = curl_error($curl);    
 							print_r($err);    
 							curl_close($curl);
-							if ($err) {
+							if ($err) {     
 							 echo "cURL Error #:" . $err;  
 							} else {    
 							 echo $response;
 							 echo "resume upload"; 
+							 echo "resume upload backend";      
 							 $response1 = json_decode($response);
 							}  
 					}
@@ -750,7 +949,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									$resturl = $response1->restUrl;     
 									$bhtoken = $response1->BhRestToken;                  
 
-									$description="".$fname." ".$lname." \r\n Phone: ".$phone." \r\n Email: ".$email."\r\n"; 
+									$description="".$fname." ".$lname." oauth.redwoodtechnologysolutions.com Phone: ".$phone." oauth.redwoodtechnologysolutions.com Email: ".$email."oauth.redwoodtechnologysolutions.com"; 
 
 									$url=$resturl."entity/Lead";         
 	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "New Lead","comments": "2020 salary guide download","leadSource": "'.$jobSource.'","phone": "'.$phone.'","mobile": "'.$phone.'","description":"'.mysql_escape_mimic($description).'"}';   
@@ -895,8 +1094,8 @@ exit;
 											$description=$parsedescription;  
 											$description = mysql_escape_mimic($description);  
 											/*$text = str_replace("\n", "", $description); 
-											$data = preg_replace('/\r\n\s+/m', ' ', $description);
-											$lines = explode("\r\n", $data);*/
+											$data = preg_replace('/oauth.redwoodtechnologysolutions.com\s+/m', ' ', $description);
+											$lines = explode("oauth.redwoodtechnologysolutions.com", $data);*/
 
 											/*$description = htmlspecialchars(trim(strip_tags($description)));  
 											$description = trim(preg_replace('/\s+/', ' ', $description)); */   
@@ -908,7 +1107,7 @@ exit;
 									   }
 									else    
 									  {
-									  		$description="".$fname." ".$lname." \r\n Phone: ".$phone." \r\n Email: ".$email."\r\n";  
+									  		$description="".$fname." ".$lname." oauth.redwoodtechnologysolutions.com Phone: ".$phone." oauth.redwoodtechnologysolutions.com Email: ".$email."oauth.redwoodtechnologysolutions.com";  
 									  }  
    
 									 /* echo $description;
@@ -924,7 +1123,7 @@ exit;
 									   }
 									else 
 									  {
-									    $description="".$fname." ".$lname." \r\n Phone: ".$phone." \r\n Email: ".$email."\r\n";                          
+									    $description="".$fname." ".$lname." oauth.redwoodtechnologysolutions.com Phone: ".$phone." oauth.redwoodtechnologysolutions.com Email: ".$email."oauth.redwoodtechnologysolutions.com";                          
 									  }  
  									$postResume='{"firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","phone": "'.$phone.'","description":"'.$description.'"}';*/ 
  									//code end here   
@@ -937,7 +1136,7 @@ exit;
 	"lastName": "Jain",   
 	"email": "lucky.jain@gmail.com", 
 	"phone": "9777711111",
-	"description": "<HTML>\r\n<HEAD>\r\n<!-- saved from url=(0014)about:internet --><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=utf-8\">\r\n<style>\r\n	p.std   { margin-top: 0; margin-bottom: 0; border: 0 0 0 0; }\r\n</style>\r\n</HEAD>\r\n<BODY>\r\n\n<!-- [[[ PDF.Page-->\n<BR>\nWORK EXPERIENCE <BR>\nAdministrative/Safety Assistant <BR>\nBlack Eagle Transport - Stony Plain, AB <BR>\nJuly 2018 to Present <BR>\n• Answering telephones and providing general information, referring callers to other staff or taking messages as necessary.&nbsp;<BR>\n• Replying and receiving for all Voicemail, E-Mail and Postal inquiries.&nbsp; <BR>\n• Ordering supplies from various vendors (Greggs, Kal-Tire, Home Depot, Staples, Kentworth, Peterbilt and more)&nbsp; <BR>\n• Troubleshooting and resolution of all office equipment Phones, Tablets, PC\'s, Printers and Misc.)&nbsp; <BR>\n• New hire orientations (Fill-out application, verifying and copying licenses, certificates and insurance. Administering safety<BR>\ntraining courses on laptops and then verifying completion, All employee related data-entry into company database.)&nbsp; <BR>\n• International Fuel Tax Agreement Reporting.&nbsp; <BR>\n• Monitoring truck locations and speed limit violations through online GPS tracking software (TitanGPS)&nbsp; <BR>\n• Verifying contractors, licenses and insurance through various resources. ( Labour Clearance through WCB, Certificates of<BR>\ninsurance, Driver abstract reviews)&nbsp; <BR>\n• First response to all work related safety incidents.&nbsp; <BR>\nPAUL<BR>\nDHALIWAL<BR>\nEdmonton, AB T6W 3L9 <BR>\npauldhaliwal92@hotmail.com <BR>\n825-993-9370 (New Edmonton Area-Code) <BR>\nCore Skills:&nbsp; <BR>\nPunctual &amp; Organizational - ability to complete required tasks or fulfill obligations before or at a previously designated time<BR>\nwhile also demonstrating structure in doing so.&nbsp; <BR>\n&nbsp; <BR>\nAnalytical &amp; Problem Solving - ability to examine information or a situation in detail in order to identify key or important<BR>\nelements, their strengths and weaknesses and use these to make a recommendation or solve a problem.&nbsp; <BR>\n&nbsp; <BR>\nCommunication &amp; Teamwork - ability to communicate excellently verbally, written, in public, to groups or via electronic<BR>\nmedia while also possessing a strong commitment to the team environment by planning, organizing and collaborating<BR>\neffectively.&nbsp; <BR>\n&nbsp; <BR>\nTechnical Skills:&nbsp; <BR>\n• Words Per Minute (WPM): 62&nbsp; <BR>\n• PC Hardware (Assembly, Maintenance, Troubleshooting)&nbsp; <BR>\n• PC Software (Installing, Debugging, Microsoft Office Expert, Adobe Photoshop,&nbsp; <BR>\nSharePoint, Axon, SafetySync)&nbsp; <BR>\n• PC Operating Systems (Windows XP/Vista/7/8/10, Android, iOS, macOS)&nbsp; <BR>\n• PC Networks (Configurations, Servers, Routers, TCP/IP Socket, LAN Technology)&nbsp; <BR>\n• PC Security (Virus Protection, Maintenance, Monitoring, Backup Management, Disaster Recovery) <BR>\n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P>\n<!-- [[[ PDF.Page-->\n<BR>\n• Data entry of all safety and administrative information (Incident reports, Invoices, Guest-log report, Payroll hour reporting)&nbsp;<BR>\n• Handling of all insurance related issues or inquiries through various agencies.&nbsp; <BR>\n• Manage all company social media platforms (Website, Facebook, Instagram, LinkedIn)&nbsp; <BR>\n• Supervise Yard Laborers and Mechanic Shop employees. <BR>\nAdministrative/Project Assistant <BR>\nLoadstar Dispatchers - Edmonton, AB <BR>\n2016 to 2018 <BR>\n• Answering telephones and providing general information, referring callers to other staff or taking messages as necessary.&nbsp;<BR>\n• Replying and receiving for all Voicemail, E-Mail and Postal inquiries.&nbsp; <BR>\n• Create various types of Excel spreadsheets, PowerPoint presentations and Word documents for various projects&nbsp; <BR>\n• Data entry for various reports of Inventory, orders and misc. items.&nbsp; <BR>\n• Full-scale filing of various paperwork. (Invoices, Job applications, reports)&nbsp; <BR>\n• Maintain payroll information by collecting, calculating, and entering data.&nbsp; <BR>\n• Ordering supplies from various vendors (Greggs, Staples and Uline.)&nbsp; <BR>\n• Supervise Yard Laborers and assign tasks. (Pipe Yard Area) <BR>\nMaterial Handler <BR>\nTCL Supply Chain - Acheson, AB <BR>\n2015 to 2016 <BR>\n• Using automated voice-directed technology headsets to pick orders in a timed manner from various aisles in room and<BR>\nfrigid temperatures throughout warehouse.&nbsp; <BR>\n• Enter all reports into various internal company software\'s.&nbsp; <BR>\n• Safely operate material handling equipment including motorized pallet jacks, reach trucks and counterbalance forklifts.&nbsp; <BR>\n• Member of Safety Committee <BR>\nShipper/Receiver <BR>\nHalliburton - Leduc, AB <BR>\n2015 to 2015 <BR>\n• Checking and loading the necessary equipment required for scheduled jobs.&nbsp; <BR>\n• Use overhead crane and forklift to move equipment.&nbsp; <BR>\n• Notify supplier of any discrepancies, as well as marking BOL (bill of lading).&nbsp; <BR>\n• Entering orders, returns, reports and other information through various management software\'s.&nbsp; <BR>\n• Communicating effectively with customers through telephone or e-mail.&nbsp; <BR>\n• Member of Safety Committee <BR>\nMobile Advisor <BR>\nThe Mobile Shop - Edmonton, AB <BR>\n2014 to 2015 <BR>\n• Advising customers on latest deals, phones and accessories. &nbsp; <BR>\n• Phone activation\'s and troubleshooting advice.&nbsp; <BR>\n• Inventory reporting <BR>\n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P>\n<!-- [[[ PDF.Page-->\n<BR>\nComputer Sales Associate <BR>\nFuture Shop - Edmonton, AB <BR>\n2011 to 2013 <BR>\n• Working the sales floor and assisting customers with all product selection and inquiries.&nbsp; <BR>\n• Advising and selling company promotions to customers.&nbsp; <BR>\n• Re-stocking and front-facing hourly.&nbsp; <BR>\n• Inventory reporting.&nbsp; <BR>\n• Cold-calling previous customers for current promotions.&nbsp; <BR>\n• Shift-end clean-up. <BR>\nEDUCATION <BR>\nHigh School Diploma <BR>\nJ. Percy Page Senior School <BR>\nSKILLS <BR>\nHighly Self-Motivated, Ability to adapt to any role effortlessly, Highly dependable and punctual, Windows Expert, <BR>\nQuick Learner, Highly Computer Proficent (10+ years), Always positive attitude no matter the situation, Customer<BR>\nService (5 years), Warehouse Related Work (3 years), Work well under pressure, Very detail oriented, <BR>\nAdministrative Assistant, Billing, Outlook, Payroll, Microsoft Word, Receptionist, Microsoft Excel, SafetySync <BR>\nCERTIFICATIONS AND LICENSES <BR>\nStandard First Aid and CPR <BR>\nCSTS-20 <BR>\nWHIMIS-2015 <BR>\nCompTIA ITF+ <BR>\nASSESSMENTS <BR>\nCustomer Focus &amp; Orientation Skills — Highly Proficient <BR>\nApril 2019 <BR>\nHandling challenging customer situations. <BR>\n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P>\n<!-- [[[ PDF.Page-->\n<BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\n59346bb0d515fdcb57215cef0bb511e6eed53dc074545cb7 <BR>\nData Entry — Expert <BR>\nDecember 2019 <BR>\nAccurately inputting data into a database. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\n4b1d96d1caafede16d9cbe606c74057eeed53dc074545cb7 <BR>\nCustomer Service — Highly Proficient <BR>\nDecember 2019 <BR>\nIdentifying and addressing customer needs. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\nd8ca7dec2c11e2dea2cb949035a6a2e8eed53dc074545cb7 <BR>\nProblem Solving — Highly Proficient <BR>\nNovember 2019 <BR>\nAnalyzing information when making decisions. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\nd94d4c8c23acff277c04b19ebeb98980eed53dc074545cb7 <BR>\nWorkplace English (US) — Expert <BR>\nNovember 2019 <BR>\nUnderstanding spoken and written English in work situations. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\n0d9e53b476f5f2ea0daf30822227beebeed53dc074545cb7 <BR>\nSafety Orientation Skills — Highly Proficient <BR>\nSeptember 2019 <BR>\nEmploying accident prevention strategies. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/10ce7b1fca0a30559778872056913b0a <BR>\nIndeed Assessments provides skills tests that are not indicative of a license or certification, or continued development in<BR>\nany professional field.<BR> \n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P></BODY></HTML>"
+	"description": "<HTML>oauth.redwoodtechnologysolutions.com<HEAD>oauth.redwoodtechnologysolutions.com<!-- saved from url=(0014)about:internet --><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=utf-8\">oauth.redwoodtechnologysolutions.com<style>oauth.redwoodtechnologysolutions.com	p.std   { margin-top: 0; margin-bottom: 0; border: 0 0 0 0; }oauth.redwoodtechnologysolutions.com</style>oauth.redwoodtechnologysolutions.com</HEAD>oauth.redwoodtechnologysolutions.com<BODY>oauth.redwoodtechnologysolutions.com\n<!-- [[[ PDF.Page-->\n<BR>\nWORK EXPERIENCE <BR>\nAdministrative/Safety Assistant <BR>\nBlack Eagle Transport - Stony Plain, AB <BR>\nJuly 2018 to Present <BR>\n• Answering telephones and providing general information, referring callers to other staff or taking messages as necessary.&nbsp;<BR>\n• Replying and receiving for all Voicemail, E-Mail and Postal inquiries.&nbsp; <BR>\n• Ordering supplies from various vendors (Greggs, Kal-Tire, Home Depot, Staples, Kentworth, Peterbilt and more)&nbsp; <BR>\n• Troubleshooting and resolution of all office equipment Phones, Tablets, PC\'s, Printers and Misc.)&nbsp; <BR>\n• New hire orientations (Fill-out application, verifying and copying licenses, certificates and insurance. Administering safety<BR>\ntraining courses on laptops and then verifying completion, All employee related data-entry into company database.)&nbsp; <BR>\n• International Fuel Tax Agreement Reporting.&nbsp; <BR>\n• Monitoring truck locations and speed limit violations through online GPS tracking software (TitanGPS)&nbsp; <BR>\n• Verifying contractors, licenses and insurance through various resources. ( Labour Clearance through WCB, Certificates of<BR>\ninsurance, Driver abstract reviews)&nbsp; <BR>\n• First response to all work related safety incidents.&nbsp; <BR>\nPAUL<BR>\nDHALIWAL<BR>\nEdmonton, AB T6W 3L9 <BR>\npauldhaliwal92@hotmail.com <BR>\n825-993-9370 (New Edmonton Area-Code) <BR>\nCore Skills:&nbsp; <BR>\nPunctual &amp; Organizational - ability to complete required tasks or fulfill obligations before or at a previously designated time<BR>\nwhile also demonstrating structure in doing so.&nbsp; <BR>\n&nbsp; <BR>\nAnalytical &amp; Problem Solving - ability to examine information or a situation in detail in order to identify key or important<BR>\nelements, their strengths and weaknesses and use these to make a recommendation or solve a problem.&nbsp; <BR>\n&nbsp; <BR>\nCommunication &amp; Teamwork - ability to communicate excellently verbally, written, in public, to groups or via electronic<BR>\nmedia while also possessing a strong commitment to the team environment by planning, organizing and collaborating<BR>\neffectively.&nbsp; <BR>\n&nbsp; <BR>\nTechnical Skills:&nbsp; <BR>\n• Words Per Minute (WPM): 62&nbsp; <BR>\n• PC Hardware (Assembly, Maintenance, Troubleshooting)&nbsp; <BR>\n• PC Software (Installing, Debugging, Microsoft Office Expert, Adobe Photoshop,&nbsp; <BR>\nSharePoint, Axon, SafetySync)&nbsp; <BR>\n• PC Operating Systems (Windows XP/Vista/7/8/10, Android, iOS, macOS)&nbsp; <BR>\n• PC Networks (Configurations, Servers, Routers, TCP/IP Socket, LAN Technology)&nbsp; <BR>\n• PC Security (Virus Protection, Maintenance, Monitoring, Backup Management, Disaster Recovery) <BR>\n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P>\n<!-- [[[ PDF.Page-->\n<BR>\n• Data entry of all safety and administrative information (Incident reports, Invoices, Guest-log report, Payroll hour reporting)&nbsp;<BR>\n• Handling of all insurance related issues or inquiries through various agencies.&nbsp; <BR>\n• Manage all company social media platforms (Website, Facebook, Instagram, LinkedIn)&nbsp; <BR>\n• Supervise Yard Laborers and Mechanic Shop employees. <BR>\nAdministrative/Project Assistant <BR>\nLoadstar Dispatchers - Edmonton, AB <BR>\n2016 to 2018 <BR>\n• Answering telephones and providing general information, referring callers to other staff or taking messages as necessary.&nbsp;<BR>\n• Replying and receiving for all Voicemail, E-Mail and Postal inquiries.&nbsp; <BR>\n• Create various types of Excel spreadsheets, PowerPoint presentations and Word documents for various projects&nbsp; <BR>\n• Data entry for various reports of Inventory, orders and misc. items.&nbsp; <BR>\n• Full-scale filing of various paperwork. (Invoices, Job applications, reports)&nbsp; <BR>\n• Maintain payroll information by collecting, calculating, and entering data.&nbsp; <BR>\n• Ordering supplies from various vendors (Greggs, Staples and Uline.)&nbsp; <BR>\n• Supervise Yard Laborers and assign tasks. (Pipe Yard Area) <BR>\nMaterial Handler <BR>\nTCL Supply Chain - Acheson, AB <BR>\n2015 to 2016 <BR>\n• Using automated voice-directed technology headsets to pick orders in a timed manner from various aisles in room and<BR>\nfrigid temperatures throughout warehouse.&nbsp; <BR>\n• Enter all reports into various internal company software\'s.&nbsp; <BR>\n• Safely operate material handling equipment including motorized pallet jacks, reach trucks and counterbalance forklifts.&nbsp; <BR>\n• Member of Safety Committee <BR>\nShipper/Receiver <BR>\nHalliburton - Leduc, AB <BR>\n2015 to 2015 <BR>\n• Checking and loading the necessary equipment required for scheduled jobs.&nbsp; <BR>\n• Use overhead crane and forklift to move equipment.&nbsp; <BR>\n• Notify supplier of any discrepancies, as well as marking BOL (bill of lading).&nbsp; <BR>\n• Entering orders, returns, reports and other information through various management software\'s.&nbsp; <BR>\n• Communicating effectively with customers through telephone or e-mail.&nbsp; <BR>\n• Member of Safety Committee <BR>\nMobile Advisor <BR>\nThe Mobile Shop - Edmonton, AB <BR>\n2014 to 2015 <BR>\n• Advising customers on latest deals, phones and accessories. &nbsp; <BR>\n• Phone activation\'s and troubleshooting advice.&nbsp; <BR>\n• Inventory reporting <BR>\n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P>\n<!-- [[[ PDF.Page-->\n<BR>\nComputer Sales Associate <BR>\nFuture Shop - Edmonton, AB <BR>\n2011 to 2013 <BR>\n• Working the sales floor and assisting customers with all product selection and inquiries.&nbsp; <BR>\n• Advising and selling company promotions to customers.&nbsp; <BR>\n• Re-stocking and front-facing hourly.&nbsp; <BR>\n• Inventory reporting.&nbsp; <BR>\n• Cold-calling previous customers for current promotions.&nbsp; <BR>\n• Shift-end clean-up. <BR>\nEDUCATION <BR>\nHigh School Diploma <BR>\nJ. Percy Page Senior School <BR>\nSKILLS <BR>\nHighly Self-Motivated, Ability to adapt to any role effortlessly, Highly dependable and punctual, Windows Expert, <BR>\nQuick Learner, Highly Computer Proficent (10+ years), Always positive attitude no matter the situation, Customer<BR>\nService (5 years), Warehouse Related Work (3 years), Work well under pressure, Very detail oriented, <BR>\nAdministrative Assistant, Billing, Outlook, Payroll, Microsoft Word, Receptionist, Microsoft Excel, SafetySync <BR>\nCERTIFICATIONS AND LICENSES <BR>\nStandard First Aid and CPR <BR>\nCSTS-20 <BR>\nWHIMIS-2015 <BR>\nCompTIA ITF+ <BR>\nASSESSMENTS <BR>\nCustomer Focus &amp; Orientation Skills — Highly Proficient <BR>\nApril 2019 <BR>\nHandling challenging customer situations. <BR>\n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P>\n<!-- [[[ PDF.Page-->\n<BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\n59346bb0d515fdcb57215cef0bb511e6eed53dc074545cb7 <BR>\nData Entry — Expert <BR>\nDecember 2019 <BR>\nAccurately inputting data into a database. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\n4b1d96d1caafede16d9cbe606c74057eeed53dc074545cb7 <BR>\nCustomer Service — Highly Proficient <BR>\nDecember 2019 <BR>\nIdentifying and addressing customer needs. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\nd8ca7dec2c11e2dea2cb949035a6a2e8eed53dc074545cb7 <BR>\nProblem Solving — Highly Proficient <BR>\nNovember 2019 <BR>\nAnalyzing information when making decisions. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\nd94d4c8c23acff277c04b19ebeb98980eed53dc074545cb7 <BR>\nWorkplace English (US) — Expert <BR>\nNovember 2019 <BR>\nUnderstanding spoken and written English in work situations. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\n0d9e53b476f5f2ea0daf30822227beebeed53dc074545cb7 <BR>\nSafety Orientation Skills — Highly Proficient <BR>\nSeptember 2019 <BR>\nEmploying accident prevention strategies. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/10ce7b1fca0a30559778872056913b0a <BR>\nIndeed Assessments provides skills tests that are not indicative of a license or certification, or continued development in<BR>\nany professional field.<BR> \n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P></BODY></HTML>"
 }';*/
 /*$curl = curl_init();
 
@@ -949,7 +1148,7 @@ curl_setopt_array($curl, array(
   CURLOPT_TIMEOUT => 30,
   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
   CURLOPT_CUSTOMREQUEST => "PUT", 
-  CURLOPT_POSTFIELDS => "{\r\n\t\"firstName\": \"".$fname."\",\r\n\t\"lastName\": \"".$lname."\",\r\n\t\"email\": \"".$email."\",\r\n\t\"phone\": \"".$phone."\",\r\n\t\"description\": \"".$description."\"\r\n}",
+  CURLOPT_POSTFIELDS => "{oauth.redwoodtechnologysolutions.com\t\"firstName\": \"".$fname."\",oauth.redwoodtechnologysolutions.com\t\"lastName\": \"".$lname."\",oauth.redwoodtechnologysolutions.com\t\"email\": \"".$email."\",oauth.redwoodtechnologysolutions.com\t\"phone\": \"".$phone."\",oauth.redwoodtechnologysolutions.com\t\"description\": \"".$description."\"oauth.redwoodtechnologysolutions.com}",
   CURLOPT_HTTPHEADER => array(  
     "bhresttoken: ".$bhtoken,                 
     "cache-control: no-cache",       
@@ -971,7 +1170,7 @@ if ($err) {
 
   								   //Code for check the candidate status in bullhorn 
 
-								   $url=$resturl."find?query=$email&countPerEntity=1";
+									$url=$resturl."find?query=$email&countPerEntity=1";
 									$header = array('bhresttoken: '.$bhtoken);        
 									$resource = curl_init();             
 									curl_setopt($resource, CURLOPT_URL, $url);           
@@ -1043,7 +1242,7 @@ if ($err) {
 										} else {  
 										 echo $response;  
 										 $responseTest = json_decode($response);  
-										}  
+										}     
 										$candidateId =$responseTest->changedEntityId; 
 									}    
 
@@ -1073,10 +1272,13 @@ if ($err) {
 										// post a job       
 											//echo 'apply';   
 
-											$url2=$resturl."entity/JobSubmission";        
-											        
+											$url2=$resturl."entity/JobSubmission";
 											
-											$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Applicant"}';                       
+											if($clientname=='cybersearchsf'){											
+												$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Applicant","source": "'.$jobSource.'"}';
+											} else {
+												$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead","source": "'.$jobSource.'"}';
+											}												
 											$curl2 = curl_init();  
 											curl_setopt_array($curl2, array(            
 											 CURLOPT_URL => $url2,              

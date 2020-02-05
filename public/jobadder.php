@@ -27,7 +27,7 @@ exit;
  // CODE FOR Authorize STEP 2// 
 
 
-/*$url = "https://id.jobadder.com/connect/token";      
+$url = "https://id.jobadder.com/connect/token";      
 
 $postdata  = "code=".$code;
 $postdata .= "&grant_type=authorization_code";      
@@ -49,10 +49,10 @@ $refresh_token = $response->refresh_token;
 
 echo 'ac'.$access_token;  
 echo 'rf'.$refresh_token;
-exit;*/
+//exit;
 
-/*echo $token = $result["refresh_token"]; 
-exit;*/
+echo $token = $result["refresh_token"]; 
+exit;
 
 
 
