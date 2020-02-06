@@ -1287,7 +1287,14 @@ if ($err) {
 										$email_status=$result->data[0]->entityId;   
 									} 
 									            
-									     
+									if($clientname=='cybersearchsf')
+									{
+										$candidateStatus="Unreviewed";	
+									}
+									else      
+									{
+										$candidateStatus="New Lead";
+									}
 									           
 									$url=$resturl."find?query=$phone&countPerEntity=1";        
 									$header = array('bhresttoken: '.$bhtoken); 
@@ -1315,9 +1322,9 @@ if ($err) {
 									else   
 									{       
 				
-
+  										      
 										$url=$resturl."entity/Candidate";         
-	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';   
+	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';   
 										$curl = curl_init();          
 										curl_setopt_array($curl, array(               
 										 CURLOPT_URL => $url,             
@@ -1374,7 +1381,10 @@ if ($err) {
 											$url2=$resturl."entity/JobSubmission";
 											
 											if($clientname=='cybersearchsf'){											
-												$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Applicant","source": "'.$jobSource.'"}';
+												/*$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Applicant","source": "'.$jobSource.'"}';*/
+												$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "Job Posting Response","source": "'.$jobSource.'"}';         
+
+
 											} else {
 												$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead","source": "'.$jobSource.'"}';
 											}												
