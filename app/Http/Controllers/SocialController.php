@@ -23,9 +23,9 @@ class SocialController extends Controller
      		$subject="Tokens revoked for ".$client_name." for ".$integration_name."";    
 
      		$message  = '';
-$message .= "Hey!" ."<br><br>";
-$message .= "Logins have changed for ".$client_name." and ".$integration_name."<br><br>";
-$message .= "Thanks!"."<br><br>";         
+			$message .= "Hey!" ."<br><br>";
+			$message .= "Logins have changed for ".$client_name." and ".$integration_name."<br><br>";
+			$message .= "Thanks!"."<br><br>";         
               
      		$email="gaurav.ideabox@outlook.com";              
      		$addcc="bruce@staffingfuture.com";                            
@@ -301,8 +301,8 @@ $message .= "Thanks!"."<br><br>";
    
 							$postResource = '{"trackerrms": {"createResource": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'", "lastname": "'.$lname.'", "fullname": "'.$fname.' '.$lname.'", "cellphone": "'.$phone.'", "email": "'.$email.'","jobtitle": " ","company": " ","address1": " ","address2": " ","city": " ","state": " ","zipcode": " ","country": " ","workphone": "","homephone": "'.$phone.'","linkedin": "","dateofbirth": "","nationality": "","languages": "","education": "","source": "'.$jobSource.'","jobhistory": [{"company": "","jobtitle": "","startdate": "","enddate": "","description": ""}],"salary": 0,"note": "'.$note.'","image": ""}}}}';          
    
-							/*print_r($postResource); 
-							exit; */                               
+							//print_r($postResource); 
+							//exit;
    
 								/*$postResource = '{"trackerrms": {"createResource": {"credentials": {"apikey": "yl4luqj0drBGpOjU5Q6P"},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short"},"resource": {"firstname": "'.$fname.'", "lastname": "'.$lname.'", "fullname": "'.$fname.' '.$lname.'", "cellphone": "'.$phone.'", "email": "'.$email.'","jobtitle": " ","company": " ","address1": " ","address2": " ","city": " ","state": " ","zipcode": " ","country": " ","workphone": "","homephone": "'.$phone.'","linkedin": "","dateofbirth": "","nationality": "","languages": "","education": "","source": "Jobs +","jobhistory": [{"company": "","jobtitle": "","startdate": "","enddate": "","description": ""}],"salary": 0,"note": "","image": ""}}}}';   */  
       
@@ -1291,7 +1291,11 @@ if ($err) {
 									{
 										$candidateStatus="Unreviewed";	
 									}
-									else      
+									else if($clientname=='professionalalternatives')
+									{
+										$candidateStatus="New Candidate";	
+									}
+									else       
 									{
 										$candidateStatus="New Lead";
 									}
@@ -1323,8 +1327,135 @@ if ($err) {
 									{       
 				
   										      
-										$url=$resturl."entity/Candidate";         
-	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';   
+										$url=$resturl."entity/Candidate";    
+
+										if(isset($_POST['im_a']))
+											{ 
+												$im_a=$_POST['im_a'];
+											}
+											else
+											{
+												$im_a="";       
+											}  
+
+										if(($clientname=='professionalalternatives') || ($im_a=='Job Seeker'))        
+										{
+
+											if(isset($_POST['area_of_interest']))    
+											{ 
+   
+
+												//$categoryurl="https://rest.bullhornstaffing.com/rest-services/e999/meta/Candidate?fields=*";
+												$area_of_interest = $_POST['area_of_interest']; 
+												/*$categoryurl=$resturl."entity/Category?fields=*";           
+												//$postCategory='{"name": "'.$area_of_interest.'","description":"'.$area_of_interest.'"}';
+												$curl = curl_init();          
+												curl_setopt_array($curl, array(                    
+												 CURLOPT_URL => $categoryurl,               
+												 CURLOPT_RETURNTRANSFER => true,            
+												 CURLOPT_ENCODING => "",         
+												 CURLOPT_MAXREDIRS => 10,        
+												 CURLOPT_TIMEOUT => 30,    
+												 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+												 CURLOPT_CUSTOMREQUEST => "GET",  
+												 //CURLOPT_POSTFIELDS => $postCategory,          
+												 CURLOPT_HTTPHEADER => array(      
+												   "BhRestToken: ".$bhtoken,              
+												   "Content-Type: application/json",           
+												 ),   
+												));
+												$response = curl_exec($curl);       
+												$err = curl_error($curl);            
+												curl_close($curl);  
+												if ($err) {     
+												 echo "cURL Error #:" . $err;       
+												} else {  
+												 echo $response;  
+												 $responseTest = json_decode($response);  
+												 exit;   
+												}    */
+
+
+											}
+											else
+											{ $area_of_interest =""; } 
+
+											if(isset($_POST['street_address']))
+											{ 
+												$street_address=$_POST['street_address'];
+											}
+											else
+											{
+												$street_address="";       
+											} 
+											if(isset($_POST['address_line2']))
+											{ 
+												$address_line2=$_POST['address_line2'];
+											}
+											else
+											{
+												$address_line2="";       
+											} 
+											if(isset($_POST['city']))
+											{ 
+												$city=$_POST['city'];
+											}
+											else
+											{
+												$city="";       
+											}  
+											if(isset($_POST['state']))
+											{ 
+												$state=$_POST['state'];
+											}
+											else
+											{
+												$state="";       
+											} 
+											if(isset($_POST['postal_code']))
+											{ 
+												$postal_code=$_POST['postal_code'];
+											}
+											else
+											{
+												$postal_code="";       
+											} 
+											if(isset($_POST['country']))
+											{ 
+												$country=$_POST['country'];
+											}
+											else
+											{
+												$country="";       
+											}  
+											  
+											  
+											if(isset($_POST['message']))
+											{ 
+												$message=$_POST['message'];
+											}
+											else
+											{
+												$message="";         
+											}
+											//$area_of_interest=$_POST['area_of_interest'];              
+ 											
+											   
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","address": {
+            "address1": "'.$street_address.'",
+            "address2": "'.$address_line2.'",
+            "city": "'.$city.'", 
+            "state": "'.$state.'",     
+            "zip": "'.$postal_code.'"             
+        },"source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'","comments":"'.$message.'"}';    
+        								         
+        								         
+										}
+										else
+										{
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';
+										}     
+	 								    //$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';   
 										$curl = curl_init();          
 										curl_setopt_array($curl, array(               
 										 CURLOPT_URL => $url,             
