@@ -28,11 +28,11 @@ class SocialController extends Controller
 			$message .= "Thanks!"."<br><br>";         
               
      		$email="gaurav.ideabox@outlook.com";              
-     		$addcc="bruce@staffingfuture.com";                            
-     		$setfrom="oauthsupport@staffingfuture.com";   
+     		$addcc="bruce@staffingfuture.com";                                    
+     		$setfrom="oauthsupport@staffingfuture.com";         
      		/*$email="himstrived@gmail.com";              
-     		$addcc="rahul.sharma@thinklayer.co.in";                                   
-     		$setfrom="oauthsupport@staffingfuture.com"; */             
+     		$addcc="rahul.sharma@thinklayer.co.in";                                    
+     		$setfrom="oauthsupport@staffingfuture.com";  */            
  
 
      		    $mail = new PHPMailer(true); // notice the \  you have to use root namespace here
@@ -149,7 +149,7 @@ class SocialController extends Controller
 	 		{
 	 			$request['url'] ='https://login.salesforce.com/services/oauth2/token';          
 	 		}
-	 	}
+	 	} 
 	 	else if($name=="Hephaestus")   
 	 	{
 	 		$call="applicants";
@@ -217,16 +217,17 @@ class SocialController extends Controller
 			$credential_details = Credential::where('name',$name)->where('client_name',$clientname)->first();
 	 		$username=$credential_details->username;
 		    $password=$credential_details->password;
-			$apiurl=$credential_details->url; 
+			$apiurl=$credential_details->url;   
 			$id=$credential_details->id; 
 			$client_id=$credential_details->client_id;  
 			$apikey=$credential_details->client_secret;                 
 			$refresh_token=$credential_details->refresh_token;  
-			$access_token=$credential_details->access_token;    
+			$access_token=$credential_details->access_token;     
 			$source=$credential_details->source;
+			$notification_status=$credential_details->notification_status;        
   	   		if(empty($source))
-  	   		{
-  	   			$jobSource="Jobs +";      
+  	   		{ 
+  	   			$jobSource="Jobs +";           
   	   		}
   	   		else
   	   		{
@@ -293,7 +294,8 @@ class SocialController extends Controller
 					if($resume_status=="No")  
 					{   
      		     
-						 
+						 /*echo "hello";  
+						 exit; */  
 
 						/*$postResource = '{"trackerrms": {"createResource": {"credentials": {"username": "'.$username.'","password": "'.$password.'"},"instructions":{"overwriteresource": true,"assigntoopportunity": 16541,"assigntolist": "short"},"resource": {"firstname": "'.$fname.'", "lastname": "'.$lname.'", "fullname": "'.$fname.' '.$lname.'", "cellphone": "'.$phone.'", "email": "'.$email.'","jobtitle": " ","company": " ","address1": " ","address2": " ","city": " ","state": " ","zipcode": " ","country": " ","workphone": "","homephone": "'.$phone.'","linkedin": "","dateofbirth": "","nationality": "","languages": "","education": "","source": "Jobs +","jobhistory": [{"company": "","jobid": "'.$job_id.'","jobtitle": "","startdate": "","enddate": "","description": ""}],"salary": 0,"note": "","image": ""}}}}'; */
      
@@ -301,9 +303,9 @@ class SocialController extends Controller
    
 							$postResource = '{"trackerrms": {"createResource": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'", "lastname": "'.$lname.'", "fullname": "'.$fname.' '.$lname.'", "cellphone": "'.$phone.'", "email": "'.$email.'","jobtitle": " ","company": " ","address1": " ","address2": " ","city": " ","state": " ","zipcode": " ","country": " ","workphone": "","homephone": "'.$phone.'","linkedin": "","dateofbirth": "","nationality": "","languages": "","education": "","source": "'.$jobSource.'","jobhistory": [{"company": "","jobtitle": "","startdate": "","enddate": "","description": ""}],"salary": 0,"note": "'.$note.'","image": ""}}}}';          
    
-							//print_r($postResource); 
-							//exit;
-   
+							/*print_r($postResource); 
+							exit; */   
+     
 								/*$postResource = '{"trackerrms": {"createResource": {"credentials": {"apikey": "yl4luqj0drBGpOjU5Q6P"},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short"},"resource": {"firstname": "'.$fname.'", "lastname": "'.$lname.'", "fullname": "'.$fname.' '.$lname.'", "cellphone": "'.$phone.'", "email": "'.$email.'","jobtitle": " ","company": " ","address1": " ","address2": " ","city": " ","state": " ","zipcode": " ","country": " ","workphone": "","homephone": "'.$phone.'","linkedin": "","dateofbirth": "","nationality": "","languages": "","education": "","source": "Jobs +","jobhistory": [{"company": "","jobtitle": "","startdate": "","enddate": "","description": ""}],"salary": 0,"note": "","image": ""}}}}';   */  
       
 
@@ -326,11 +328,24 @@ class SocialController extends Controller
 									$response = curl_exec($curl);       
 									$err = curl_error($curl);   
 									curl_close($curl);
-									if ($err) {
+									if ($err) {               
 									 echo "cURL Error #:" . $err;  
-									} else {  
-									 echo $response;  
+									} else {   
+									 echo $response;    
+									 $result=json_decode($response);
+									 $message=$result->message;     
 
+									 if(($notification_status==0) && ($message=="user or API Key not found")) 
+											{             
+												$sendAlert=$this->sendEmail($name,$clientname);           
+												echo 'send mail';    
+												$credentials_update=Credential::find($id);
+					 							$credentials_update->notification_status=1;
+												$credentials_update->save();  
+												echo "update Status";          
+											}   
+									 echo 'recordId'.$recordId=$result->recordId;    
+									 echo 'recordName'.$recordName=$result->recordName;
 									}  
 
 				}
@@ -403,6 +418,18 @@ class SocialController extends Controller
 									 echo "cURL Error #:" . $err;
 									} else {
 									 echo $response;
+									 $result=json_decode($response);
+									 $message=$result->message;  
+
+									 if(($notification_status==0) && ($message=="user or API Key not found")) 
+											{             
+												$sendAlert=$this->sendEmail($name,$clientname);           
+												echo 'send mail';    
+												$credentials_update=Credential::find($id);
+					 							$credentials_update->notification_status=1;
+												$credentials_update->save();  
+												echo "update Status";            
+											}
 
 									}   
 
@@ -436,6 +463,18 @@ class SocialController extends Controller
 					 echo "cURL Error #:" . $err;
 					} else {
 					 echo $response;
+					 $result=json_decode($response);
+									 $message=$result->message;  
+
+									 if(($notification_status==0) && ($message=="user or API Key not found")) 
+											{             
+												$sendAlert=$this->sendEmail($name,$clientname);           
+												echo 'send mail';    
+												$credentials_update=Credential::find($id);
+					 							$credentials_update->notification_status=1;
+												$credentials_update->save();  
+												echo "update Status";            
+											}   
 
 					}
   
@@ -454,9 +493,9 @@ class SocialController extends Controller
 					curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);   
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 					$result = curl_exec($ch);     
-
+     
 					$response = json_decode($result);    
-					if(isset($response->access_token))
+					if(isset($response->access_token))   
 					{
 						echo $access_token = $response->access_token; 					       
 						echo  $instance_url = $response->api;
@@ -464,9 +503,16 @@ class SocialController extends Controller
 						echo 'send mail';*/         
 					}           
 					else    
-					{ 
-						$sendAlert=$this->sendEmail($name,$clientname);     
-						echo 'send mail';  
+					{    
+						if($notification_status==0)
+						{          
+							$sendAlert=$this->sendEmail($name,$clientname);     
+							echo 'send mail';    
+							$credentials_update=Credential::find($id);
+ 							$credentials_update->notification_status=1;
+							$credentials_update->save();  
+							echo "update Status";          
+						}
 					}          
 					    
   					/*exit;  */          
@@ -631,7 +677,7 @@ class SocialController extends Controller
 										}
 					$applicants='{"username": "'.$username.'","password": "'.$password.'","Candidate first name": "'.$fname.'","Candidate last name": "'.$lname.'","Candidate email": "'.$email.'","Candidate phone number": "'.$phone.'","Job ID": "'.$job_id.'","Resume": "'.$file.'"}';     
 					$curl = curl_init();       
-					curl_setopt_array($curl, array(            
+					curl_setopt_array($curl, array(                      
 					 CURLOPT_URL => $apiurl.$apicall,   
 					 CURLOPT_RETURNTRANSFER => true,     
 					 CURLOPT_ENCODING => "",   
@@ -651,8 +697,20 @@ class SocialController extends Controller
 					curl_close($curl);
 					if ($err) {     
 					 echo "cURL Error #:" . $err;
-					} else {
+					} else {    
 					 echo $response;
+					  $result=json_decode($response);
+					  $message=$result->message[0];                   
+					         
+									 if(($notification_status==0) && ($message=="Invalid login")) 
+											{                   
+												$sendAlert=$this->sendEmail($name,$clientname);                   
+												echo 'send mail';    
+												$credentials_update=Credential::find($id);
+					 							$credentials_update->notification_status=1;
+												$credentials_update->save();  
+												echo "update Status";          
+											}
 
 					}  
   
@@ -681,8 +739,15 @@ class SocialController extends Controller
 					}   
 					else    
 					{
-						$sendAlert=$this->sendEmail($name,$clientname);     
-						echo 'send mail';  
+										if($notification_status==0)
+											{             
+												$sendAlert=$this->sendEmail($name,$clientname);     
+												echo 'send mail';    
+												$credentials_update=Credential::find($id);
+					 							$credentials_update->notification_status=1;
+												$credentials_update->save();  
+												echo "update Status";          
+											}  
 					}
 
 					   
@@ -730,8 +795,15 @@ class SocialController extends Controller
 									}   
 									else    
 									{  
-										$sendAlert=$this->sendEmail($name,$clientname);     
-										echo 'send mail';  
+										if($notification_status==0)
+											{             
+												$sendAlert=$this->sendEmail($name,$clientname);     
+												echo 'send mail';    
+												$credentials_update=Credential::find($id);
+					 							$credentials_update->notification_status=1;
+												$credentials_update->save();  
+												echo "update Status";          
+											}  
 									}
 
 									     
@@ -962,7 +1034,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 							 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ResumeAddUpdateBackend",  
 							 CURLOPT_RETURNTRANSFER => true, 
 							 CURLOPT_ENCODING => "",          
-							 CURLOPT_MAXREDIRS => 10,    
+							 CURLOPT_MAXREDIRS => 10,       
 							 CURLOPT_TIMEOUT => 30,            
 							 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
 							 CURLOPT_CUSTOMREQUEST => "POST",   
@@ -1014,8 +1086,15 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									}     
 									else    
 									{  
-										$sendAlert=$this->sendEmail($name,$clientname);     
-										echo 'send mail';  
+										if($notification_status==0)
+											{             
+												$sendAlert=$this->sendEmail($name,$clientname);     
+												echo 'send mail';    
+												$credentials_update=Credential::find($id);
+					 							$credentials_update->notification_status=1;
+												$credentials_update->save();  
+												echo "update Status";          
+											}      
 									}
 									  
 
@@ -1098,8 +1177,16 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									}     
 									else    
 									{  
-										$sendAlert=$this->sendEmail($name,$clientname);     
-										echo 'send mail';  
+										if($notification_status==0)
+											{             
+												$sendAlert=$this->sendEmail($name,$clientname);     
+												echo 'send mail';    
+												$credentials_update=Credential::find($id);
+					 							$credentials_update->notification_status=1;
+												$credentials_update->save();  
+												echo "update Status";          
+											} 
+
 									}    
 
  									$credentials_update=Credential::find($id);
@@ -1238,7 +1325,7 @@ exit;
 	"description": "<HTML>oauth.redwoodtechnologysolutions.com<HEAD>oauth.redwoodtechnologysolutions.com<!-- saved from url=(0014)about:internet --><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=utf-8\">oauth.redwoodtechnologysolutions.com<style>oauth.redwoodtechnologysolutions.com	p.std   { margin-top: 0; margin-bottom: 0; border: 0 0 0 0; }oauth.redwoodtechnologysolutions.com</style>oauth.redwoodtechnologysolutions.com</HEAD>oauth.redwoodtechnologysolutions.com<BODY>oauth.redwoodtechnologysolutions.com\n<!-- [[[ PDF.Page-->\n<BR>\nWORK EXPERIENCE <BR>\nAdministrative/Safety Assistant <BR>\nBlack Eagle Transport - Stony Plain, AB <BR>\nJuly 2018 to Present <BR>\n• Answering telephones and providing general information, referring callers to other staff or taking messages as necessary.&nbsp;<BR>\n• Replying and receiving for all Voicemail, E-Mail and Postal inquiries.&nbsp; <BR>\n• Ordering supplies from various vendors (Greggs, Kal-Tire, Home Depot, Staples, Kentworth, Peterbilt and more)&nbsp; <BR>\n• Troubleshooting and resolution of all office equipment Phones, Tablets, PC\'s, Printers and Misc.)&nbsp; <BR>\n• New hire orientations (Fill-out application, verifying and copying licenses, certificates and insurance. Administering safety<BR>\ntraining courses on laptops and then verifying completion, All employee related data-entry into company database.)&nbsp; <BR>\n• International Fuel Tax Agreement Reporting.&nbsp; <BR>\n• Monitoring truck locations and speed limit violations through online GPS tracking software (TitanGPS)&nbsp; <BR>\n• Verifying contractors, licenses and insurance through various resources. ( Labour Clearance through WCB, Certificates of<BR>\ninsurance, Driver abstract reviews)&nbsp; <BR>\n• First response to all work related safety incidents.&nbsp; <BR>\nPAUL<BR>\nDHALIWAL<BR>\nEdmonton, AB T6W 3L9 <BR>\npauldhaliwal92@hotmail.com <BR>\n825-993-9370 (New Edmonton Area-Code) <BR>\nCore Skills:&nbsp; <BR>\nPunctual &amp; Organizational - ability to complete required tasks or fulfill obligations before or at a previously designated time<BR>\nwhile also demonstrating structure in doing so.&nbsp; <BR>\n&nbsp; <BR>\nAnalytical &amp; Problem Solving - ability to examine information or a situation in detail in order to identify key or important<BR>\nelements, their strengths and weaknesses and use these to make a recommendation or solve a problem.&nbsp; <BR>\n&nbsp; <BR>\nCommunication &amp; Teamwork - ability to communicate excellently verbally, written, in public, to groups or via electronic<BR>\nmedia while also possessing a strong commitment to the team environment by planning, organizing and collaborating<BR>\neffectively.&nbsp; <BR>\n&nbsp; <BR>\nTechnical Skills:&nbsp; <BR>\n• Words Per Minute (WPM): 62&nbsp; <BR>\n• PC Hardware (Assembly, Maintenance, Troubleshooting)&nbsp; <BR>\n• PC Software (Installing, Debugging, Microsoft Office Expert, Adobe Photoshop,&nbsp; <BR>\nSharePoint, Axon, SafetySync)&nbsp; <BR>\n• PC Operating Systems (Windows XP/Vista/7/8/10, Android, iOS, macOS)&nbsp; <BR>\n• PC Networks (Configurations, Servers, Routers, TCP/IP Socket, LAN Technology)&nbsp; <BR>\n• PC Security (Virus Protection, Maintenance, Monitoring, Backup Management, Disaster Recovery) <BR>\n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P>\n<!-- [[[ PDF.Page-->\n<BR>\n• Data entry of all safety and administrative information (Incident reports, Invoices, Guest-log report, Payroll hour reporting)&nbsp;<BR>\n• Handling of all insurance related issues or inquiries through various agencies.&nbsp; <BR>\n• Manage all company social media platforms (Website, Facebook, Instagram, LinkedIn)&nbsp; <BR>\n• Supervise Yard Laborers and Mechanic Shop employees. <BR>\nAdministrative/Project Assistant <BR>\nLoadstar Dispatchers - Edmonton, AB <BR>\n2016 to 2018 <BR>\n• Answering telephones and providing general information, referring callers to other staff or taking messages as necessary.&nbsp;<BR>\n• Replying and receiving for all Voicemail, E-Mail and Postal inquiries.&nbsp; <BR>\n• Create various types of Excel spreadsheets, PowerPoint presentations and Word documents for various projects&nbsp; <BR>\n• Data entry for various reports of Inventory, orders and misc. items.&nbsp; <BR>\n• Full-scale filing of various paperwork. (Invoices, Job applications, reports)&nbsp; <BR>\n• Maintain payroll information by collecting, calculating, and entering data.&nbsp; <BR>\n• Ordering supplies from various vendors (Greggs, Staples and Uline.)&nbsp; <BR>\n• Supervise Yard Laborers and assign tasks. (Pipe Yard Area) <BR>\nMaterial Handler <BR>\nTCL Supply Chain - Acheson, AB <BR>\n2015 to 2016 <BR>\n• Using automated voice-directed technology headsets to pick orders in a timed manner from various aisles in room and<BR>\nfrigid temperatures throughout warehouse.&nbsp; <BR>\n• Enter all reports into various internal company software\'s.&nbsp; <BR>\n• Safely operate material handling equipment including motorized pallet jacks, reach trucks and counterbalance forklifts.&nbsp; <BR>\n• Member of Safety Committee <BR>\nShipper/Receiver <BR>\nHalliburton - Leduc, AB <BR>\n2015 to 2015 <BR>\n• Checking and loading the necessary equipment required for scheduled jobs.&nbsp; <BR>\n• Use overhead crane and forklift to move equipment.&nbsp; <BR>\n• Notify supplier of any discrepancies, as well as marking BOL (bill of lading).&nbsp; <BR>\n• Entering orders, returns, reports and other information through various management software\'s.&nbsp; <BR>\n• Communicating effectively with customers through telephone or e-mail.&nbsp; <BR>\n• Member of Safety Committee <BR>\nMobile Advisor <BR>\nThe Mobile Shop - Edmonton, AB <BR>\n2014 to 2015 <BR>\n• Advising customers on latest deals, phones and accessories. &nbsp; <BR>\n• Phone activation\'s and troubleshooting advice.&nbsp; <BR>\n• Inventory reporting <BR>\n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P>\n<!-- [[[ PDF.Page-->\n<BR>\nComputer Sales Associate <BR>\nFuture Shop - Edmonton, AB <BR>\n2011 to 2013 <BR>\n• Working the sales floor and assisting customers with all product selection and inquiries.&nbsp; <BR>\n• Advising and selling company promotions to customers.&nbsp; <BR>\n• Re-stocking and front-facing hourly.&nbsp; <BR>\n• Inventory reporting.&nbsp; <BR>\n• Cold-calling previous customers for current promotions.&nbsp; <BR>\n• Shift-end clean-up. <BR>\nEDUCATION <BR>\nHigh School Diploma <BR>\nJ. Percy Page Senior School <BR>\nSKILLS <BR>\nHighly Self-Motivated, Ability to adapt to any role effortlessly, Highly dependable and punctual, Windows Expert, <BR>\nQuick Learner, Highly Computer Proficent (10+ years), Always positive attitude no matter the situation, Customer<BR>\nService (5 years), Warehouse Related Work (3 years), Work well under pressure, Very detail oriented, <BR>\nAdministrative Assistant, Billing, Outlook, Payroll, Microsoft Word, Receptionist, Microsoft Excel, SafetySync <BR>\nCERTIFICATIONS AND LICENSES <BR>\nStandard First Aid and CPR <BR>\nCSTS-20 <BR>\nWHIMIS-2015 <BR>\nCompTIA ITF+ <BR>\nASSESSMENTS <BR>\nCustomer Focus &amp; Orientation Skills — Highly Proficient <BR>\nApril 2019 <BR>\nHandling challenging customer situations. <BR>\n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P>\n<!-- [[[ PDF.Page-->\n<BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\n59346bb0d515fdcb57215cef0bb511e6eed53dc074545cb7 <BR>\nData Entry — Expert <BR>\nDecember 2019 <BR>\nAccurately inputting data into a database. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\n4b1d96d1caafede16d9cbe606c74057eeed53dc074545cb7 <BR>\nCustomer Service — Highly Proficient <BR>\nDecember 2019 <BR>\nIdentifying and addressing customer needs. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\nd8ca7dec2c11e2dea2cb949035a6a2e8eed53dc074545cb7 <BR>\nProblem Solving — Highly Proficient <BR>\nNovember 2019 <BR>\nAnalyzing information when making decisions. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\nd94d4c8c23acff277c04b19ebeb98980eed53dc074545cb7 <BR>\nWorkplace English (US) — Expert <BR>\nNovember 2019 <BR>\nUnderstanding spoken and written English in work situations. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/<BR>\n0d9e53b476f5f2ea0daf30822227beebeed53dc074545cb7 <BR>\nSafety Orientation Skills — Highly Proficient <BR>\nSeptember 2019 <BR>\nEmploying accident prevention strategies. <BR>\nFull results: https://share.indeedassessments.com/share_to_profile/10ce7b1fca0a30559778872056913b0a <BR>\nIndeed Assessments provides skills tests that are not indicative of a license or certification, or continued development in<BR>\nany professional field.<BR> \n<BR>\n\n<!-- ]]] PDF.Page-->\n<P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P></BODY></HTML>"
 }';*/
 /*$curl = curl_init();
-
+ 
 curl_setopt_array($curl, array(
   CURLOPT_URL => "https://rest42.bullhornstaffing.com/rest-services/182p/entity/Candidate",
   CURLOPT_RETURNTRANSFER => true,

@@ -26,6 +26,7 @@ class CreateCredentialsTable extends Migration
             $table->string('refresh_token')->nullable();   
             $table->string('source')->nullable(); 
             $table->string('board_id')->nullable();    
+            $table->integer('notification_status')->default(0);        
             $table->timestamps();   
         });
     }
