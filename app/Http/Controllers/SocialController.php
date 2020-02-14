@@ -1204,8 +1204,8 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									curl_setopt($ch1, CURLOPT_POST, true);
 									curl_setopt($ch1, CURLOPT_POSTFIELDS, $postdata1);   
 									curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
-									$result1 = curl_exec($ch1);     
-
+									echo $result1 = curl_exec($ch1);     
+									         
 									$response1 = json_decode($result1);
 									$resturl = $response1->restUrl;   
 									$bhtoken = $response1->BhRestToken;       
@@ -1230,7 +1230,7 @@ $cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/Monish Soni.pdf
 $fields = array('file' => $cfile);     
           
 $resource = curl_init();          
-curl_setopt($resource, CURLOPT_URL, $url);           
+curl_setopt($resource, CURLOPT_URL, $url);             
 curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
 curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($resource, CURLOPT_POST, 1);
@@ -1532,9 +1532,12 @@ if ($err) {
             "address1": "'.$street_address.'",
             "address2": "'.$address_line2.'",
             "city": "'.$city.'", 
-            "state": "'.$state.'",     
-            "zip": "'.$postal_code.'"             
-        },"source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'","comments":"'.$message.'"}';    
+            "state": "'.$state.'",         
+            "zip": "'.$postal_code.'"                          
+        },"category" : {        
+      "id" : "'.$area_of_interest.'"            
+    },"source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'","comments":"'.$message.'"}';          
+
         								         
         								         
 										}
