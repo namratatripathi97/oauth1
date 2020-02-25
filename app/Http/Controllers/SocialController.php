@@ -1156,7 +1156,99 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 			if($apicall=='createCandidate')   
 			{   
 
-									$url = $apiurl; 
+									$url = $apiurl;   
+								if($notification_status==1)  
+								{              
+
+									define('CLIENT_ID', $client_id);
+									define('CLIENT_SECRET', $apikey);
+									define('USER', $username);                   
+									define('PASS', $password);          
+									   
+							  
+									    
+									  
+										$url = 'https://auth.bullhornstaffing.com/oauth/authorize?client_id='.CLIENT_ID.'&response_type=code';
+									    $data = "action=Login&username=".USER."&password=".PASS."";  
+
+									   	$options = array(
+												CURLOPT_POST           => true,
+												CURLOPT_POSTFIELDS     => $data,
+												CURLOPT_RETURNTRANSFER => true,
+												CURLOPT_HEADER         => true,
+												CURLOPT_FOLLOWLOCATION => true,
+												CURLOPT_AUTOREFERER    => true,
+												CURLOPT_CONNECTTIMEOUT => 120,
+												CURLOPT_TIMEOUT        => 120,
+											);
+									    $ch  = curl_init( $url );  
+									    curl_setopt_array( $ch, $options );
+									    $content = curl_exec( $ch );
+									    curl_close( $ch );
+
+									      
+									    if(preg_match('#Location: (.*)#', $content, $r)) {
+										$l = trim($r[1]);
+										$temp = preg_split("/code=/", $l);
+										
+											if(isset($temp[1]))   
+											{ 
+												$authcode = $temp[1];
+												echo "IF";    
+												$curl = curl_init();
+												curl_setopt_array($curl, array(
+												  CURLOPT_URL => "https://auth.bullhornstaffing.com/oauth/token?grant_type=authorization_code&code=".$authcode."&client_secret=".CLIENT_SECRET,
+												  CURLOPT_RETURNTRANSFER => true,
+												  CURLOPT_ENCODING => "",
+												  CURLOPT_MAXREDIRS => 10,
+												  CURLOPT_TIMEOUT => 30,
+												  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+												  CURLOPT_CUSTOMREQUEST => "POST",
+												  CURLOPT_HTTPHEADER => array(
+												    "cache-control: no-cache",
+												    "content-type: application/x-www-form-urlencoded"
+												  ),
+												));
+
+												$response = curl_exec($curl);
+												$err = curl_error($curl);   
+
+												curl_close($curl);
+												   
+												if ($err) 
+												{
+												  echo "cURL Error #:" . $err;
+												} 
+												else 
+												{
+													   $response = json_decode($response);
+														if(isset($response->access_token))       
+														{   
+															$access_token = $response->access_token; 
+					 										$refresh_token =$response->refresh_token;   
+
+					 										$credentials_update=Credential::find($id);
+					 										$credentials_update->notification_status=0;
+					 										$credentials_update->access_token=$access_token;
+										 					$credentials_update->refresh_token=$refresh_token;
+															$credentials_update->save();       
+
+															echo "update status and access_token and refresh_token";      
+														}       
+												}
+
+											}
+									    }
+									    else
+									    {
+									    	echo "invalid Client";   
+
+									    	$sendAlert=$this->sendEmail($name,$clientname);     
+											echo 'send mail';  
+									    }
+									     
+
+								  }   
 									   
 									$postdata  = "grant_type=refresh_token";  
 									$postdata .= "&refresh_token=".$refresh_token;
@@ -1569,7 +1661,7 @@ if ($err) {
 										} else {  
 										 echo $response;  
 										 $responseTest = json_decode($response);  
-										}     
+										}
 										$candidateId =$responseTest->changedEntityId; 
 									}    
 
