@@ -18,8 +18,7 @@ class SocialController extends Controller
         
      function sendEmail($integration_name,$client_name)
      {          
-
-     		 			      
+     		 	 		      
      		$subject="Tokens revoked for ".$client_name." for ".$integration_name."";    
 
      		$message  = '';
@@ -250,6 +249,32 @@ class SocialController extends Controller
 			{
 				$note=" ";                      
 			}	     
+  
+
+  			if($clientname=='LoyalSource')
+  			{
+				if(isset($_POST['source']))
+				{
+
+					$gsource=$_POST['source'];
+					if(!empty($gsource))
+					{
+						$jobSource=$gsource;
+					}   
+					else
+					{
+
+						$jobSource=$jobSource;
+					}  
+					
+				} 
+				else
+				{
+					$jobSource=$jobSource;
+				}
+			}
+
+			   
 			//$job="JOB-1007";     
 			
 			if ((!empty($job)) AND (strpos($job,'JOB-') !== false)) {			
@@ -337,13 +362,13 @@ class SocialController extends Controller
 
 									 if(($notification_status==0) && ($message=="user or API Key not found")) 
 											{             
-												$sendAlert=$this->sendEmail($name,$clientname);           
-												echo 'send mail';    
+												/*$sendAlert=$this->sendEmail($name,$clientname);           
+												echo 'send mail';*/    
 												$credentials_update=Credential::find($id);
 					 							$credentials_update->notification_status=1;
 												$credentials_update->save();  
-												echo "update Status";          
-											}   
+												echo "update Status";        
+											}       
 									 echo 'recordId'.$recordId=$result->recordId;    
 									 echo 'recordName'.$recordName=$result->recordName;
 									}  
@@ -423,8 +448,8 @@ class SocialController extends Controller
 
 									 if(($notification_status==0) && ($message=="user or API Key not found")) 
 											{             
-												$sendAlert=$this->sendEmail($name,$clientname);           
-												echo 'send mail';    
+												/*$sendAlert=$this->sendEmail($name,$clientname);           
+												echo 'send mail'; */   
 												$credentials_update=Credential::find($id);
 					 							$credentials_update->notification_status=1;
 												$credentials_update->save();  
@@ -468,12 +493,12 @@ class SocialController extends Controller
 
 									 if(($notification_status==0) && ($message=="user or API Key not found")) 
 											{             
-												$sendAlert=$this->sendEmail($name,$clientname);           
-												echo 'send mail';    
+												/*$sendAlert=$this->sendEmail($name,$clientname);           
+												echo 'send mail';  */    
 												$credentials_update=Credential::find($id);
 					 							$credentials_update->notification_status=1;
 												$credentials_update->save();  
-												echo "update Status";            
+												echo "update Status";
 											}   
 
 					}
@@ -506,12 +531,12 @@ class SocialController extends Controller
 					{    
 						if($notification_status==0)
 						{          
-							$sendAlert=$this->sendEmail($name,$clientname);     
-							echo 'send mail';    
+							/*$sendAlert=$this->sendEmail($name,$clientname);     
+							echo 'send mail';    */  
 							$credentials_update=Credential::find($id);
  							$credentials_update->notification_status=1;
 							$credentials_update->save();  
-							echo "update Status";          
+							echo "update Status";         
 						}
 					}          
 					    
@@ -704,12 +729,12 @@ class SocialController extends Controller
 					         
 									 if(($notification_status==0) && ($message=="Invalid login")) 
 											{                   
-												$sendAlert=$this->sendEmail($name,$clientname);                   
-												echo 'send mail';    
+												/*$sendAlert=$this->sendEmail($name,$clientname);                   
+												echo 'send mail';    */  
 												$credentials_update=Credential::find($id);
 					 							$credentials_update->notification_status=1;
 												$credentials_update->save();  
-												echo "update Status";          
+												echo "update Status";         
 											}
 
 					}  
@@ -741,8 +766,8 @@ class SocialController extends Controller
 					{
 										if($notification_status==0)
 											{             
-												$sendAlert=$this->sendEmail($name,$clientname);     
-												echo 'send mail';    
+												/*$sendAlert=$this->sendEmail($name,$clientname);     
+												echo 'send mail'; */    
 												$credentials_update=Credential::find($id);
 					 							$credentials_update->notification_status=1;
 												$credentials_update->save();  
@@ -797,8 +822,8 @@ class SocialController extends Controller
 									{  
 										if($notification_status==0)
 											{             
-												$sendAlert=$this->sendEmail($name,$clientname);     
-												echo 'send mail';    
+												/*$sendAlert=$this->sendEmail($name,$clientname);     
+												echo 'send mail';    */ 
 												$credentials_update=Credential::find($id);
 					 							$credentials_update->notification_status=1;
 												$credentials_update->save();  
@@ -1088,13 +1113,13 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									{  
 										if($notification_status==0)
 											{             
-												$sendAlert=$this->sendEmail($name,$clientname);     
-												echo 'send mail';    
+												/*$sendAlert=$this->sendEmail($name,$clientname);     
+												echo 'send mail'; */  
 												$credentials_update=Credential::find($id);
 					 							$credentials_update->notification_status=1;
 												$credentials_update->save();  
-												echo "update Status";          
-											}      
+												echo "update Status";         
+											}       
 									}
 									  
 
@@ -1243,7 +1268,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									    {
 									    	echo "invalid Client";   
 
-									    	$sendAlert=$this->sendEmail($name,$clientname);     
+									    	//$sendAlert=$this->sendEmail($name,$clientname);     
 											echo 'send mail';  
 									    }
 									     
@@ -1271,12 +1296,12 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									{  
 										if($notification_status==0)
 											{             
-												$sendAlert=$this->sendEmail($name,$clientname);     
-												echo 'send mail';    
+												/*$sendAlert=$this->sendEmail($name,$clientname);     
+												echo 'send mail';  */    
 												$credentials_update=Credential::find($id);
 					 							$credentials_update->notification_status=1;
 												$credentials_update->save();  
-												echo "update Status";          
+												echo "update Status";      
 											} 
 
 									}    
