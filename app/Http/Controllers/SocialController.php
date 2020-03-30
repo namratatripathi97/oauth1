@@ -253,16 +253,17 @@ class SocialController extends Controller
 
   			if($clientname=='LoyalSource')
   			{
-				if(isset($_POST['source']))
+				if(isset($_POST['source']))      
 				{
 
 					$gsource=$_POST['source'];
 					if(!empty($gsource))
 					{
-						$jobSource=$gsource;
-					}   
+						//$jobSource=$gsource;
+						$jobSource = parse_url($gsource, PHP_URL_HOST);
+					}             
 					else
-					{
+					{           
 
 						$jobSource=$jobSource;
 					}  
