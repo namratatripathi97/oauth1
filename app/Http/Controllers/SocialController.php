@@ -1473,8 +1473,8 @@ if ($err) {
 
   								   //Code for check the candidate status in bullhorn 
 
-									$url=$resturl."find?query=$email&countPerEntity=1";
-									$header = array('bhresttoken: '.$bhtoken);        
+									$url=$resturl."find?query=$email&countPerEntity=1";    
+									$header = array('bhresttoken: '.$bhtoken);           
 									$resource = curl_init();             
 									curl_setopt($resource, CURLOPT_URL, $url);           
 									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
@@ -1522,15 +1522,22 @@ if ($err) {
 									{
 										$phone_status=$result->data[0]->entityId;   
 									}
+									echo 'email_status';
+									echo $email_status;
+									echo 'phone status';    
+									echo $phone_status;     
 
 									if( (!empty($email_status)) && (!empty($phone_status)) )
 									{
+										echo 'ifloop'; 
+										/*exit;*/
 									   $candidateId=$email_status;  
 									}
-									else   
+									else         
 									{       
-				
-  										      
+										echo 'elseloop';
+										/*exit;*/        
+  										          
 										$url=$resturl."entity/Candidate";    
 
 										if(isset($_POST['im_a']))
