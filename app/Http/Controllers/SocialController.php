@@ -1589,8 +1589,8 @@ if ($err) {
 
 
 											}
-											else
-											{ $area_of_interest =""; } 
+											else    
+											{ $area_of_interest ="2000015"; }       
 
 											if(isset($_POST['street_address']))
 											{ 
@@ -1669,11 +1669,14 @@ if ($err) {
 										else
 										{
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';
-										}     
+										}    
+ 
+										/*echo $postResume;
+										exit;  */              
 	 								    //$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';   
 										$curl = curl_init();          
 										curl_setopt_array($curl, array(               
-										 CURLOPT_URL => $url,             
+										 CURLOPT_URL => $url,               
 										 CURLOPT_RETURNTRANSFER => true,            
 										 CURLOPT_ENCODING => "",         
 										 CURLOPT_MAXREDIRS => 10,        
@@ -1693,6 +1696,7 @@ if ($err) {
 										 echo "cURL Error #:" . $err;       
 										} else {  
 										 echo $response;  
+										/* exit;  */  
 										 $responseTest = json_decode($response);  
 										}
 										$candidateId =$responseTest->changedEntityId; 
@@ -1720,7 +1724,7 @@ if ($err) {
 									    //echo 'not apply for the job'; 
 									}  
 									else   
-									{    
+									{            
 										// post a job       
 											//echo 'apply';   
 
