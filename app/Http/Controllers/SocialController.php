@@ -140,7 +140,15 @@ class SocialController extends Controller
 	 			$request['url'] ='https://auth.bullhornstaffing.com/oauth/token';          
 	 		}
 
-	 	}     
+	 	}
+	 	else if($name=="Brightmove")
+	 	{ 
+	 		$call="createApplicant";    
+	 		if($url==null)
+	 		{    
+	 			$request['url'] ='https://secure.brightmove.com/ATS/rest/jobboard/apply/';          
+	 		}  
+	 	}  
 	 	else if($name=="Jobscience")
 	 	{
 	 		$call="createContact";    
@@ -165,11 +173,11 @@ class SocialController extends Controller
 	 			$request['url'] ='https://id.jobadder.com/connect/token';          
 	 		}        
 	 	}  
-	 	else    
+	 	else         
 	 	{
-	 		$call=$apicall; 
+	 		$call=$apicall;  
 	 	}
-	 	
+	 	       
 	 	                      
 	 	
 	 	$url="https://oauth.redwoodtechnologysolutions.com/wp/oauth/public/api/".$name."/".$request['client_name']."/".$call.""; 
@@ -646,7 +654,95 @@ class SocialController extends Controller
 
 					}    
    
-			}       
+			}
+			if($apicall=='createApplicant')   
+			{     
+   
+       
+				$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email."";      
+				if($resume_status=="Yes")  
+				{   
+
+					$ext = pathinfo($filedata, PATHINFO_EXTENSION);   
+					$content_type="application/".$ext;     
+					$filename=$fname.' '.$lname.'.'.$ext;
+					$filecontent = base64_encode(file_get_contents($filedata));
+				}    
+				else  
+				{     
+					$content_type="";
+					$filename="";
+					$filecontent="";        
+				}
+
+				        
+					$postdata='{    
+   "applicant":{   
+      "coverletter":"",       
+      "email":"'.$email.'",     
+      "fullName":"'.$fname.' '.$lname.'",             
+      "resume":{    
+         "file":{    
+            "contentType":"'.$content_type.'",
+            "data":"'.$filecontent.'",
+            "fileName":"'.$filename.'"
+         },
+         "hrXml":null,      
+         "html":"",     
+         "json":{
+            "additionalInfo":null,
+            "associations":null,
+            "awards":null,
+            "certifications":null,
+            "firstName":"'.$fname.'",
+            "headline":null,
+            "lastName":"'.$lname.'",
+            "links":null,  
+            "militaryServices":null,                 
+            "patents":null,        
+            "phoneNumber":"'.$phone.'",
+            "publicProfileURl":null,
+            "publications":null,
+            "skills":null,
+            "summary":null
+         },   
+         "text":"'.$description.'"          
+      }
+   },
+   "appliedOnMillis":0,      
+   "job":{        
+      "jobId":"'.$job_id.'"      
+   }       
+}';             
+     
+					//$source="None";      	            
+					$curl = curl_init();             
+					curl_setopt_array($curl, array(                     
+					 CURLOPT_URL => $apiurl.$source,   
+					 CURLOPT_RETURNTRANSFER => true,     
+					 CURLOPT_ENCODING => "", 
+					 CURLOPT_MAXREDIRS => 10,    
+					 CURLOPT_TIMEOUT => 30,  
+					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+					 CURLOPT_CUSTOMREQUEST => "POST",
+					 CURLOPT_POSTFIELDS => $postdata,          
+					 CURLOPT_HTTPHEADER => array(            
+					   "Content-Type: application/json",        
+					   "x-brightmove-company-apikey:".$client_id,
+    				   "x-brightmove-user-apikey: ".$apikey 
+					 ),        
+					));
+					$response = curl_exec($curl);       
+					$err = curl_error($curl);                
+					curl_close($curl);
+					if ($err) {     
+					 echo "cURL Error #:" . $err;
+					} else {
+					 echo $response;
+
+					}
+   
+			}         
 			if($apicall=='getRecords')   
 			{ 
 					$getRecord='{"trackerrms": {"getRecords": {"credentials": {"username": "'.$username.'","password": "'.$password.'"},"instructions": {"recordtype": "R","state": "","searchtext": "","onlyrecords": true}}}}';  
@@ -1823,11 +1919,11 @@ if ($err) {
 												} else {    
 												 echo $response1;  
  
-												}      
+												}   
 
 										}     
 									
-  
+        
 			}  
 	 		        
 	 }       
