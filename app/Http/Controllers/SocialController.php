@@ -616,10 +616,10 @@ class SocialController extends Controller
 						$applicant_id = $response1->applicationId;
 						$resumeLink = $response1->links->resume;                      
 						echo 'appid'.$applicant_id;    
-						     
+						        
 					}    
 					/*exit; */  
-					if($resume_status=="Yes")
+					if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
 					{   
 
 						$ext = pathinfo($filedata, PATHINFO_EXTENSION);   
@@ -660,8 +660,8 @@ class SocialController extends Controller
    
        
 				$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email."";      
-				if($resume_status=="Yes")  
-				{   
+				if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")  
+				{       
 
 					$ext = pathinfo($filedata, PATHINFO_EXTENSION);   
 					$content_type="application/".$ext;     
@@ -775,8 +775,8 @@ class SocialController extends Controller
 			if($apicall=='applicants')   
 			{ 
 
-					if($resume_status=="Yes")  
-										{       
+					if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")  
+										{           
 											/*$ext = pathinfo($filedata, PATHINFO_EXTENSION);
 											$filename=$fname.' '.$lname.'.'.$ext;
 											$filecontent = file_get_contents($filedata);                
@@ -947,8 +947,8 @@ class SocialController extends Controller
 									$resturl_bullhorn = $response1->restUrl; 
 									$bhtoken_bullhorn = $response1->BhRestToken;     
 									             
-									if($resume_status=="Yes")   
-									   { 
+									if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")   
+									   {     
 									   	  $ext = pathinfo($filedata, PATHINFO_EXTENSION);
 										  $filename=$fname.' '.$lname.'.'.$ext;
 										  $filecontent = file_get_contents($filedata);
@@ -1118,9 +1118,9 @@ $postContact=json_encode($json_array);
 
 
 
-					if($resume_status=="Yes")
+					if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
 					{      
-								$ext = pathinfo($filedata, PATHINFO_EXTENSION);
+								$ext = pathinfo($filedata, PATHINFO_EXTENSION);   
 								$filename=$fname.' '.$lname.'.'.$ext;
 								$filecontent = file_get_contents($filedata);                
 								 Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
@@ -1240,8 +1240,8 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									$response1 = json_decode($result1);
 									$resturl = $response1->restUrl;     
 									$bhtoken = $response1->BhRestToken;                  
-
-									$description="".$fname." ".$lname." oauth.redwoodtechnologysolutions.com Phone: ".$phone." oauth.redwoodtechnologysolutions.com Email: ".$email."oauth.redwoodtechnologysolutions.com"; 
+    
+									$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email." "; 
 
 									$url=$resturl."entity/Lead";         
 	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "New Lead","comments": "2020 salary guide download","leadSource": "'.$jobSource.'","phone": "'.$phone.'","mobile": "'.$phone.'","description":"'.mysql_escape_mimic($description).'"}';   
@@ -1419,14 +1419,14 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									curl_setopt($ch1, CURLOPT_POSTFIELDS, $postdata1);   
 									curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
 									echo $result1 = curl_exec($ch1);     
-									         
+									                   
 									$response1 = json_decode($result1);
 									$resturl = $response1->restUrl;   
 									$bhtoken = $response1->BhRestToken;       
       
 
-									if($resume_status=="Yes")  
-									   {   
+									if($resume_status=="Yes"  || $resume_status=="YES" || $resume_status=="yes")       
+									   {      
 
 									   	  $ext = pathinfo($filedata, PATHINFO_EXTENSION);   
 										  $filename=$fname.' '.$lname.'.'.$ext;
@@ -1506,11 +1506,11 @@ exit;
 										} 
 									   }
 									else    
-									  {
-									  		$description="".$fname." ".$lname." oauth.redwoodtechnologysolutions.com Phone: ".$phone." oauth.redwoodtechnologysolutions.com Email: ".$email."oauth.redwoodtechnologysolutions.com";  
+									  {         
+									  		$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email." ";  
 									  }      
    
-									 /* echo $description;
+									 /* echo $description;   
 									  exit; */  
 									/* echo $text;       
 									  exit;   */
@@ -1571,14 +1571,16 @@ if ($err) {
   								   //Code for check the candidate status in bullhorn 
 
 									$url=$resturl."find?query=$email&countPerEntity=1";    
-									$header = array('bhresttoken: '.$bhtoken);           
-									$resource = curl_init();             
+									$header = array('bhresttoken: '.$bhtoken);                     
+									$resource = curl_init();                 
 									curl_setopt($resource, CURLOPT_URL, $url);           
 									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
 									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);           
 									$result = json_decode(curl_exec($resource));  
 									curl_close($resource);
 									   
+										        
+								 
 									if(empty($result->data)) 
 									{
 										$email_status='';      
@@ -1587,6 +1589,8 @@ if ($err) {
 									{
 										$email_status=$result->data[0]->entityId;   
 									} 
+
+
 									            
 									if($clientname=='cybersearchsf')
 									{
@@ -1623,6 +1627,8 @@ if ($err) {
 									echo $email_status;
 									echo 'phone status';    
 									echo $phone_status;     
+
+									         
 
 									if( (!empty($email_status)) && (!empty($phone_status)) )
 									{
@@ -1876,13 +1882,13 @@ if ($err) {
 									echo 'appid';       
 									echo $applyjobid;
 									exit; */         
-									/*if($applyjobid!=$job_id)
+									/*if($applyjobid!=$job_id)     
 									{       
 	
 											
   									}*/
-									if($resume_status=="Yes")  
-										{          
+									if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")  
+										{                  
 											$ext = pathinfo($filedata, PATHINFO_EXTENSION);
 											$filename=$fname.' '.$lname.'.'.$ext;
 											$filecontent = file_get_contents($filedata);                
