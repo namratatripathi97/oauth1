@@ -99,6 +99,11 @@ class SocialController extends Controller
 	 	
 	 	return view('client',["integrationname"=>$integrationname]);           
 	 }
+	  public function viewBullhorn()
+	 {   
+   
+	 	return view('bullhorn-credential');           
+	 }
 	 public function indeedApply()
 	 {
 	 	$apitoken=$_GET['apitoken'];  
@@ -116,7 +121,99 @@ class SocialController extends Controller
 	  {
 	  	return view('indeed-redirect');  
 	  }
-	    
+	 
+	 public function addBullhorn(Request $request)
+	 {
+
+	 	$text ='s';
+
+	 	$url = 'https://auth.bullhornstaffing.com/oauth/authorize?client_id='.$request['client_id'].'&response_type=code';
+    $data = "action=Login&username=".$request['username']."&password=".$request['password']."";  
+   	$options = array(
+			CURLOPT_POST           => true,
+			CURLOPT_POSTFIELDS     => $data,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HEADER         => true,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_AUTOREFERER    => true,       
+			CURLOPT_CONNECTTIMEOUT => 120,   
+			CURLOPT_TIMEOUT        => 120,
+		);
+    $ch  = curl_init( $url );  
+    curl_setopt_array( $ch, $options );
+    $content = curl_exec( $ch );
+    curl_close( $ch );
+    if(preg_match('#Location: (.*)#', $content, $r)) {
+	$l = trim($r[1]);
+	$temp = preg_split("/code=/", $l);
+	$authcode = $temp[1];
+	
+    }
+     
+
+    	$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => "https://auth.bullhornstaffing.com/oauth/token?grant_type=authorization_code&code=".$authcode."&client_secret=".$request['client_secret'],
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => "",
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 30,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => "POST",
+		  CURLOPT_HTTPHEADER => array(
+		    "cache-control: no-cache",
+		    "content-type: application/x-www-form-urlencoded"
+		  ),
+		));
+
+		$response = curl_exec($curl);
+		$err = curl_error($curl);   
+
+		curl_close($curl);
+		   
+		if ($err) {
+		  echo "cURL Error #:" . $err;
+		} else {
+
+		 $accessToken=json_decode($response)->access_token;     	
+		  echo  $response;
+		}
+
+
+		echo "<br/>";      
+		$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => "https://rest.bullhornstaffing.com/rest-services/login?version=*&access_token=".$accessToken,
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => "",
+		  CURLOPT_MAXREDIRS => 10,   
+		  CURLOPT_TIMEOUT => 30,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => "POST",
+		  CURLOPT_HTTPHEADER => array(
+		    "cache-control: no-cache"  
+		  ),
+		));
+
+		$response = curl_exec($curl);
+		$err = curl_error($curl);
+
+		curl_close($curl);
+
+		if ($err) {
+		  echo "cURL Error #:" . $err;       
+		} else {     
+		  echo  $response;
+		}
+    
+		//return $authcode; 
+       
+
+	 	//return response('Client Created successfully ! '.$response.'', 200)->header('Content-Type', 'text/plain'); 
+
+	 }         
 	 public function addClient(Request $request)
 	 {
 
@@ -247,17 +344,18 @@ class SocialController extends Controller
   			$fname = $_POST['1_3'];   
 			$lname = $_POST['1_6'];           
 			$email = $_POST['2']; 
-			$phone = $_POST['3'];                 
-			$resume_status = $_POST['4'];       
-			$filedata=$_POST['5'];           
+			$phone = $_POST['3'];    
+			$phone = str_ireplace( array( '\'', '"', ',' , ';', '<', '>', '(', ')', '-', ' ' ), '', $phone);             
+			$resume_status = $_POST['4'];        
+			$filedata=$_POST['5'];                
 			$job=$_POST['7'];
 			 
-			if(isset($_POST['note']))
+			if(isset($_POST['note']))   
 			{
     			$note=$_POST['note'];    
 			}
 			else
-			{
+			{   
 				$note=" ";                      
 			}	     
   
@@ -1902,6 +2000,25 @@ if ($err) {
 	
 											
   									}*/
+
+  									/*if( (!empty($email_status)) && (!empty($phone_status)) )
+									{
+										echo 'ifloop added';
+										
+									   $candidateId=$email_status;
+									}
+									else
+									{
+										echo 'else'  
+
+									}*/
+
+
+
+									
+
+
+
 									if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")  
 										{                  
 											$ext = pathinfo($filedata, PATHINFO_EXTENSION);
@@ -1914,6 +2031,32 @@ if ($err) {
 											$file = chunk_split(base64_encode($path)); 
 
 											$changedEntityId =$candidateId;       
+
+
+											$url=$resturl."entityFiles/Candidate/".$changedEntityId."";   
+											$header = array('bhresttoken: '.$bhtoken);                     
+											$resource = curl_init();                 
+											curl_setopt($resource, CURLOPT_URL, $url);           
+											curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
+											curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);           
+											$result = json_decode(curl_exec($resource));  
+											curl_close($resource);
+
+											foreach ($result->EntityFiles as $rows)       
+											{
+												$rows->filename = $rows->name;                        
+											}          
+ 									  
+ 									if(in_array($filename, array_column($result->EntityFiles, 'filename'))) 
+ 									{    
+									    echo 'not added file';
+									}  
+									else   
+									{  
+  										echo 'add file';
+									    
+   
+									  
 											$url1=$resturl."file/Candidate/".$changedEntityId."";        
 									$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
 			   
@@ -1942,7 +2085,9 @@ if ($err) {
  
 												}   
 
-										}     
+										}   
+
+									} 	  
 									
         
 			}  
