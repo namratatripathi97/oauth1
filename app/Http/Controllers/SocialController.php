@@ -331,10 +331,11 @@ class SocialController extends Controller
 			$refresh_token=$credential_details->refresh_token;  
 			$access_token=$credential_details->access_token;     
 			$source=$credential_details->source;
-			$notification_status=$credential_details->notification_status;        
-  	   		if(empty($source))
+			$notification_status=$credential_details->notification_status;      
+			$custom_source_status=$credential_details->custom_source_status;     
+  	   		if(empty($source))    
   	   		{ 
-  	   			$jobSource="Jobs +";           
+  	   			$jobSource="Jobs +";              
   	   		}
   	   		else
   	   		{
@@ -360,13 +361,13 @@ class SocialController extends Controller
 			}	     
   
 
-  			if($clientname=='LoyalSource')
-  			{
-				if(isset($_POST['source']))      
+  			/*if($clientname=='LoyalSource')
+  			{*/
+				if( (isset($_POST['source'])) && ($custom_source_status==1) )      
 				{
 
 					$gsource=$_POST['source'];
-					if(!empty($gsource))
+					if(!empty($gsource)) 
 					{
 						//$jobSource=$gsource;
 						$jobSource = parse_url($gsource, PHP_URL_HOST);
@@ -382,7 +383,31 @@ class SocialController extends Controller
 				{
 					$jobSource=$jobSource;
 				}
-			}
+			//}
+			
+		/*	if($clientname=='lakeshore')
+  			{
+				if(isset($_POST['source']))      
+				{
+
+					$gsource=$_POST['source'];
+					if(!empty($gsource))
+					{
+						//$jobSource=$gsource;
+						$jobSource = parse_url($gsource, PHP_URL_HOST);
+					}             
+					else
+					{           
+
+						$jobSource=$jobSource;
+					}  
+					   
+				} 
+				else
+				{
+					$jobSource=$jobSource;
+				}
+			}*/
 
 			   
 			//$job="JOB-1007";     
@@ -975,7 +1000,7 @@ class SocialController extends Controller
 					}
 
 					        
-					        
+					          
 					// CODE FOR CONVERT PDF, DOC TO HTML
 
 					$name="Bullhorn";
@@ -1147,6 +1172,7 @@ else
           
 $postContact=json_encode($json_array);                           
 
+
 					                       
 					$curl = curl_init();  
 					curl_setopt_array($curl, array(                 
@@ -1172,64 +1198,65 @@ $postContact=json_encode($json_array);
 					 ),     
 					));
 					$response = curl_exec($curl);          
-					$err = curl_error($curl);      
+					$err = curl_error($curl);         
 					print_r($err);    
 					curl_close($curl); 
 					if ($err) {
 					 echo "cURL Error #:" . $err;
 					} else {
 					  
-					     
+					  echo 'firstclientrespnse';   
+					 echo $response;         
 					 $response1 = json_decode($response);
 					 $contact_id = $response1->id;  
 					//echo 'appid'.$applicant_id;  
 					}
 					echo "<br/>";               
-					echo "CONTACT_ID:".$contact_id;    
+					echo "CONTACT_ID:".$contact_id;           
 					 echo "<br/>";            
 					// Create Application
-					$curl = curl_init();     
-					curl_setopt_array($curl, array(          
-					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
-					 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
-					 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/ts2__Application__c",    
-					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Candidate",   
-					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Account", 
-					 CURLOPT_RETURNTRANSFER => true, 
-					 CURLOPT_ENCODING => "",       
-					 CURLOPT_MAXREDIRS => 10,    
-					 CURLOPT_TIMEOUT => 30,            
-					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
-					 CURLOPT_CUSTOMREQUEST => "POST",  
-					 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
-					 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",                 
-					CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\",  \"ts2__Job__c\": \"".$job_id."\"}", 
-					 //CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"Jobs +\"}",       
-					 CURLOPT_HTTPHEADER => array(               
-					   "Authorization: Bearer ".$access_token,           
-					   "Content-Type: application/json"
-					 ),     
-					));
-					$response = curl_exec($curl);          
-					$err = curl_error($curl);    
-					print_r($err);    
-					curl_close($curl);     
-					if ($err) {
-					 echo "cURL Error #:" . $err;
-					} else {   
-					 echo $response;   
-					  //echo "applicant create"; 
-					 $response1 = json_decode($response);   
-					 $applicant_id = $response1->id;  
-					echo 'Applicant ID:'.$applicant_id;       
-					}       
 
 
+					if($clientname=='Synergishr')
+					{ 
+						$curl = curl_init();               
+						curl_setopt_array($curl, array(          
+						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
+						 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
+						 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/ts2__Application__c",    
+						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Candidate",   
+						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Account", 
+						 CURLOPT_RETURNTRANSFER => true, 
+						 CURLOPT_ENCODING => "",       
+						 CURLOPT_MAXREDIRS => 10,    
+						 CURLOPT_TIMEOUT => 30,            
+						 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+						 CURLOPT_CUSTOMREQUEST => "POST",  
+						 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
+						 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",                 
+						CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\",  \"ts2__Job__c\": \"".$job_id."\"}", 
+						 //CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"Jobs +\"}",       
+						 CURLOPT_HTTPHEADER => array(               
+						   "Authorization: Bearer ".$access_token,           
+						   "Content-Type: application/json"
+						 ),     
+						));
+						$response = curl_exec($curl);          
+						$err = curl_error($curl);    
+						print_r($err);    
+						curl_close($curl);     
+						if ($err) {
+						 echo "cURL Error #:" . $err;
+						} else {      
+						 echo $response;   
+						  //echo "applicant create"; 
+						 $response1 = json_decode($response);   
+						 $applicant_id = $response1->id;     
+						echo 'Applicant ID:'.$applicant_id;       
+						}       
 
-
-
-
-
+       				
+   
 
 					if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
 					{      
@@ -1241,8 +1268,8 @@ $postContact=json_encode($json_array);
 
 								$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);  
 								  
-								$file = chunk_split(base64_encode($path));     
-   								$file = mysql_escape_mimic1($file);
+								$file = chunk_split(base64_encode($path));            
+   								$file = mysql_escape_mimic1($file);    
    								/*$parseResumeCand='{
 "ContactId" : "0033s000010uhP1AAI",
 "Name" : "test1212.txt",
@@ -1255,24 +1282,25 @@ $postContact=json_encode($json_array);
     "Name" => $filename,
 	"body" => base64_encode(file_get_contents($filedata)),
 	"parentId" => $contact_id,
-];
-$parseResumeCand=json_encode($post_text);   */   
+]; 
+$parseResumeCand=json_encode($post_text);   */      
 
      
 $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","ContentType": "application/'.$ext.'","Body": "'.$file.'"}'; 
   
      
-								$curl = curl_init();  
-							 curl_setopt_array($curl, array(          
+								$curl = curl_init();      
+							 curl_setopt_array($curl, array(                      
 							 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Attachment/",      
 							  CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
-							 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ResumeAddUpdateBackend",  
-							 CURLOPT_RETURNTRANSFER => true, 
-							 CURLOPT_ENCODING => "",          
+							 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume",       
+							 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ResumeAddUpdateBackend",     
+							 CURLOPT_RETURNTRANSFER => true,            
+							 CURLOPT_ENCODING => "",                        
 							 CURLOPT_MAXREDIRS => 10,       
 							 CURLOPT_TIMEOUT => 30,            
 							 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
-							 CURLOPT_CUSTOMREQUEST => "POST",   
+							 CURLOPT_CUSTOMREQUEST => "POST",       
 							 CURLOPT_POSTFIELDS => $parseResumeCand,        
 							 CURLOPT_HTTPHEADER => array(                 
 							   "Authorization: Bearer ".$access_token,             
@@ -1281,17 +1309,18 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 							));
 							$response = curl_exec($curl);            
 							$err = curl_error($curl);    
-							print_r($err);    
-							curl_close($curl);
+							print_r($err);         
+							curl_close($curl);   
 							if ($err) {     
 							 echo "cURL Error #:" . $err;  
 							} else {    
-							 echo $response;
+							 echo $response;    
 							 echo "resume upload"; 
 							 echo "resume upload backend";      
 							 $response1 = json_decode($response);
 							}  
 					}
+				} 
 
 			}	
 			if($apicall=='createLead')   
@@ -1518,7 +1547,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 
  									$credentials_update=Credential::find($id);
  									$credentials_update->access_token  = $access_token;
-									$credentials_update->refresh_token = $refresh_token; 
+									$credentials_update->refresh_token = $refresh_token;     
 									$credentials_update->save();            
   
 									//$access_token=$access_token;   
@@ -1531,7 +1560,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 									curl_setopt($ch1, CURLOPT_POST, true);
 									curl_setopt($ch1, CURLOPT_POSTFIELDS, $postdata1);   
 									curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
-									echo $result1 = curl_exec($ch1);     
+									$result1 = curl_exec($ch1);     
 									                   
 									$response1 = json_decode($result1);
 									$resturl = $response1->restUrl;   
@@ -1737,9 +1766,9 @@ if ($err) {
 										$phone_status=$result->data[0]->entityId;   
 									}
 									echo 'email_status';
-									echo $email_status;
+									//echo $email_status;
 									echo 'phone status';    
-									echo $phone_status;     
+									//echo $phone_status;     
 
 									         
 
@@ -1934,53 +1963,55 @@ if ($err) {
 										$rows->JOBID = $rows->jobOrder->id;                        
 									}          
  									  
- 									if(in_array($job_id, array_column($result->data, 'JOBID'))) 
- 									{    
-									    //echo 'not apply for the job'; 
-									}  
-									else   
-									{            
-										// post a job       
-											//echo 'apply';   
+ 									if(!empty($job_id))    
+ 									{  
+		 									if(in_array($job_id, array_column($result->data, 'JOBID'))) 
+		 									{    
+											    //echo 'not apply for the job'; 
+											}  
+											else      
+											{               
+												// post a job       
+													//echo 'apply'; 
 
-											$url2=$resturl."entity/JobSubmission";
-											
-											if($clientname=='cybersearchsf'){											
-												/*$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Applicant","source": "'.$jobSource.'"}';*/
-												$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "Job Posting Response","source": "'.$jobSource.'"}';         
+													$url2=$resturl."entity/JobSubmission";
+													
+													if($clientname=='cybersearchsf'){											
+														/*$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Applicant","source": "'.$jobSource.'"}';*/
+														$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "Job Posting Response","source": "'.$jobSource.'"}';         
 
 
-											} else {
-												$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead","source": "'.$jobSource.'"}';
-											}												
-											$curl2 = curl_init();  
-											curl_setopt_array($curl2, array(            
-											 CURLOPT_URL => $url2,              
-											 CURLOPT_RETURNTRANSFER => true,             
-											 CURLOPT_ENCODING => "",      
-											 CURLOPT_MAXREDIRS => 10,      
-											 CURLOPT_TIMEOUT => 30,    
-											 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,             
-											 CURLOPT_CUSTOMREQUEST => "PUT", 
-											 CURLOPT_POSTFIELDS => $postJob2,          
-											 CURLOPT_HTTPHEADER => array(     
-											   "BhRestToken: ".$bhtoken,         
-											   "Content-Type: application/json",         
-											 ),    
-											));
-											$response2 = curl_exec($curl2);            
-											$err2 = curl_error($curl2);                   
-											curl_close($curl2);  
-											if ($err2) {     
-											 echo "cURL Error #:" . $err2;   
-											} else {   
-											 echo $response2;  
-											 //$responseTest2 = json_decode($response);  
+													} else {
+														$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead","source": "'.$jobSource.'"}';
+													}												
+													$curl2 = curl_init();  
+													curl_setopt_array($curl2, array(            
+													 CURLOPT_URL => $url2,              
+													 CURLOPT_RETURNTRANSFER => true,             
+													 CURLOPT_ENCODING => "",      
+													 CURLOPT_MAXREDIRS => 10,      
+													 CURLOPT_TIMEOUT => 30,    
+													 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,             
+													 CURLOPT_CUSTOMREQUEST => "PUT", 
+													 CURLOPT_POSTFIELDS => $postJob2,          
+													 CURLOPT_HTTPHEADER => array(     
+													   "BhRestToken: ".$bhtoken,         
+													   "Content-Type: application/json",         
+													 ),    
+													));
+													$response2 = curl_exec($curl2);            
+													$err2 = curl_error($curl2);                   
+													curl_close($curl2);  
+													if ($err2) {     
+													 echo "cURL Error #:" . $err2;   
+													} else {   
+													 echo $response2;  
+													 //$responseTest2 = json_decode($response);  
+													} 
+													//end post job
 											} 
-											//end post job
-									} 
 
-
+										}
 
 									/*if($result->total==0)
 									{
@@ -2049,17 +2080,15 @@ if ($err) {
  									  
  									if(in_array($filename, array_column($result->EntityFiles, 'filename'))) 
  									{    
-									    echo 'not added file';
+									    	echo 'notadded file';
 									}  
 									else   
-									{  
-  										echo 'add file';
-									    
-   
+									{     
+  											echo 'add file';
 									  
 											$url1=$resturl."file/Candidate/".$changedEntityId."";        
-									$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
-			   
+											$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
+			      
 												$curl1 = curl_init();
 												curl_setopt_array($curl1, array(     
 												 CURLOPT_URL => $url1,                
