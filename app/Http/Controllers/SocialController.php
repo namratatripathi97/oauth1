@@ -361,6 +361,48 @@ class SocialController extends Controller
 				$note=" ";                      
 			}	     
   
+  			if(isset($_POST['address1']))    
+			{
+				$address1=$_POST['address1'];
+			}
+			else
+			{
+				$address1=""; 
+			} 
+			if(isset($_POST['address2']))    
+			{
+				$address2=$_POST['address2'];
+			}
+			else
+			{
+				$address2=""; 
+			} 
+			if(isset($_POST['city']))    
+			{
+				$city=$_POST['city'];
+			}
+			else
+			{  
+				$city=""; 
+			} 
+			if(isset($_POST['state']))    
+			{
+				$state=$_POST['state'];
+			}
+			else
+			{  
+				$state=""; 
+			} 
+			if(isset($_POST['zip']))    
+			{
+				$zip=$_POST['zip'];
+			}
+			else
+			{    
+				$zip=""; 
+			} 
+
+
 
   			/*if($clientname=='LoyalSource')
   			{*/
@@ -1176,8 +1218,8 @@ else
 	'LastName'=>$lname,        
 	'Email'=>$email,                
 	'Phone'=>$phone,
-	'LeadSource'=>$jobSource,   
-	'TR1__Source__c'=>$jobSource          
+	'LeadSource'=>$jobSource   
+	//'TR1__Source__c'=>$jobSource          
 	);
 }
     
@@ -1351,7 +1393,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 						 CURLOPT_CUSTOMREQUEST => "POST",  
 						 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
 						 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",                 
-						CURLOPT_POSTFIELDS => "{ \"TR1__Applicant__c\": \"".$contact_id."\",  \"TR1__Job__c\": \"".$job_id."\"}", 
+						CURLOPT_POSTFIELDS => "{ \"TR1__Applicant__c\": \"".$contact_id."\",  \"TR1__Job__c\": \"".$job_id."\",  \"TR1__Source__c\": \"Job Board\"}", 
 						 //CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"Jobs +\"}",       
 						 CURLOPT_HTTPHEADER => array(                 
 						   "Authorization: Bearer ".$access_token,           
@@ -2027,7 +2069,13 @@ if ($err) {
 										}
 										else
 										{
-											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'"}';
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
+            "address1": "'.$address1.'",
+            "address2": "'.$address2.'",  
+            "city": "'.$city.'", 
+            "state": "'.$state.'",            
+            "zip": "'.$zip.'"                          
+        },"description":"'.$description.'"}';
 										}    
  
 										/*echo $postResume;
