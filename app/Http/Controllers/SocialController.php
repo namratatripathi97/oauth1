@@ -182,6 +182,7 @@ class SocialController extends Controller
 
 
 		echo "<br/>";        
+		         
 		     
 		$curl = curl_init();
 
@@ -398,7 +399,7 @@ class SocialController extends Controller
 				$zip=$_POST['zip'];
 			}
 			else
-			{    
+			{     
 				$zip=""; 
 			} 
 
@@ -1008,7 +1009,6 @@ class SocialController extends Controller
 			} 
 			if($apicall=='createContact')   
 			{
- 					
 
 
  					$url = $apiurl;
@@ -1047,34 +1047,40 @@ class SocialController extends Controller
 					       
 					// CODE FOR CONVERT PDF, DOC TO HTML
 
-					$name="Bullhorn";
-					$clientname="LewisJames";       
+					$name_bh="Bullhorn";
+					$clientname_bh="LewisJames";       
+					$description=''; //initializing resume as blank will be replaced if resume is parsed
 
-					if(($name=="Bullhorn") && ($clientname=="LewisJames"))
-					{
-						$credential_details = Credential::where('name',$name)->where('client_name',$clientname)->first();
-
-				 		$username_bullhorn=$credential_details->username;
+					if(($name_bh=="Bullhorn") && ($clientname_bh=="LewisJames") && ($resume_status=='Yes'))
+					{ 
+						$credential_details = Credential::where('name',$name_bh)->where('client_name',$clientname_bh)->first();					
+				 		$username_bullhorn=$credential_details->username; 
 					    $password_bullhorn=$credential_details->password;
-						$apiurl_bullhorn=$credential_details->url; 
+						$apiurl_bullhorn=$credential_details->url;      
 						$id_bullhorn=$credential_details->id; 
 						$client_id_bullhorn=$credential_details->client_id;  
-						$apikey_bullhorn=$credential_details->client_secret;     
-						$refresh_token_bullhorn=$credential_details->refresh_token;  
-						$access_token_bullhorn=$credential_details->access_token;    
-						$source_bullhorn=$credential_details->source;  
+						$apikey_bullhorn=$credential_details->client_secret;           
+						$refresh_token_bullhorn=$credential_details->refresh_token;   
+						$access_token_bullhorn=$credential_details->access_token;      
+						$source_bullhorn='';    
+						    
+						//temporary loop please remove   
+						/*$username_bullhorn='apiuser.LewisJames';         
+					    $password_bullhorn='!0!0Huntcliff';
+						$apiurl_bullhorn='https://auth.bullhornstaffing.com/oauth/token'; 
+						$id_bullhorn='74'; 
+						$client_id_bullhorn='09f2b351-7793-4a2f-8258-60d59bb35b61';  
+						$apikey_bullhorn='BeXYnFeQW2ZQWS9MQNaET4WJ';     
+						$refresh_token_bullhorn='42:5ab2a598-d4dd-4887-ac3f-5da0e141eb83';  
+						$access_token_bullhorn='42:144c0d32-2b17-44fe-8de0-8c032e902723';    
+						$source_bullhorn='';*/
 						
-  
-  
-    
-
-									$url = $apiurl_bullhorn;
-
-									$postdata  = "grant_type=refresh_token";
-									$postdata .= "&refresh_token=".$refresh_token_bullhorn;
-									$postdata .= "&client_id=".$client_id_bullhorn;
-									$postdata .= "&client_secret=".$apikey_bullhorn;
-									$ch = curl_init($url);
+						$url = $apiurl_bullhorn;    
+						$postdata  = "grant_type=refresh_token";
+						$postdata .= "&refresh_token=".$refresh_token_bullhorn;
+						$postdata .= "&client_id=".$client_id_bullhorn;   
+						$postdata .= "&client_secret=".$apikey_bullhorn;
+						$ch = curl_init($url);
 									curl_setopt($ch, CURLOPT_POST, true);
 									curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
 									curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1189,9 +1195,11 @@ class SocialController extends Controller
 					//$postContact='{"FirstName": "'.$fname.'","LastName": "'.$lname.'","Email": "'.$email.'","Phone": "'.$phone.'","LeadSource": "'.$jobSource.'","ts2__Text_Resume__c":"'.$description.'"}';   
 
 					//$description="<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=utf-8\"><style>\tp.std   { margin-top: 0; margin-bottom: 0; border: 0 0 0 0; }</style></HEAD><BODY><!-- [[[ PDF.Page--><BR> &nbsp;&nbsp;<BR>2006 Balsam Way, Round Rock, TX 78665 ? M80.daynajq@gmail.com &nbsp;? (512) 803-7456 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>OBJECTIVES <BR>With over 16 years of outstanding customer service and satisfaction, advocating equanimity and dignity while &nbsp;<BR>promoting conscientiousness and ethics through character cultivation are my personal policies. These personal <BR>policies facilitate fundamental connections with the folks involved in all my endeavors. All of my clients and <BR>coworkers after working with me can attest that they are not just a number, but an invaluable asset. Unfortunately, <BR>due to an &nbsp;accident, I am unable to continue my career in Emergency Medical Services. Fortunately I am still able to <BR>continue to do what I love, bringing positivity into people’s lives! &nbsp;<BR>EDUCATION &nbsp;<BR>EMTS Academy &nbsp;<BR>November 2015 &nbsp;? &nbsp;&nbsp;&nbsp;Emergency Medical Technician – B &nbsp;<BR>? &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>2011 &nbsp;&nbsp;&nbsp;Austin Community College &nbsp;<BR>Majors: Business, Anthropology <BR>&nbsp;&nbsp;<BR>CERTIFICATIONS &amp; SKILLS <BR>American Sign Language (ASL) ? &nbsp;Intermediate level of communication &amp; interpreting &nbsp;<BR>? &nbsp;<BR>TABC Certification ? July 2019 <BR>? &nbsp;<BR>Advanced Life Support ? October 2017 <BR>? &nbsp;<BR>CPR &amp; AED ? July 2019 &nbsp;&nbsp;<BR>? &nbsp;<BR>FEMA ?October 2015 &nbsp;<BR>Introduction to Hazardous Materials ? ·Emergency Management Institute <BR>?<BR>OSHA &nbsp;Safety in the Workplace Compliance ? 2015 <BR>? <BR>HIPPA and Patient Confidentiality ? 2015 <BR>? &nbsp;<BR>NREMT ?December 2015 &nbsp;<BR>·Registry #: E3225836 &nbsp;<BR>· ? &nbsp;<BR>EMT – B Certification ?November 2015 <BR>EMTS Academy <BR>DAYNA JON QUILLIN <BR>&nbsp;&nbsp;| P a g e 1<BR> <BR><!-- ]]] PDF.Page--><P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P><!-- [[[ PDF.Page--><BR>REFERENCES <BR>Sean Mullin &nbsp;? &nbsp;Former Supervisor &nbsp;? (512) 658-2948 ? &nbsp;seanmullin@me.com <BR>Seth Spurgers &nbsp;&nbsp;? &nbsp;Former Supervisor &nbsp;? (512) 263-0700 ? sspurgers@goldsgym.com <BR>Corey Savala &nbsp;&nbsp;? &nbsp;Former Supervisor &nbsp;? &nbsp;&nbsp;csavala@goldsgym.com <BR>Dorsie Martin &nbsp;? &nbsp;Former Coworker &nbsp;? (512) 284-5847 &nbsp;<BR>EXPERIENCE &nbsp;<BR>Favor Deliveries ? &nbsp;&nbsp;&nbsp;&nbsp;1705 Guadalupe St, Austin, TX <BR>Runner ? &nbsp;June 2017 – Currently an independent contractor <BR>? <BR>Uncle Gary’s Bar ? Farm to Market Road &nbsp;Pflugerville, TX <BR>Bartender ? June 2019 – Currently Employed <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;? &nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Acadian Ambulance ? 4100 E. Ed Bluestein Blvd. Austin, TX <BR>EMT-B ? October 2017 – March 2018 <BR>? &nbsp;<BR>Golds Gym ? 12480 Bee Cave Rd, Bee Cave, TX &nbsp;<BR>Housekeeping; Kid’s Club ? &nbsp;June 2015 – February 2017 &nbsp;<BR>? &nbsp;&nbsp;<BR>The Great Vapor Caper ? &nbsp;1807 Red Fox Rd. &nbsp;<BR>Owner &nbsp;&amp; CEO ? &nbsp;&nbsp;June 2012 – January 2016 &nbsp;<BR>? <BR>Target ? 2300 W Ben White Blvd, Austin, TX &nbsp;&nbsp;<BR>Logistics Early AM; Instocks; Team lead/Manager &nbsp;? October 2011 – May 2012 &nbsp;<BR>? &nbsp;<BR>Black Sheep Lodge ? 2108 S Lamar Blvd, Austin, TX &nbsp;<BR>Waitress; Bartender ? July 2010 – February 2011 &nbsp;<BR>? &nbsp;<BR>Cherry Creek Catfish ? 5712 Manchaca Rd, Austin, TX &nbsp;<BR>Manager; Waitress, Bartender, Hostess,, Line Cook ? &nbsp;December 2008 – July 2010 &nbsp;<BR>? &nbsp;<BR>Chilis ? Buda, TX &amp; Austin, TX &nbsp;<BR>Waitress ? &nbsp;November 2005 – November 2009 &nbsp;<BR>Thank you so much for your time reviewing my resume! <BR>I sincerely hope my words have sparked your interest and look forward to our future pursuits! <BR>&nbsp;Have a great and productive day! <BR>&nbsp;&nbsp;<BR>&nbsp;&nbsp;| P a g e 2<BR> <BR><!-- ]]] PDF.Page--><P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P><!-- [[[ PDF.Page--><BR> <BR>&nbsp;&nbsp;| P a g e 3<BR> <BR><!-- ]]] PDF.Page--><P style=\"page-break-before:always; border-top-style: dashed; border-top-width:thin; color:silver; \" ></P></BODY></HTML>";    
-					$html_content=$description;           
+					//$description='';
+					$html_content=$description;    
+					//echo $description;					
 					 
-   
+       
 if($clientname=='Synergishr')
 {    
 	$json_array=array(
@@ -1204,7 +1212,7 @@ if($clientname=='Synergishr')
 	); 
 }
 else    
-{
+{  
 	/*$json_array=array(     
 	'FirstName'=>$fname,   
 	'LastName'=>$lname,          
@@ -1260,25 +1268,36 @@ $postContact=json_encode($json_array);
 					 echo "cURL Error #:" . $err;
 					} else {
 					  
-					  echo 'firstclientrespnse';   
-					 echo $response;         
-					 $response1 = json_decode($response);
-					 $contact_id = $response1->id;  
+					echo 'firstclientrespnse';   
+					echo $response;         
+					$response1 = json_decode($response);
+					
+
+					if(isset($response1->id))   
+					{
+						$contact_id =$response1->id;     
+					}
+					else
+					{
+						$contact_id =''; 
+					}      
 					//echo 'appid'.$applicant_id;  
 					}
-					echo "<br/>";               
+					//echo "<br/>";               
 					echo "CONTACT_ID:".$contact_id;           
-					 echo "<br/>";            
+					//echo "<br/>";            
 					// Create Application
+					
+					//echo $clientname;
 
 
-					if($clientname=='Synergishr')
+					if($clientname=='Synergishr') 
 					{        
 						$curl = curl_init();               
 						curl_setopt_array($curl, array(           
 						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
 						 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
-						 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/ts2__Application__c",    
+						 CURLOPT_URL => $instance_url."/services/data/v48.0/sobjects/ts2__Application__c",    
 						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Candidate",   
 						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Account", 
 						 CURLOPT_RETURNTRANSFER => true, 
@@ -1298,7 +1317,7 @@ $postContact=json_encode($json_array);
 						));
 						$response = curl_exec($curl);          
 						$err = curl_error($curl);    
-						print_r($err);    
+						//print_r($err);
 						curl_close($curl);     
 						if ($err) {
 						 echo "cURL Error #:" . $err;
@@ -1378,41 +1397,45 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 				} 
 				else
 				{
-					$curl = curl_init();               
-						curl_setopt_array($curl, array(          
-						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
-						 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
-						 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/TR1__Application__c",    
-						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Candidate",   
-						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Account", 
-						 CURLOPT_RETURNTRANSFER => true, 
-						 CURLOPT_ENCODING => "",          
-						 CURLOPT_MAXREDIRS => 10,     
-						 CURLOPT_TIMEOUT => 30,            
-						 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
-						 CURLOPT_CUSTOMREQUEST => "POST",  
-						 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
-						 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",                 
-						CURLOPT_POSTFIELDS => "{ \"TR1__Applicant__c\": \"".$contact_id."\",  \"TR1__Job__c\": \"".$job_id."\",  \"TR1__Source__c\": \"Job Board\"}", 
-						 //CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"Jobs +\"}",       
-						 CURLOPT_HTTPHEADER => array(                 
-						   "Authorization: Bearer ".$access_token,           
-						   "Content-Type: application/json" 
-						 ),  
-						));
-						$response = curl_exec($curl);          
-						$err = curl_error($curl);    
-						print_r($err);    
-						curl_close($curl);     
-						if ($err) {
-						 echo "cURL Error #:" . $err;
-						} else {      
-						 echo $response;   
-						  //echo "applicant create"; 
-						 $response1 = json_decode($response);   
-						 $applicant_id = $response1->id;     
-						echo 'Applicant ID:'.$applicant_id;       
-						} 
+
+					if(!empty($job_id))
+					{    
+						$curl = curl_init();               
+							curl_setopt_array($curl, array(             
+							 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
+							 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
+							 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/TR1__Application__c",    
+							 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Candidate",   
+							 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Account", 
+							 CURLOPT_RETURNTRANSFER => true, 
+							 CURLOPT_ENCODING => "",          
+							 CURLOPT_MAXREDIRS => 10,     
+							 CURLOPT_TIMEOUT => 30,            
+							 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+							 CURLOPT_CUSTOMREQUEST => "POST",  
+							 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
+							 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",                 
+							CURLOPT_POSTFIELDS => "{ \"TR1__Applicant__c\": \"".$contact_id."\",  \"TR1__Job__c\": \"".$job_id."\",  \"TR1__Source__c\": \"Job Board\"}", 
+							 //CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"Jobs +\"}",       
+							 CURLOPT_HTTPHEADER => array(                 
+							   "Authorization: Bearer ".$access_token,           
+							   "Content-Type: application/json" 
+							 ),  
+							));
+							$response = curl_exec($curl);          
+							$err = curl_error($curl);    
+							print_r($err);    
+							curl_close($curl);     
+							if ($err) {
+							 echo "cURL Error #:" . $err;
+							} else {      
+							 echo $response;   
+							  //echo "applicant create"; 
+							 $response1 = json_decode($response);   
+							 $applicant_id = $response1->id;     
+							echo 'Applicant ID:'.$applicant_id;       
+							} 
+					}
 
 						if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
 					{      
@@ -1437,7 +1460,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
    		/*$post_text=[
     "Name" => $filename,    
 	"body" => base64_encode(file_get_contents($filedata)),   
-	"parentId" => $contact_id,
+	"parentId" => $contact_id,   
 ]; 
 $parseResumeCand=json_encode($post_text);   */         
    
@@ -1477,7 +1500,7 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 							}  
 					}
 
-				}
+				}   
 
 			}	
 			if($apicall=='createLead')   
