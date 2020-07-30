@@ -272,10 +272,18 @@ class SocialController extends Controller
 	 		if($url==null)    
 	 		{
 	 			$request['url'] ='https://id.jobadder.com/connect/token';          
+	 		}           
+	 	} 
+	 	else if($name=="Arithon")      
+	 	{
+	 		$call="pushCandidate";
+	 		if($url==null)    
+	 		{ 
+	 			$request['url'] ='https://eu.arithon.com/ArithonAPI.php';          
 	 		}        
 	 	}  
-	 	else         
-	 	{
+	 	else             
+	 	{   
 	 		$call=$apicall;  
 	 	}
 	 	       
@@ -912,7 +920,144 @@ class SocialController extends Controller
 
 					}
    
-			}         
+			}   
+			if($apicall=='pushCandidate')   
+			{    
+					 
+
+			  $postdata='{   
+				  "authorise": { 
+				    "company": "'.$client_id.'",
+				    "key": "'.$apikey.'"
+				  },
+				  "request": {
+				    "command": "PushCandidate",
+				    "data": {
+				      "candidateName": "'.$fname.' '.$lname.'",
+				      "status": "Available",    
+				      "email": "'.$email.'",
+				      "phoneMobile":"'.$phone.'"
+				    }
+				  }
+				}';       
+
+				$curl = curl_init();
+
+				curl_setopt_array($curl, array(    
+				  CURLOPT_URL => $apiurl,
+				  CURLOPT_RETURNTRANSFER => true,
+				  CURLOPT_ENCODING => "",
+				  CURLOPT_MAXREDIRS => 10,
+				  CURLOPT_TIMEOUT => 0,
+				  CURLOPT_FOLLOWLOCATION => true,
+				  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				  CURLOPT_CUSTOMREQUEST => "POST",
+				  CURLOPT_POSTFIELDS => $postdata,   
+				  CURLOPT_HTTPHEADER => array(  
+				    "Content-Type: text/plain",
+				    "Cookie: SERVERID=app3"
+				  ),
+				));
+
+				$response = curl_exec($curl);
+
+				curl_close($curl);
+				echo 'Candidate Create Done';
+				echo $response;
+
+				$postdata1='{
+				  "authorise": { 
+				    "company": "'.$client_id.'",
+				    "key": "'.$apikey.'"
+				  },
+				  "request": {
+				    "command": "CandidateDetails",
+				    "data": {
+				      "candidateName": "'.$fname.' '.$lname.'",
+				      "email": "'.$email.'"
+				    }
+				  }
+				}';          
+
+				$curl = curl_init();
+
+				curl_setopt_array($curl, array(
+				  CURLOPT_URL => $apiurl,
+				  CURLOPT_RETURNTRANSFER => true,
+				  CURLOPT_ENCODING => "",   
+				  CURLOPT_MAXREDIRS => 10,
+				  CURLOPT_TIMEOUT => 0,
+				  CURLOPT_FOLLOWLOCATION => true,
+				  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				  CURLOPT_CUSTOMREQUEST => "POST",
+				  CURLOPT_POSTFIELDS => $postdata1,   
+				  CURLOPT_HTTPHEADER => array(     
+				    "Content-Type: text/plain", 
+				    "Cookie: SERVERID=app3"
+				  ),
+				));    
+
+				$response = curl_exec($curl);
+				//echo $response;
+				curl_close($curl);
+				$result=json_decode($response);
+				if(isset($result->records[0]->candidateID))
+				{ 
+
+				  echo 'CandidateID -'.$candidateID=$result->records[0]->candidateID;
+
+				}
+				else
+				{ 
+				  echo $candidateID='';    
+
+				}
+
+				if(!empty($job_id))
+				{ 
+
+						  $jobdata='{
+						  "authorise": { 
+				    		"company": "'.$client_id.'",
+				    		"key": "'.$apikey.'"
+				  		  },
+						  "request": {
+						    "command": "PushSelection",
+						    "data": {
+						      "candidateID": '.$candidateID.',
+						      "vacancyID": '.$job_id.'
+						    }
+						  }
+						}'; 
+
+						$curl = curl_init();
+
+						curl_setopt_array($curl, array(
+						  CURLOPT_URL => $apiurl,
+						  CURLOPT_RETURNTRANSFER => true,
+						  CURLOPT_ENCODING => "",
+						  CURLOPT_MAXREDIRS => 10,
+						  CURLOPT_TIMEOUT => 0,
+						  CURLOPT_FOLLOWLOCATION => true,
+						  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+						  CURLOPT_CUSTOMREQUEST => "POST",
+						  CURLOPT_POSTFIELDS => $jobdata,      
+						  CURLOPT_HTTPHEADER => array(     
+						    "Content-Type: text/plain",
+						    "Cookie: SERVERID=app3"
+						  ),
+						));    
+
+						$response = curl_exec($curl); 
+						echo 'Job Apply Done';
+						echo 'VacancyID -'.$job_id;    
+						echo $response;
+				 
+				}     
+
+
+   
+			}       
 			if($apicall=='getRecords')   
 			{ 
 					$getRecord='{"trackerrms": {"getRecords": {"credentials": {"username": "'.$username.'","password": "'.$password.'"},"instructions": {"recordtype": "R","state": "","searchtext": "","onlyrecords": true}}}}';  
