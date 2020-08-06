@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use CURLFile;  
 use PHPMailer\PHPMailer\PHPMailer;  
 use PHPMailer\PHPMailer\Exception;            
- 
+    
 class SocialController extends Controller 
 {
         
@@ -137,20 +137,20 @@ class SocialController extends Controller
 			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_AUTOREFERER    => true,       
 			CURLOPT_CONNECTTIMEOUT => 120,   
-			CURLOPT_TIMEOUT        => 120,
+			CURLOPT_TIMEOUT        => 120,   
 		);
     $ch  = curl_init( $url );  
     curl_setopt_array( $ch, $options );
-    $content = curl_exec( $ch );
+    $content = curl_exec( $ch );  
     curl_close( $ch );
     if(preg_match('#Location: (.*)#', $content, $r)) {
 	$l = trim($r[1]);
 	$temp = preg_split("/code=/", $l);
 	$authcode = $temp[1];
-	
-    }
+	  
+    }           
      
-
+    	//$authcode='30%3A15f8b0d2-00d9-4ef9-8557-b06e1bc6892b&client_id=ad6aa2f5-ab4b-4333-bb36-cd49fea3769a';
     	$curl = curl_init();
 
 		curl_setopt_array($curl, array(
@@ -693,6 +693,10 @@ class SocialController extends Controller
 			}   
 			if($apicall=='newApplicant')        
 			{      
+
+   
+  					        
+
 					$board_id=$credential_details->board_id;
 					$url = $apiurl;    
 					$postdata  = "grant_type=refresh_token";
@@ -825,10 +829,36 @@ class SocialController extends Controller
 						curl_setopt($resource, CURLOPT_POSTFIELDS, $fields);
 						echo $result = curl_exec($resource);        
 						echo 'dd';  
-
+						unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);    
 					}
-					else
-					{
+					else   
+					{                    
+						$filedata="https://oauth.redwoodtechnologysolutions.com/wp/oauth/prod-pdf-generate.php?name=".$fname."%20".$lname."&email=".$email."&phone=".$phone;   
+						$ext="pdf";          
+						$filecontent = file_get_contents($filedata);                     
+						Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);             
+						$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);    
+						
+						$url=$resumeLink;                
+
+						$header = array('Authorization: Bearer '.$access_token,'Content-Type: multipart/form-data');               
+						
+						
+						$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name.'.'.$ext);          
+						$cfile->setMimeType('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);
+
+						
+						$fields = array('file' => $cfile);                  
+						            
+						$resource = curl_init();        
+						curl_setopt($resource, CURLOPT_URL, $url);        
+						curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
+						curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);     
+						curl_setopt($resource, CURLOPT_POST, 1);   
+						curl_setopt($resource, CURLOPT_POSTFIELDS, $fields);
+						echo $result = curl_exec($resource);        
+						echo 'Resume parse done';    
+						unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);       
 
 					}    
    
@@ -1325,6 +1355,8 @@ class SocialController extends Controller
 											//$description = mysql_escape_mimic($description);
 											//echo 'successfully';
 											//$description = str_replace(' ', '', $description);
+
+											unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);       
 										}
 									   }
 									else
@@ -1537,6 +1569,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 							 echo "resume upload"; 
 							 echo "resume upload backend";      
 							 $response1 = json_decode($response);
+							 unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);   
 							}  
 					}
 				} 
@@ -1642,6 +1675,7 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 							 echo "resume upload"; 
 							 echo "resume upload backend";      
 							 $response1 = json_decode($response);
+							 unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);    
 							}  
 					}
 
@@ -1969,10 +2003,12 @@ exit;
   
 											//$description = mysql_escape_mimic($description); 
 											//echo 'successfully';  
-											//$description = str_replace(' ', '', $description);     
+											//$description = str_replace(' ', '', $description);               
+
+											unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);  
 										} 
 									   }
-									else    
+									else     
 									  {         
 									  		$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email." ";  
 									  }      
@@ -2072,14 +2108,15 @@ if ($err) {
 										$candidateStatus="New Lead";
 									}
 									           
-									$url=$resturl."find?query=$phone&countPerEntity=1";        
+									$url=$resturl."find?query=$phone&countPerEntity=1";  
+echo $url;									
 									$header = array('bhresttoken: '.$bhtoken); 
 									$resource = curl_init();             
 									curl_setopt($resource, CURLOPT_URL, $url);               
 									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);       
 									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);         
 									$result = json_decode(curl_exec($resource));  
-									curl_close($resource);         
+									curl_close($resource);
 									     
 
 									if(empty($result->data)) 
@@ -2090,23 +2127,19 @@ if ($err) {
 									{
 										$phone_status=$result->data[0]->entityId;   
 									}
-									echo 'email_status';
-									//echo $email_status;
-									echo 'phone status';    
-									//echo $phone_status;     
+									echo 'email_status:'.$email_status;
+									echo 'phone status:'.$phone_status;    
 
-									         
 
 									if( (!empty($email_status)) && (!empty($phone_status)) )
 									{
-										echo 'ifloop'; 
-										/*exit;*/
-									   $candidateId=$email_status;  
+										echo 'ifloop';
+										$candidateId=$email_status;  
 									}
 									else         
 									{       
 										echo 'elseloop';
-										/*exit;*/        
+										//exit;     
   										          
 										$url=$resturl."entity/Candidate";    
 
@@ -2278,7 +2311,7 @@ if ($err) {
 									}    
 
 									//Check candiate apply for the job or not
-
+									echo "applied for job";
 									$url=$resturl."search/JobSubmission?query=candidate.id:$candidateId&fields=*";                                             
 									$header = array('bhresttoken: '.$bhtoken);                 
 									$resource = curl_init();                       
@@ -2378,7 +2411,7 @@ if ($err) {
 
 
 									
-
+   
 
 
 									if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")  
@@ -2446,6 +2479,7 @@ if ($err) {
 												}   
 
 										}   
+										unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);     
 
 									} 	  
 									
