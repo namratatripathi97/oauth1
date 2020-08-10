@@ -30,7 +30,10 @@ Route::post('/api/addClient','SocialController@addClient')->name('addClient');
 Route::post('/api/addIntegrationName','SocialController@addIntegrationName')->name('addIntegrationName');               
 
 Route::get('/api/indeed','SocialController@indeedApply');     
-Route::get('/api/indeed-redirect','SocialController@indeedRedirect');      
+Route::get('/api/indeed-redirect','SocialController@indeedRedirect');    
+   
+// CustomCallFor ProAlt Contact Form   
+Route::post('/api/{clientname}/{clientintegration}','SocialController@customApi');                
 
 
 //http://oauth.redwoodtechnologysolutions.com/wp/oauth/public/api/indeed?apitoken=aa102235a5ccb18bd3668c0e14aa3ea7e2503cfac2a7a9bf3d6549899e125af4&jobid=eca53bf1169ee76e590d&joblocation=Charlotte, NC&jobcompanyname=Coast Personnel Services&jobtitle=Quality Technician&joburl=https://www.indeedjobs.com/redwood-technology-solutions/jobs/eca53bf1169ee76e590d&posturl=https://dradisindeedapply.sandbox.indeed.net/process-indeedapply

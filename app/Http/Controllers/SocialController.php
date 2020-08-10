@@ -305,6 +305,678 @@ class SocialController extends Controller
 	 	IntegrationName::create($request);          
   		return response('Integration Name Created successfully !', 200)->header('Content-Type', 'text/plain');        
 	 }
+
+	public function customApi($name,$clientname)
+	{
+      
+		
+
+		function mysql_escape_mimic($inp) 
+ 			{      
+			    if(is_array($inp))
+			        return array_map(__METHOD__, $inp);
+
+			    if(!empty($inp) && is_string($inp)) {
+			        return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), array('\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'), $inp);
+			    }
+			  
+			    return $inp;   
+			} 
+			function mysql_escape_mimic1($inp) 
+ 			{    
+			    if(is_array($inp))
+			        return array_map(__METHOD__, $inp);
+
+			    if(!empty($inp) && is_string($inp)) {
+			        return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), array('\\\\', '\\0', '', '', "\\'", '\\"', '\\Z'), $inp);
+			    }
+			    
+			    return $inp;
+			}  
+			$credential_details = Credential::where('name',$name)->where('client_name',$clientname)->first();
+	 		$username=$credential_details->username;
+		    $password=$credential_details->password;
+			$apiurl=$credential_details->url;   
+			$id=$credential_details->id; 
+			$client_id=$credential_details->client_id;  
+			$apikey=$credential_details->client_secret;                 
+			$refresh_token=$credential_details->refresh_token;  
+			$access_token=$credential_details->access_token;     
+			$source=$credential_details->source;
+			$notification_status=$credential_details->notification_status;      
+			$custom_source_status=$credential_details->custom_source_status;     
+  	   		if(empty($source))    
+  	   		{ 
+  	   			$jobSource="Jobs +";              
+  	   		}
+  	   		else
+  	   		{
+  	   			$jobSource=$source;   
+  	   		}       
+  			$post = $_POST;                         
+  			$fname = $_POST['1_3'];   
+			$lname = $_POST['1_6'];       
+			$email = $_POST['2']; 
+			$phone = $_POST['3'];    
+			$phone = str_ireplace( array( '\'', '"', ',' , ';', '<', '>', '(', ')', '-', ' ' ), '', $phone);             
+			$resume_status = $_POST['4'];        
+			$filedata=$_POST['5'];        
+			$candidateStatus="New Candidate";	           
+				     
+  			if(isset($_POST['im_a']))    
+			{     
+				$im_a=$_POST['im_a'];
+			}
+			else
+			{
+				$im_a=""; 
+			} 
+			if(isset($_POST['area_of_interest']))    
+			{   
+				$area_of_interest=$_POST['area_of_interest'];
+			}
+			else
+			{           
+				//$area_of_interest=""; 
+				$area_of_interest ="2000015";    
+			} 
+    
+		  
+			if(isset($_POST['company_name']))    
+			{
+				$company_name=$_POST['company_name'];
+			}
+			else
+			{        
+				$company_name="";    
+			} 
+			if(isset($_POST['message']))    
+			{
+				$message=$_POST['message'];
+			}
+			else
+			{          
+				$message="";     
+			} 
+
+        	if( (isset($_POST['source'])) && ($custom_source_status==1) )      
+				{
+
+					$gsource=$_POST['source'];
+					if(!empty($gsource)) 
+					{
+						//$jobSource=$gsource;
+						$jobSource = parse_url($gsource, PHP_URL_HOST);
+					}             
+					else
+					{           
+
+						$jobSource=$jobSource;
+					}  
+					
+				} 
+				else
+				{   
+					$jobSource=$jobSource;
+				}  
+
+			echo $applicant_name=$fname.' '.$lname;    
+  			     
+
+				$url = $apiurl;   
+								if($notification_status==1)  
+								{              
+
+									define('CLIENT_ID', $client_id);
+									define('CLIENT_SECRET', $apikey);
+									define('USER', $username);                   
+									define('PASS', $password);          
+									   
+							     
+									    
+									  
+										$url = 'https://auth.bullhornstaffing.com/oauth/authorize?client_id='.CLIENT_ID.'&response_type=code';
+									    $data = "action=Login&username=".USER."&password=".PASS."";  
+
+									   	$options = array(
+												CURLOPT_POST           => true,
+												CURLOPT_POSTFIELDS     => $data,
+												CURLOPT_RETURNTRANSFER => true,
+												CURLOPT_HEADER         => true,
+												CURLOPT_FOLLOWLOCATION => true,
+												CURLOPT_AUTOREFERER    => true,
+												CURLOPT_CONNECTTIMEOUT => 120,
+												CURLOPT_TIMEOUT        => 120,
+											);
+									    $ch  = curl_init( $url );  
+									    curl_setopt_array( $ch, $options );
+									    $content = curl_exec( $ch );
+									    curl_close( $ch );
+
+									      
+									    if(preg_match('#Location: (.*)#', $content, $r)) {
+										$l = trim($r[1]);
+										$temp = preg_split("/code=/", $l);
+										
+											if(isset($temp[1]))   
+											{ 
+												$authcode = $temp[1];
+												echo "IF";    
+												$curl = curl_init();
+												curl_setopt_array($curl, array(
+												  CURLOPT_URL => "https://auth.bullhornstaffing.com/oauth/token?grant_type=authorization_code&code=".$authcode."&client_secret=".CLIENT_SECRET,
+												  CURLOPT_RETURNTRANSFER => true,
+												  CURLOPT_ENCODING => "",
+												  CURLOPT_MAXREDIRS => 10,
+												  CURLOPT_TIMEOUT => 30,
+												  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+												  CURLOPT_CUSTOMREQUEST => "POST",
+												  CURLOPT_HTTPHEADER => array(
+												    "cache-control: no-cache",
+												    "content-type: application/x-www-form-urlencoded"
+												  ),
+												));
+
+												$response = curl_exec($curl);
+												$err = curl_error($curl);   
+
+												curl_close($curl);
+												   
+												if ($err) 
+												{
+												  echo "cURL Error #:" . $err;
+												} 
+												else 
+												{
+													   $response = json_decode($response);
+														if(isset($response->access_token))       
+														{   
+															$access_token = $response->access_token; 
+					 										$refresh_token =$response->refresh_token;   
+
+					 										$credentials_update=Credential::find($id);
+					 										$credentials_update->notification_status=0;
+					 										$credentials_update->access_token=$access_token;
+										 					$credentials_update->refresh_token=$refresh_token;
+															$credentials_update->save();       
+
+															echo "update status and access_token and refresh_token";      
+														}       
+												}
+
+											}
+									    }
+									    else
+									    {
+									    	echo "invalid Client";   
+
+									    	//$sendAlert=$this->sendEmail($name,$clientname);     
+											echo 'send mail';  
+									    }
+									     
+
+								  }   
+									   
+									$postdata  = "grant_type=refresh_token";  
+									$postdata .= "&refresh_token=".$refresh_token;
+									$postdata .= "&client_id=".$client_id;         
+									$postdata .= "&client_secret=".$apikey;       
+
+									$ch = curl_init($url);      
+									curl_setopt($ch, CURLOPT_POST, true);
+									curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);   
+									curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+									$result = curl_exec($ch);        
+									   
+									$response = json_decode($result);
+									if(isset($response->access_token))   
+									{
+										$access_token = $response->access_token; 
+ 										$refresh_token =$response->refresh_token;     
+									}     
+									else    
+									{  
+										if($notification_status==0)
+											{             
+												/*$sendAlert=$this->sendEmail($name,$clientname);     
+												echo 'send mail';  */    
+												$credentials_update=Credential::find($id);
+					 							$credentials_update->notification_status=1;
+												$credentials_update->save();  
+												echo "update Status";      
+											} 
+
+									}    
+
+ 									$credentials_update=Credential::find($id);
+ 									$credentials_update->access_token  = $access_token;
+									$credentials_update->refresh_token = $refresh_token;     
+									$credentials_update->save();            
+  
+									//$access_token=$access_token;   
+									$url1="https://rest.bullhornstaffing.com/rest-services/login";  
+									$postdata1  = "version=*";
+									$postdata1 .= "&access_token=".$access_token; 
+									   
+									   
+									$ch1 = curl_init($url1);
+									curl_setopt($ch1, CURLOPT_POST, true);
+									curl_setopt($ch1, CURLOPT_POSTFIELDS, $postdata1);   
+									curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
+									$result1 = curl_exec($ch1);     
+									                   
+									$response1 = json_decode($result1);
+									$resturl = $response1->restUrl;   
+									$bhtoken = $response1->BhRestToken;   
+
+
+
+			if($im_a=='Hiring Manager')
+			{
+				echo 'CreateContact';        
+   
+
+				
+				$url=$resturl."find?query=$company_name&countPerEntity=1";     
+									echo $url;	 								
+									$header = array('bhresttoken: '.$bhtoken); 
+									$resource = curl_init();             
+									curl_setopt($resource, CURLOPT_URL, $url);               
+									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);       
+									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);         
+									$result = json_decode(curl_exec($resource));  
+									curl_close($resource);
+									     
+
+									if(empty($result->data)) 
+									{
+										$phone_status='';         
+									}  
+									else
+									{
+										$phone_status=$result->data[0]->entityId;   
+									}
+									  
+									echo 'company status:'.$phone_status;  
+
+
+									
+
+
+									if( (!empty($phone_status)) )
+									{
+										echo 'ifloop';
+										$company_id=$phone_status;  
+									}
+									else         
+									{   
+
+								
+
+
+			   
+				$url=$resturl."entity/ClientCorporation";       
+    
+     	    
+											          
+				$postClient='{"name": "'.$company_name.'","phone": "'.$phone.'","status": "Active"}';            
+          
+    							  
+        								            
+										$curl = curl_init();            
+										curl_setopt_array($curl, array(                   
+										 CURLOPT_URL => $url,                 
+										 CURLOPT_RETURNTRANSFER => true,            
+										 CURLOPT_ENCODING => "",         
+										 CURLOPT_MAXREDIRS => 10,            
+										 CURLOPT_TIMEOUT => 30,    
+										 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+										 CURLOPT_CUSTOMREQUEST => "PUT",  
+										 CURLOPT_POSTFIELDS => $postClient,          
+										 CURLOPT_HTTPHEADER => array(      
+										   "BhRestToken: ".$bhtoken,           
+										   "Content-Type: application/json",           
+										 ),   
+										));
+										$response = curl_exec($curl);       
+										$err = curl_error($curl);            
+										curl_close($curl);  
+										if ($err) {     
+										 echo "cURL Error #:" . $err;       
+										} else {  
+										 echo $response;  
+										
+										 $responseTest = json_decode($response);  
+
+										 $company_id=$responseTest->changedEntityId;   
+										}
+				}
+
+										$url=$resturl."find?query=$email&countPerEntity=1";    
+									$header = array('bhresttoken: '.$bhtoken);                     
+									$resource = curl_init();                 
+									curl_setopt($resource, CURLOPT_URL, $url);           
+									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
+									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);           
+									$result = json_decode(curl_exec($resource));  
+									curl_close($resource);
+									   
+										        
+								 
+									if(empty($result->data)) 
+									{
+										$email_status='';      
+									}
+									else
+									{
+										$email_status=$result->data[0]->entityId;   
+									}     
+
+    
+									            
+									  
+									           
+									$url=$resturl."find?query=$phone&countPerEntity=1";  
+									echo $url;									
+									$header = array('bhresttoken: '.$bhtoken); 
+									$resource = curl_init();             
+									curl_setopt($resource, CURLOPT_URL, $url);               
+									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);       
+									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);         
+									$result = json_decode(curl_exec($resource));  
+									curl_close($resource);
+									     
+
+									if(empty($result->data)) 
+									{
+										$phone_status='';         
+									}  
+									else
+									{
+										$phone_status=$result->data[0]->entityId;   
+									}
+									echo 'email_status:'.$email_status;
+									echo 'phone status:'.$phone_status;    
+
+
+									if( (!empty($email_status)) && (!empty($phone_status)) )
+									{
+										echo 'ifloop';
+										$contactId=$email_status;  
+									}
+									else         
+									{
+   										echo 'create new Contact';   
+										$url=$resturl."entity/ClientContact";        
+
+     	
+											      
+								$postClient='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","clientCorporation" : {"id" : "'.$company_id.'"},"source": "'.$jobSource.'","phone": "'.$phone.'","comments":"'.$message.'"}';      
+				           
+    							  
+        								            
+										$curl = curl_init();          
+										curl_setopt_array($curl, array(                  
+										 CURLOPT_URL => $url,               
+										 CURLOPT_RETURNTRANSFER => true,            
+										 CURLOPT_ENCODING => "",         
+										 CURLOPT_MAXREDIRS => 10,            
+										 CURLOPT_TIMEOUT => 30,    
+										 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+										 CURLOPT_CUSTOMREQUEST => "PUT",  
+										 CURLOPT_POSTFIELDS => $postClient,          
+										 CURLOPT_HTTPHEADER => array(      
+										   "BhRestToken: ".$bhtoken,           
+										   "Content-Type: application/json",           
+										 ),   
+										));
+										$response = curl_exec($curl);       
+										$err = curl_error($curl);            
+										curl_close($curl);  
+										if ($err) {     
+										 echo "cURL Error #:" . $err;       
+										} else {  
+										 echo $response;  
+										
+										 $responseTest = json_decode($response);  
+										}   
+
+									}
+
+
+
+
+
+				   
+				 
+
+			}
+			else if($im_a=='Job Seeker')   
+			{   
+				echo 'CreateCandidate';
+
+
+				if($resume_status=="Yes"  || $resume_status=="YES" || $resume_status=="yes")       
+									   {      
+
+									   	  $ext = pathinfo($filedata, PATHINFO_EXTENSION);   
+										  $filename=$fname.' '.$lname.'.'.$ext;
+										  $filecontent = file_get_contents($filedata);                
+								 		  Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
+										  $path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext); 
+									
+						$url=$resturl."resume/parseToCandidate?format=text&populateDescription=html";
+						$header = array('bhresttoken: '.$bhtoken,'Content-Type: multipart/form-data');
+						$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name);
+								
+											// Assign POST data          
+											$fields = array('file' => $cfile);           
+											$resource = curl_init();     
+											curl_setopt($resource, CURLOPT_URL, $url);        
+											curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
+											curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);
+											curl_setopt($resource, CURLOPT_POST, 1);
+											curl_setopt($resource, CURLOPT_POSTFIELDS, $fields);
+											$result = curl_exec($resource);  
+											/*echo $result;
+											exit; */    
+											$err = curl_error($resource);   
+											curl_close($resource);    
+											if ($err) {          
+									 echo "cURL Error #:" . $err;     
+									} else {
+											$result_parse=json_decode($result);      
+											$parsedescription=$result_parse->candidate->description;   
+											$description=$parsedescription;  
+											$description = mysql_escape_mimic($description);  
+											
+											unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);  
+										} 
+									   }
+									else     
+									  {         
+									  		$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email." ";  
+									  }      
+            
+
+  								   //Code for check the candidate status in bullhorn 
+
+									$url=$resturl."find?query=$email&countPerEntity=1";    
+									$header = array('bhresttoken: '.$bhtoken);                     
+									$resource = curl_init();                 
+									curl_setopt($resource, CURLOPT_URL, $url);           
+									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
+									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);           
+									$result = json_decode(curl_exec($resource));  
+									curl_close($resource);
+									   
+										        
+								 
+									if(empty($result->data)) 
+									{
+										$email_status='';      
+									}
+									else
+									{
+										$email_status=$result->data[0]->entityId;   
+									} 
+
+
+									            
+									  
+									           
+									$url=$resturl."find?query=$phone&countPerEntity=1";  
+									echo $url;									
+									$header = array('bhresttoken: '.$bhtoken); 
+									$resource = curl_init();             
+									curl_setopt($resource, CURLOPT_URL, $url);               
+									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);       
+									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);         
+									$result = json_decode(curl_exec($resource));  
+									curl_close($resource);
+									     
+
+									if(empty($result->data)) 
+									{
+										$phone_status='';         
+									}  
+									else
+									{
+										$phone_status=$result->data[0]->entityId;   
+									}
+									echo 'email_status:'.$email_status;
+									echo 'phone status:'.$phone_status;    
+
+
+									if( (!empty($email_status)) && (!empty($phone_status)) )
+									{
+										echo 'ifloop';
+										$candidateId=$email_status;  
+									}
+									else         
+									{           
+										echo 'elseloop';
+										//exit;     
+  										          
+										$url=$resturl."entity/Candidate";    
+
+
+											   
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","address": {
+            "address1": "",
+            "address2": "",
+            "city": "", 
+            "state": "",         
+            "zip": ""                          
+        },"category" : {            
+      "id" : "'.$area_of_interest.'"            
+    },"source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'","comments":"'.$message.'"}';     
+
+    							  
+        								         
+										$curl = curl_init();          
+										curl_setopt_array($curl, array(                   
+										 CURLOPT_URL => $url,               
+										 CURLOPT_RETURNTRANSFER => true,            
+										 CURLOPT_ENCODING => "",         
+										 CURLOPT_MAXREDIRS => 10,        
+										 CURLOPT_TIMEOUT => 30,    
+										 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+										 CURLOPT_CUSTOMREQUEST => "PUT",  
+										 CURLOPT_POSTFIELDS => $postResume,          
+										 CURLOPT_HTTPHEADER => array(      
+										   "BhRestToken: ".$bhtoken,           
+										   "Content-Type: application/json",           
+										 ),   
+										));
+										$response = curl_exec($curl);       
+										$err = curl_error($curl);            
+										curl_close($curl);  
+										if ($err) {     
+										 echo "cURL Error #:" . $err;       
+										} else {  
+										 echo $response;  
+										/* exit;  */  
+										 $responseTest = json_decode($response);  
+										}
+										$candidateId =$responseTest->changedEntityId; 
+									}    
+
+										if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")  
+										{                  
+											$ext = pathinfo($filedata, PATHINFO_EXTENSION);
+											$filename=$fname.' '.$lname.'.'.$ext;
+											$filecontent = file_get_contents($filedata);                
+								 			Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
+								   
+											$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);  
+								  
+											$file = chunk_split(base64_encode($path)); 
+
+											$changedEntityId =$candidateId;       
+
+
+											$url=$resturl."entityFiles/Candidate/".$changedEntityId."";   
+											$header = array('bhresttoken: '.$bhtoken);                     
+											$resource = curl_init();                 
+											curl_setopt($resource, CURLOPT_URL, $url);           
+											curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
+											curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);           
+											$result = json_decode(curl_exec($resource));  
+											curl_close($resource);
+
+											foreach ($result->EntityFiles as $rows)       
+											{
+												$rows->filename = $rows->name;                        
+											}          
+ 									  
+ 									if(in_array($filename, array_column($result->EntityFiles, 'filename'))) 
+ 									{    
+									    	echo 'notadded file';
+									}  
+									else   
+									{     
+  											echo 'add file';
+									  
+											$url1=$resturl."file/Candidate/".$changedEntityId."";        
+											$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
+			      
+												$curl1 = curl_init();
+												curl_setopt_array($curl1, array(     
+												 CURLOPT_URL => $url1,                
+												 CURLOPT_RETURNTRANSFER => true,           
+												 CURLOPT_ENCODING => "",    
+												 CURLOPT_MAXREDIRS => 10,      
+												 CURLOPT_TIMEOUT => 30,    
+												 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+												 CURLOPT_CUSTOMREQUEST => "PUT",
+												 CURLOPT_POSTFIELDS => $postResume1,          
+												 CURLOPT_HTTPHEADER => array(         
+												 	"BhRestToken: ".$bhtoken,        
+												   "Content-Type: application/json",      
+												 ),   
+												));
+												$response1 = curl_exec($curl1);         
+												$err1 = curl_error($curl1);            
+												curl_close($curl1);  
+												if ($err1) {     
+												 echo "cURL Error #:" . $err1;
+												} else {    
+												 echo $response1;  
+ 
+												}   
+
+										}   
+										unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);     
+
+									}     
+      
+
+									
+			}
+   
+	}       
+
 	public function executeApi($name,$clientname,$apicall)
 	{
  
@@ -1788,7 +2460,7 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									define('USER', $username);                   
 									define('PASS', $password);          
 									   
-							  
+							     
 									    
 									  
 										$url = 'https://auth.bullhornstaffing.com/oauth/authorize?client_id='.CLIENT_ID.'&response_type=code';
@@ -2109,7 +2781,7 @@ if ($err) {
 									}
 									           
 									$url=$resturl."find?query=$phone&countPerEntity=1";  
-echo $url;									
+									echo $url;									
 									$header = array('bhresttoken: '.$bhtoken); 
 									$resource = curl_init();             
 									curl_setopt($resource, CURLOPT_URL, $url);               
