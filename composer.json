@@ -10,6 +10,8 @@
     "require": {
         "php": "^7.1.3",
         "fideloper/proxy": "^4.0",
+        "google/cloud": "^0.138.0",
+        "google/cloud-datastore": "^1.11",
         "gufy/pdftohtml-php": "~2",
         "laravel/framework": "5.8.*",
         "laravel/socialite": "^4.2",

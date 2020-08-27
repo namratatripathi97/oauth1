@@ -23,9 +23,11 @@ Route::get('/callback/{provider}', 'SocialController@callback');
 //Route::get('/api/{name}/{client}/{call}','SocialController@executeApi');     
  
 Route::post('/api/{name}/{client}/{call}','SocialController@executeApi');  
-Route::get('/api/view-client','SocialController@viewClient')->name('view-client'); 
-Route::get('/api/view-bullhorn','SocialController@viewBullhorn')->name('view-bullhorn');    
-Route::post('/api/addBullhorn','SocialController@addBullhorn')->name('addBullhorn');                   
+Route::get('/api/view-client','SocialController@viewClient')->name('view-client');   
+Route::get('/api/view-bullhorn','SocialController@viewBullhorn')->name('view-bullhorn'); 
+Route::get('/api/edit-bullhorn','SocialController@editViewBullhorn')->name('edit-bullhorn');           
+Route::post('/api/addBullhorn','SocialController@addBullhorn')->name('addBullhorn'); 
+Route::post('/api/editBullhorn','SocialController@editBullhorn')->name('editBullhorn');                      
 Route::post('/api/addClient','SocialController@addClient')->name('addClient');          
 Route::post('/api/addIntegrationName','SocialController@addIntegrationName')->name('addIntegrationName');               
 

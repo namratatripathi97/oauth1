@@ -11,9 +11,11 @@ use App\IntegrationName;
 use Illuminate\Support\Facades\Storage;   
 use CURLFile;  
 use PHPMailer\PHPMailer\PHPMailer;  
-use PHPMailer\PHPMailer\Exception;            
+use PHPMailer\PHPMailer\Exception;         
+use Google\Cloud\Datastore\DatastoreClient;
+//putenv('GOOGLE_APPLICATION_CREDENTIALS=/var/www/html/wp/oauth/public/zippy.json');   
     
-class SocialController extends Controller 
+class SocialController extends Controller     
 {
         
      function sendEmail($integration_name,$client_name)
@@ -99,10 +101,15 @@ class SocialController extends Controller
 	 	
 	 	return view('client',["integrationname"=>$integrationname]);           
 	 }
-	  public function viewBullhorn()
+	 public function viewBullhorn()
 	 {   
    
 	 	return view('bullhorn-credential');           
+	 }
+	 public function editViewBullhorn()
+	 {   
+        
+	 	return view('edit-credential');           
 	 }
 	 public function indeedApply()
 	 {
@@ -122,18 +129,17 @@ class SocialController extends Controller
 	  	return view('indeed-redirect');  
 	  }
 	 
-	 public function addBullhorn(Request $request)
+	 public function editBullhorn(Request $request)
 	 {
-
-	 	$text ='s';
-
+    
+	 	    
 	 	$url = 'https://auth.bullhornstaffing.com/oauth/authorize?client_id='.$request['client_id'].'&response_type=code';
     $data = "action=Login&username=".$request['username']."&password=".$request['password']."";  
    	$options = array(
 			CURLOPT_POST           => true,
 			CURLOPT_POSTFIELDS     => $data,
 			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_HEADER         => true,
+			CURLOPT_HEADER         => true,   
 			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_AUTOREFERER    => true,       
 			CURLOPT_CONNECTTIMEOUT => 120,   
@@ -143,14 +149,15 @@ class SocialController extends Controller
     curl_setopt_array( $ch, $options );
     $content = curl_exec( $ch );  
     curl_close( $ch );
-    if(preg_match('#Location: (.*)#', $content, $r)) {
-	$l = trim($r[1]);
-	$temp = preg_split("/code=/", $l);
-	$authcode = $temp[1];
+    if(preg_match('#Location: (.*)#', $content, $r)) 
+    {
+		$l = trim($r[1]);
+		$temp = preg_split("/code=/", $l);
+		$authcode = $temp[1];
 	  
-    }           
-     
-    	//$authcode='30%3A15f8b0d2-00d9-4ef9-8557-b06e1bc6892b&client_id=ad6aa2f5-ab4b-4333-bb36-cd49fea3769a';
+    }                
+        
+    	//$authcode='22%3A154f19ce-973e-47cc-adca-c280d22d7c18&client_id=0260955e-4731-4471-93f8-03901ca62bfb';
     	$curl = curl_init();
 
 		curl_setopt_array($curl, array(
@@ -183,8 +190,195 @@ class SocialController extends Controller
 
 		echo "<br/>";        
 		         
-		     
-		$curl = curl_init();
+		        
+		$curl = curl_init();  
+
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => "https://rest.bullhornstaffing.com/rest-services/login?version=*&access_token=".$accessToken,
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => "",
+		  CURLOPT_MAXREDIRS => 10,   
+		  CURLOPT_TIMEOUT => 30,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => "POST",
+		  CURLOPT_HTTPHEADER => array(
+		    "cache-control: no-cache"  
+		  ),
+		));
+
+		$response = curl_exec($curl);
+		$err = curl_error($curl);
+
+		curl_close($curl);
+
+		if ($err) {
+		  echo "cURL Error #:" . $err;       
+		} else {        
+		  echo  $response;
+		}
+
+
+	 }
+	 public function addBullhorn(Request $request)
+	 {
+
+
+	 	$url = 'https://auth.bullhornstaffing.com/oauth/authorize?client_id='.$request['client_id'].'&response_type=code';
+    $data = "action=Login&username=".$request['username']."&password=".$request['password']."";  
+   	$options = array(
+			CURLOPT_POST           => true,
+			CURLOPT_POSTFIELDS     => $data,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HEADER         => true,   
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_AUTOREFERER    => true,       
+			CURLOPT_CONNECTTIMEOUT => 120,     
+			CURLOPT_TIMEOUT        => 120,   
+		);
+    $ch  = curl_init( $url );  
+    curl_setopt_array( $ch, $options );
+    $content = curl_exec( $ch );  
+    curl_close( $ch );
+    if(preg_match('#Location: (.*)#', $content, $r)) 
+    {
+		$l = trim($r[1]);
+		$temp = preg_split("/code=/", $l);
+		$authcode = $temp[1];
+	  
+    }                
+        
+    	//$authcode='22%3A154f19ce-973e-47cc-adca-c280d22d7c18&client_id=0260955e-4731-4471-93f8-03901ca62bfb';
+    	$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => "https://auth.bullhornstaffing.com/oauth/token?grant_type=authorization_code&code=".$authcode."&client_secret=".$request['client_secret'],
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => "",
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 30,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => "POST",
+		  CURLOPT_HTTPHEADER => array(
+		    "cache-control: no-cache",
+		    "content-type: application/x-www-form-urlencoded"
+		  ),
+		));
+
+		$response = curl_exec($curl);
+		$err = curl_error($curl);   
+
+		curl_close($curl);
+		   
+		if ($err) {
+		  echo "cURL Error #:" . $err;
+		} else {
+
+		 	$result=json_decode($response);     	   
+		  //echo  $response;
+
+		  if(isset($result->access_token) && (isset($result->refresh_token)))
+		  {  
+		  		
+  				$call='createCandidate';     
+		  		$request['name']='Bullhorn';    
+		  		$request['url'] ='https://auth.bullhornstaffing.com/oauth/token'; 
+		  		$request['access_token']  = $result->access_token; 
+		  		$request['refresh_token'] = $result->refresh_token; 
+		  		$request['source'] = $request['name'].' Websites';   
+		  		$request['board_id'] = '';     
+		  		$request=$request->all();   
+		  	$url="https://oauth.redwoodtechnologysolutions.com/wp/oauth/public/api/".$request['name']."/".$request['client_name']."/".$call.""; 
+	 			
+	 			
+	 			Credential::create($request);            
+  		      
+  		     	//print_r($request);      
+  		    
+  				echo 'Bullhorn Webhook Link Created successfully ! '.$url."<br/><br/><br/>";   
+
+  				$this->addBullhornDatastore($request);           
+		  }    
+		}
+
+
+		
+
+	 }
+	 function addBullhornDatastore($request)    
+	 {
+	 	  
+       
+   
+	 	$url = 'https://auth.bullhornstaffing.com/oauth/authorize?client_id='.$request['client_id'].'&response_type=code';
+    $data = "action=Login&username=".$request['username']."&password=".$request['password']."";  
+   	$options = array(
+			CURLOPT_POST           => true,
+			CURLOPT_POSTFIELDS     => $data,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HEADER         => true,   
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_AUTOREFERER    => true,       
+			CURLOPT_CONNECTTIMEOUT => 120,   
+			CURLOPT_TIMEOUT        => 120,   
+		);
+    $ch  = curl_init( $url );  
+    curl_setopt_array( $ch, $options );
+    $content = curl_exec( $ch );  
+    curl_close( $ch );
+    if(preg_match('#Location: (.*)#', $content, $r)) 
+    {
+		$l = trim($r[1]);
+		$temp = preg_split("/code=/", $l);
+		$authcode = $temp[1];
+	  
+    }                
+        
+    	//$authcode='22%3A154f19ce-973e-47cc-adca-c280d22d7c18&client_id=0260955e-4731-4471-93f8-03901ca62bfb';
+    	$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+		  CURLOPT_URL => "https://auth.bullhornstaffing.com/oauth/token?grant_type=authorization_code&code=".$authcode."&client_secret=".$request['client_secret'],
+		  CURLOPT_RETURNTRANSFER => true,
+		  CURLOPT_ENCODING => "",
+		  CURLOPT_MAXREDIRS => 10,
+		  CURLOPT_TIMEOUT => 30,
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		  CURLOPT_CUSTOMREQUEST => "POST",
+		  CURLOPT_HTTPHEADER => array(
+		    "cache-control: no-cache",
+		    "content-type: application/x-www-form-urlencoded"
+		  ),
+		));
+
+		$response = curl_exec($curl);
+		$err = curl_error($curl);   
+
+		curl_close($curl);
+		   
+		if ($err) {
+		  echo "cURL Error #:" . $err;
+		} else {
+
+		  	
+		 
+
+		   if(isset(json_decode($response)->access_token))  
+		  {
+		  		$accessToken=json_decode($response)->access_token;    
+		  		$refreshToken=json_decode($response)->refresh_token;    
+
+		  		$request['accessToken'] = $accessToken;
+				$request['refreshToken'] = $refreshToken;  
+		  }
+
+
+		}
+
+
+		echo "<br/>";        
+		         
+		        
+		$curl = curl_init();  
 
 		curl_setopt_array($curl, array(
 		  CURLOPT_URL => "https://rest.bullhornstaffing.com/rest-services/login?version=*&access_token=".$accessToken,
@@ -207,13 +401,67 @@ class SocialController extends Controller
 		if ($err) {
 		  echo "cURL Error #:" . $err;       
 		} else {     
-		  echo  $response;
-		}
-    
-		//return $authcode; 
-       
+		  
 
-	 	//return response('Client Created successfully ! '.$response.'', 200)->header('Content-Type', 'text/plain'); 
+		  if(isset(json_decode($response)->BhRestToken)) 
+		  {  
+		  		$BhRestToken=json_decode($response)->BhRestToken;
+		  		$restUrl=json_decode($response)->restUrl;
+
+ 
+		  		$datastore = new DatastoreClient();      
+				//$dataInsert = $datastore->entity('stage-bullhorn-client');
+				$dataInsert = $datastore->entity('bullhorn-prod-clientDetails');
+				$dataInsert['name'] = $request['client_name'];   
+				$dataInsert['id'] = $request['client_id'];      
+				$dataInsert['secret'] = $request['client_secret'];          
+				$dataInsert['username'] = $request['username'];    
+				$dataInsert['password'] = $request['password'];        
+				$dataInsert['accessToken'] = $request['accessToken'];   
+				$dataInsert['refreshToken'] = $request['refreshToken'];    
+				$dataInsert['bhRestToken'] = $BhRestToken;    
+				$dataInsert['restUrl'] = $restUrl;     
+
+				$datastore->insert($dataInsert);  
+
+				$url="http://bullhorn.redwoodapi.com/".$request['client_name'].".xml"; 
+	 			
+	 			
+	 			  
+  		    
+  				echo 'Bullhorn Feed Link Created successfully ! '.$url;  
+
+    
+  				/*$query = $datastore->query();   
+				$query->kind('stage-bullhorn-client');
+
+				$res = $datastore->runQuery($query);   
+
+				foreach ($res as $company) 
+				{    
+				     
+				        
+				  echo $gid=$company->key()->pathEndIdentifier();     
+				   echo $name=$company['name']; // Google
+				   echo 'bhresttoken'.$bhRestToken=$company['bhRestToken'];  
+				   echo 'accessToken'.$accessToken=$company['accessToken'];   
+				   echo 'resturl'.$restUrl=$company['restUrl'];
+				   echo $client_id=$company['id'];    
+				   echo $client_secret=$company['secret'];  
+				   echo $username=$company['username'];   
+				   echo $password=$company['password'];   
+				   echo "<br/>";   
+
+
+
+   
+				}*/
+
+      
+			}
+
+		}
+
 
 	 }         
 	 public function addClient(Request $request)
@@ -1533,6 +1781,254 @@ class SocialController extends Controller
 						unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);       
 
 					}    
+   
+			}
+			if($apicall=='updateApplicant')        
+			{         
+
+   
+  			   
+					$board_id=$credential_details->board_id;
+					$url = $apiurl;    
+					$postdata  = "grant_type=refresh_token";
+					$postdata .= "&client_id=".$client_id; 
+					$postdata .= "&client_secret=".$apikey;              
+					$postdata .= "&refresh_token=".$refresh_token;    
+
+					$ch = curl_init($url);
+					curl_setopt($ch, CURLOPT_POST, true);  
+					curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);   
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					$result = curl_exec($ch);     
+     
+					$response = json_decode($result);    
+					if(isset($response->access_token))   
+					{
+						 $access_token = $response->access_token; 					       
+					     $instance_url = $response->api;
+						/*$sendAlert=$this->sendEmail($name,$clientname);     
+						echo 'send mail';*/         
+					}           
+					else    
+					{    
+						if($notification_status==0)
+						{          
+							/*$sendAlert=$this->sendEmail($name,$clientname);     
+							echo 'send mail';    */  
+							$credentials_update=Credential::find($id);
+ 							$credentials_update->notification_status=1;
+							$credentials_update->save();  
+							echo "update Status";         
+						}
+					}          
+					
+
+
+					if( (!empty($email)) && (!empty($phone)) )
+					{
+						echo 'search with both';
+
+						$searchUrl=$instance_url."candidates?email=".$email."&phone=".$phone;
+					}
+					else if( (empty($email)) && (!empty($phone)) )
+					{   
+						echo 'search with phone';
+						$searchUrl=$instance_url."candidates?phone=".$phone;
+					}
+					else if( (!empty($email)) && (empty($phone)) )
+					{
+						echo 'search with email';
+						$searchUrl=$instance_url."candidates?email=".$email;
+					}
+
+					   
+
+					$curl = curl_init();                         
+					curl_setopt_array($curl, array(           
+					 CURLOPT_URL => $searchUrl,      
+					 //CURLOPT_URL => $instance_url."applications?email=".$email."&phone=".$phone,      
+					 CURLOPT_RETURNTRANSFER => true,        
+					 CURLOPT_ENCODING => "",               
+					 CURLOPT_MAXREDIRS => 10,     
+					 CURLOPT_TIMEOUT => 30,
+					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					 CURLOPT_CUSTOMREQUEST => "GET",
+					 CURLOPT_HTTPHEADER => array(               
+					   "Authorization: Bearer ".$access_token, 
+					   "Content-Type: application/json"    
+					 ),
+					));
+					$response = curl_exec($curl);              
+
+					$err = curl_error($curl);
+					//print_r($err); 
+					//print_r($response); 
+					curl_close($curl);
+					if ($err) {
+					 echo "cURL Error #:" . $err;
+					} else {        
+						//echo $response;     
+						$response1 = json_decode($response);
+						//exit;    
+
+
+
+						/*$applicant_id = $response1->applicationId;
+						$resumeLink = $response1->links->resume;                      
+						echo 'appid'.$applicant_id;   */ 
+						        
+					}    
+					      
+					if($response1->totalCount>0)
+					{       
+						echo 'update';       
+						
+						  
+						for($i=0; $i<count($response1->items); $i++) 
+						{
+							echo $i;
+							echo $candidateId=$response1->items[$i]->candidateId; 
+							
+
+							$curl = curl_init();                         
+							curl_setopt_array($curl, array(            
+							 CURLOPT_URL => $instance_url."candidates/".$candidateId."/applications",      
+							 CURLOPT_RETURNTRANSFER => true,        
+							 CURLOPT_ENCODING => "",               
+							 CURLOPT_MAXREDIRS => 10,      
+							 CURLOPT_TIMEOUT => 30,
+							 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,    
+							 CURLOPT_CUSTOMREQUEST => "GET",
+							 CURLOPT_HTTPHEADER => array(               
+							   "Authorization: Bearer ".$access_token, 
+							   "Content-Type: application/json"    
+							 ),
+							));
+							$response = curl_exec($curl);              
+
+							$err = curl_error($curl);
+						
+							curl_close($curl);
+							if ($err) 
+							{
+							 echo "cURL Error #:" . $err;
+							} 
+							else 
+							{       
+								$response1 = json_decode($response);
+							} 
+
+						  	//echo $response;  
+
+							echo $applicantID=$response1->items[0]->applicationId;       
+
+							$attachResumeUrl1=$instance_url."jobboards/".$board_id."/ads/".$job_id."/applications/".$applicantID."/Resume";     
+
+							   
+							if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes") 
+							{              
+
+								$ext = pathinfo($filedata, PATHINFO_EXTENSION);   
+								$filename=$fname.' '.$lname.'.'.$ext;
+								$filecontent = file_get_contents($filedata);                
+								Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
+								$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext); 
+
+								$url=$attachResumeUrl1;             
+
+								$header = array('Authorization: Bearer '.$access_token,'Content-Type: multipart/form-data');               
+								
+								
+								$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name.'.'.$ext);          
+								$cfile->setMimeType('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);
+
+								
+								$fields = array('file' => $cfile);                      
+								            
+								$resource = curl_init();        
+								curl_setopt($resource, CURLOPT_URL, $url);        
+								curl_setopt($resource, CURLOPT_HTTPHEADER, $header);       
+								curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);  
+								curl_setopt($resource, CURLOPT_POST, 1);
+								curl_setopt($resource, CURLOPT_POSTFIELDS, $fields);
+								echo $result = curl_exec($resource);        
+								echo 'Resume Update Done';      
+								unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);    
+							}    
+							// echo "<br/>";
+							    
+						}
+     
+						/*$candidateId=$response1->items[0]->candidateId;   
+
+						$curl = curl_init();                         
+					curl_setopt_array($curl, array(            
+					 CURLOPT_URL => $instance_url."candidates/".$candidateId."/applications",      
+					 CURLOPT_RETURNTRANSFER => true,        
+					 CURLOPT_ENCODING => "",               
+					 CURLOPT_MAXREDIRS => 10,      
+					 CURLOPT_TIMEOUT => 30,
+					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,    
+					 CURLOPT_CUSTOMREQUEST => "GET",
+					 CURLOPT_HTTPHEADER => array(               
+					   "Authorization: Bearer ".$access_token, 
+					   "Content-Type: application/json"    
+					 ),
+					));
+					$response = curl_exec($curl);              
+
+					$err = curl_error($curl);
+				
+					curl_close($curl);
+					if ($err) 
+					{
+					 echo "cURL Error #:" . $err;
+					} 
+					else 
+					{       
+						$response1 = json_decode($response);
+					} 
+
+				  
+
+					$applicantID=$response1->items[0]->applicationId;  
+				  
+					$attachResumeUrl1=$instance_url."jobboards/".$board_id."/ads/".$job_id."/applications/".$applicantID."/Resume";     
+
+							   
+							if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes") 
+							{              
+
+								$ext = pathinfo($filedata, PATHINFO_EXTENSION);   
+								$filename=$fname.' '.$lname.'.'.$ext;
+								$filecontent = file_get_contents($filedata);                
+								Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
+								$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext); 
+
+								$url=$attachResumeUrl1;             
+
+								$header = array('Authorization: Bearer '.$access_token,'Content-Type: multipart/form-data');               
+								
+								
+								$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name.'.'.$ext);          
+								$cfile->setMimeType('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);
+
+								
+								$fields = array('file' => $cfile);                      
+								            
+								$resource = curl_init();        
+								curl_setopt($resource, CURLOPT_URL, $url);        
+								curl_setopt($resource, CURLOPT_HTTPHEADER, $header);       
+								curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);  
+								curl_setopt($resource, CURLOPT_POST, 1);
+								curl_setopt($resource, CURLOPT_POSTFIELDS, $fields);
+								echo $result = curl_exec($resource);        
+								echo 'Resume Update Done';      
+								unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);    
+							}*/
+   
+					}    
+
    
 			}
 			if($apicall=='createApplicant')   
