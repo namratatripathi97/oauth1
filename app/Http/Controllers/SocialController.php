@@ -647,6 +647,24 @@ class SocialController extends Controller
 				$message="";     
 			} 
 
+			if(isset($_POST['division']))    
+			{  
+				$division=$_POST['division'];
+			}
+			else
+			{          
+				$division="";     
+			}
+
+			if(isset($_POST['staffingfutureid']))    
+			{  
+				$staffingfutureid=$_POST['staffingfutureid'];
+			}
+			else
+			{          
+				$staffingfutureid="";     
+			}			
+
         	if( (isset($_POST['source'])) && ($custom_source_status==1) )      
 				{
 
@@ -667,6 +685,9 @@ class SocialController extends Controller
 				{   
 					$jobSource=$jobSource;
 				}  
+
+
+
 
 			echo $applicant_name=$fname.' '.$lname;    
   			     
@@ -955,8 +976,9 @@ class SocialController extends Controller
 									else         
 									{
    										echo 'create new Contact';   
-										$url=$resturl."entity/ClientContact";        
+										$url=$resturl."entity/ClientContact";            
 
+											$candidateStatus="NEW CONTACT";       
      	
 											      
 								$postClient='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","clientCorporation" : {"id" : "'.$company_id.'"},"source": "'.$jobSource.'","phone": "'.$phone.'","comments":"'.$message.'"}';      
@@ -1330,8 +1352,22 @@ class SocialController extends Controller
 			{     
 				$zip=""; 
 			} 
-
-
+			if(isset($_POST['division']))    
+			{  
+				$division=$_POST['division'];
+			}
+			else
+			{          
+				$division="";     
+			} 
+			if(isset($_POST['staffingfutureid']))    
+			{  
+				$staffingfutureid=$_POST['staffingfutureid'];
+			}
+			else
+			{          
+				$staffingfutureid="";     
+			}
 
   			/*if($clientname=='LoyalSource')
   			{*/
@@ -1420,14 +1456,21 @@ class SocialController extends Controller
  
               
 			if($apicall=='createResource')                
-			{            
+			{             
+
+
 					if($clientname=='diamondpeak') {
+						$jobSource = 'Jobs+';
+					}
+					
+					if($clientname=='penfield') {
 						$jobSource = 'Jobs+';
 					}
      			   
 					if($resume_status=="No")  
 					{   
-     		     
+     		         
+     		     	//dd($jobSource); 
 						 /*echo "hello";  
 						 exit; */  
 
@@ -2357,6 +2400,7 @@ class SocialController extends Controller
 
 					  
 
+
 					$url = $apiurl;
 
 					$curl = curl_init();   
@@ -2582,45 +2626,9 @@ $postContact=json_encode($json_array);
 					}
 					           
 					echo "CONTACT_ID:".$contact_id;           
-					
-
-
-					if($clientname=='bruce811') 
-					{        
-						$curl = curl_init();               
-						curl_setopt_array($curl, array(           
-						 CURLOPT_URL => $instance_url."/services/data/v48.0/sobjects/ts2__Application__c",    
-						 CURLOPT_RETURNTRANSFER => true, 
-						 CURLOPT_ENCODING => "",       
-						 CURLOPT_MAXREDIRS => 10,    
-						 CURLOPT_TIMEOUT => 30,            
-						 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
-						 CURLOPT_CUSTOMREQUEST => "POST",                 
-						CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\",  \"ts2__Job__c\": \"".$job_id."\"}", 
-						 CURLOPT_HTTPHEADER => array(               
-						   "Authorization: Bearer ".$access_token,           
-						   "Content-Type: application/json"
-						 ),     
-						));
-						$response = curl_exec($curl);          
-						$err = curl_error($curl);    
-						//print_r($err);
-						curl_close($curl);     
-						if ($err) {
-						 echo "cURL Error #:" . $err;
-						} else {      
-						 echo $response;   
-						  
-						 $response1 = json_decode($response);   
-						 $applicant_id = $response1->id;     
-						echo 'Applicant ID:'.$applicant_id;       
-						}       
-
-       				
-   
-
-					if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
-					{      
+ 
+ 				   if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
+					{       
 								$ext = pathinfo($filedata, PATHINFO_EXTENSION);   
 								$filename=$fname.' '.$lname.'.'.$ext;
 								$filecontent = file_get_contents($filedata);                
@@ -2633,13 +2641,16 @@ $postContact=json_encode($json_array);
    								$file = mysql_escape_mimic1($file);    
    								
 
+$parseResumeCand='{"Title": "'.$filename.'","ContentLocation": "S","FirstPublishLocationId": "'.$contact_id.'","PathOnClient": "'.$filename.'","VersionData": "'.$file.'"}'; 
      
-$parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","ContentType": "application/'.$ext.'","Body": "'.$file.'"}'; 
+//$parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","ContentType": "application/'.$ext.'","Body": "'.$file.'"}'; 
   
      
 								$curl = curl_init();      
-							 curl_setopt_array($curl, array(                      
-							  CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
+							 curl_setopt_array($curl, array(       
+							 CURLOPT_URL => $instance_url."/services/data/v48.0/sobjects/ContentVersion/",   
+							 //CURLOPT_URL => $instance_url."/services/data/v48.0/sobjects/ts2__Application__c",                  
+							 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
 							 CURLOPT_RETURNTRANSFER => true,            
 							 CURLOPT_ENCODING => "",                        
 							 CURLOPT_MAXREDIRS => 10,       
@@ -2647,7 +2658,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 							 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
 							 CURLOPT_CUSTOMREQUEST => "POST",       
 							 CURLOPT_POSTFIELDS => $parseResumeCand,        
-							 CURLOPT_HTTPHEADER => array(                 
+							 CURLOPT_HTTPHEADER => array(                  
 							   "Authorization: Bearer ".$access_token,             
 							   "Content-Type: application/json"
 							 ),     
@@ -2666,6 +2677,43 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 							 unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);   
 							}  
 					}
+
+					if( ($clientname=='bruce811')  && (!empty($job_id)) )   
+					{             
+						$curl = curl_init();                    
+						curl_setopt_array($curl, array(           
+						 CURLOPT_URL => $instance_url."/services/data/v48.0/sobjects/ts2__Application__c",    
+						 CURLOPT_RETURNTRANSFER => true, 
+						 CURLOPT_ENCODING => "",       
+						 CURLOPT_MAXREDIRS => 10,    
+						 CURLOPT_TIMEOUT => 30,            
+						 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+						 CURLOPT_CUSTOMREQUEST => "POST",                 
+						//CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\", \"Division__c\": \"".$division."\",\"ts2__Job__c\": \"".$job_id."\"}", 
+						CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\", \"StaffingFuture_ID__c\": \"".$staffingfutureid."\", \"ts2__Job__c\": \"".$job_id."\"}", 
+						 CURLOPT_HTTPHEADER => array(                            
+						   "Authorization: Bearer ".$access_token,           
+						   "Content-Type: application/json" 
+						 ),        
+						));
+						$response = curl_exec($curl);          
+						$err = curl_error($curl);    
+						//print_r($err);
+						curl_close($curl);     
+						if ($err) {
+						 echo "cURL Error #:" . $err;
+						} else {      
+						 echo $response;   
+						  
+						 $response1 = json_decode($response);   
+						 $applicant_id = $response1->id;     
+						echo 'Applicant ID:'.$applicant_id;       
+						}       
+
+       				
+   
+
+					
 				} 
 				else
 				{
@@ -2680,6 +2728,7 @@ $parseResumeCand='{"ContactId": "'.$contact_id.'","Name": "'.$filename.'","Conte
 					}*/
 
 				}   
+
 
 
 
