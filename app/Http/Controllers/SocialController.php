@@ -655,6 +655,74 @@ class SocialController extends Controller
 			{          
 				$division="";     
 			}
+			if(isset($_POST['age']))    
+			{  
+				$age=$_POST['age'];
+			}
+			else
+			{          
+				$age="";     
+			}
+			if(isset($_POST['shift']))    
+			{  
+				$shift=$_POST['shift'];
+			}
+			else
+			{          
+				$shift="";     
+			}
+			if(isset($_POST['day']))    
+			{  
+				$day=$_POST['day'];
+			}
+			else
+			{          
+				$day="";     
+			}
+			if(isset($_POST['jobtype']))    
+			{  
+				$jobtype=$_POST['jobtype'];
+			}
+			else
+			{           
+				$jobtype="";     
+			}
+			if(isset($_POST['workauthorized']))    
+			{  
+				$workauthorized=$_POST['workauthorized'];
+			}
+			else
+			{           
+				$workauthorized="";     
+			}
+			if(isset($_POST['dateavailable']))    
+			{   
+				$dateavailable=$_POST['dateavailable'];
+
+				if($dateavailable=="Yes")
+				{
+					$savedateavailable=date("m/d/Y");
+				}
+				else
+				{
+					$savedateavailable=date("m/d/Y"); 
+				}
+			}
+			else   
+			{           
+				$dateavailable="";     
+			}
+
+			
+
+			if(isset($_POST['educationdegree']))    
+			{  
+				$educationdegree=$_POST['educationdegree'];
+			}
+			else 
+			{           
+				$educationdegree="";     
+			}	  
 
 			if(isset($_POST['staffingfutureid']))    
 			{  
@@ -1360,6 +1428,74 @@ class SocialController extends Controller
 			{          
 				$division="";     
 			} 
+			if(isset($_POST['age']))    
+			{  
+				$age=$_POST['age'];
+			}
+			else
+			{          
+				$age="";     
+			}
+			if(isset($_POST['shift']))    
+			{  
+				$shift=$_POST['shift'];
+			}
+			else
+			{          
+				$shift="";     
+			}
+			if(isset($_POST['day']))    
+			{  
+				$day=$_POST['day'];
+			}
+			else
+			{          
+				$day="";     
+			}
+			if(isset($_POST['jobtype']))    
+			{  
+				$jobtype=$_POST['jobtype'];
+			}
+			else
+			{           
+				$jobtype="";     
+			}
+			if(isset($_POST['workauthorized']))    
+			{  
+				$workauthorized=$_POST['workauthorized'];
+			}
+			else
+			{           
+				$workauthorized="";     
+			}
+			if(isset($_POST['dateavailable']))    
+			{  
+				$dateavailable=$_POST['dateavailable'];
+
+				if($dateavailable=="Yes")
+				{
+					$savedateavailable=date("m/d/Y");
+				}
+				else
+				{
+					$savedateavailable=date("m/d/Y"); 
+				}
+			}
+			else   
+			{           
+				$dateavailable="";     
+			}
+
+			
+
+			if(isset($_POST['educationdegree']))    
+			{  
+				$educationdegree=$_POST['educationdegree'];
+			}
+			else 
+			{           
+				$educationdegree="";     
+			}	   
 			if(isset($_POST['staffingfutureid']))    
 			{  
 				$staffingfutureid=$_POST['staffingfutureid'];
@@ -3637,7 +3773,7 @@ if ($err) {
 										        
 								 
 									if(empty($result->data)) 
-									{
+									{    
 										$email_status='';      
 									}
 									else
@@ -3651,12 +3787,12 @@ if ($err) {
 									{
 										$candidateStatus="Unreviewed";	
 									}
-									else if($clientname=='professionalalternatives')
+									else if($clientname=='professionalalternatives' || $clientname=='AtlasStaffing')
 									{
 										$candidateStatus="New Candidate";	
 									}
 									else       
-									{
+									{   
 										$candidateStatus="New Lead";
 									}
 									           
@@ -3690,7 +3826,7 @@ if ($err) {
 									}
 									else         
 									{       
-										echo 'elseloop';
+										echo 'elseloop executeapi';
 										//exit;     
   										          
 										$url=$resturl."entity/Candidate";    
@@ -3706,7 +3842,7 @@ if ($err) {
 
 										if(($clientname=='professionalalternatives') || ($im_a=='Job Seeker'))        
 										{
-
+											 
 											if(isset($_POST['area_of_interest']))    
 											{ 
    
@@ -3820,8 +3956,25 @@ if ($err) {
         								         
         								         
 										}
+										else if($clientname=='AtlasStaffing')        
+										{           
+
+											$customTextBlock1="Are you 18 years or older - ".$age; 
+											$customTextBlock2="Shift Availability - ".$shift;
+											$customTextBlock3="Day Availability - ".$day; 
+  												 
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","address": {
+            "address1": "'.$address1.'",
+            "address2": "'.$address2.'",
+            "city": "'.$city.'",  
+            "state": "'.$state.'",     
+            "zip": "'.$zip.'"                          
+        },"source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'","customTextBlock1":"'.$customTextBlock1.'","customTextBlock2":"'.$customTextBlock2.'","customTextBlock3":"'.$customTextBlock3.'","occupation":"'.$jobtype.'","dateAvailable":"'.$savedateavailable.'","workAuthorized":"'.$workauthorized.'","educationDegree":"'.$educationdegree.'"}';  
+
+
+										}
 										else
-										{
+										{   
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
             "address1": "'.$address1.'",
             "address2": "'.$address2.'",  
@@ -3861,6 +4014,43 @@ if ($err) {
 										}
 										$candidateId =$responseTest->changedEntityId; 
 									}    
+
+
+									if(($clientname=='AtlasStaffing') && (!empty($educationdegree)))
+									{   
+
+										$postEducation='{"candidate": {"id": "'.$candidateId.'"},"degree": "'.$educationdegree.'"}';
+										$urlCandidateEducation=$resturl."entity/CandidateEducation";  
+										$curl = curl_init();          
+										curl_setopt_array($curl, array(                 
+										 CURLOPT_URL => $urlCandidateEducation,               
+										 CURLOPT_RETURNTRANSFER => true,            
+										 CURLOPT_ENCODING => "",          
+										 CURLOPT_MAXREDIRS => 10,        
+										 CURLOPT_TIMEOUT => 30,    
+										 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+										 CURLOPT_CUSTOMREQUEST => "PUT",  
+										 CURLOPT_POSTFIELDS => $postEducation,          
+										 CURLOPT_HTTPHEADER => array(      
+										   "BhRestToken: ".$bhtoken,           
+										   "Content-Type: application/json",           
+										 ),    
+										)); 
+										$response = curl_exec($curl);       
+										$err = curl_error($curl);            
+										curl_close($curl);  
+										if ($err) {     
+										 echo "cURL Error #:" . $err;       
+										} else {  
+										 echo $response;  
+										
+										}
+ 
+
+									}    
+
+
+ 
 
 									//Check candiate apply for the job or not
 									echo "applied for job";
