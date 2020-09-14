@@ -1434,7 +1434,7 @@ class SocialController extends Controller
 			}
 			else
 			{          
-				$age="";     
+				$age="Yes";     
 			}
 			if(isset($_POST['shift']))    
 			{  
@@ -1460,30 +1460,48 @@ class SocialController extends Controller
 			{           
 				$jobtype="";     
 			}
+			if(isset($_POST['steps']))    
+			{  
+				$steps=$_POST['steps'];
+			}
+			else
+			{             
+				$steps="Step1";        
+			}
 			if(isset($_POST['workauthorized']))    
 			{  
 				$workauthorized=$_POST['workauthorized'];
 			}
 			else
 			{           
-				$workauthorized="";     
+				$workauthorized="Yes";     
 			}
-			if(isset($_POST['dateavailable']))    
+			if(isset($_POST['selectstartdate']))    
 			{  
+				$selectstartdate = date("m/d/Y", strtotime($_POST['selectstartdate']));
+			}
+			else  
+			{            
+				$selectstartdate=date("m/d/Y");   
+			}
+
+			if(isset($_POST['dateavailable']))    
+			{       
 				$dateavailable=$_POST['dateavailable'];
 
 				if($dateavailable=="Yes")
-				{
+				{ 
 					$savedateavailable=date("m/d/Y");
 				}
-				else
+				else   
 				{
-					$savedateavailable=date("m/d/Y"); 
+					$savedateavailable=$selectstartdate; 
 				}
 			}
 			else   
-			{           
+			{                       
 				$dateavailable="";     
+				$savedateavailable=date("m/d/Y");
 			}
 
 			
@@ -1493,7 +1511,7 @@ class SocialController extends Controller
 				$educationdegree=$_POST['educationdegree'];
 			}
 			else 
-			{           
+			{             
 				$educationdegree="";     
 			}	   
 			if(isset($_POST['staffingfutureid']))    
@@ -3824,6 +3842,11 @@ if ($err) {
 										echo 'ifloop';
 										$candidateId=$email_status;  
 									}
+									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing") )
+									{          
+										echo 'ifloop for AtlasStaffing update';
+										$candidateId=$email_status;  
+									}
 									else         
 									{       
 										echo 'elseloop executeapi';
@@ -3933,7 +3956,7 @@ if ($err) {
 											  
 											  
 											if(isset($_POST['message']))
-											{ 
+											{  
 												$message=$_POST['message'];
 											}
 											else
@@ -3959,22 +3982,14 @@ if ($err) {
 										else if($clientname=='AtlasStaffing')        
 										{           
 
-											$customTextBlock1="Are you 18 years or older - ".$age; 
-											$customTextBlock2="Shift Availability - ".$shift;
-											$customTextBlock3="Day Availability - ".$day; 
+											    
   												 
-											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","address": {
-            "address1": "'.$address1.'",
-            "address2": "'.$address2.'",
-            "city": "'.$city.'",  
-            "state": "'.$state.'",     
-            "zip": "'.$zip.'"                          
-        },"source": "'.$jobSource.'","phone": "'.$phone.'","description":"'.$description.'","customTextBlock1":"'.$customTextBlock1.'","customTextBlock2":"'.$customTextBlock2.'","customTextBlock3":"'.$customTextBlock3.'","occupation":"'.$jobtype.'","dateAvailable":"'.$savedateavailable.'","workAuthorized":"'.$workauthorized.'","educationDegree":"'.$educationdegree.'"}';  
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'"}';  
 
 
 										}
-										else
-										{   
+										else 
+										{     
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
             "address1": "'.$address1.'",
             "address2": "'.$address2.'",  
@@ -4016,15 +4031,190 @@ if ($err) {
 									}    
 
 
-									if(($clientname=='AtlasStaffing') && (!empty($educationdegree)))
-									{   
+									if(($clientname=='AtlasStaffing') && (!empty($candidateId)))
+									{        
+     						
+     									echo 'hello';    
 
-										$postEducation='{"candidate": {"id": "'.$candidateId.'"},"degree": "'.$educationdegree.'"}';
+     									echo $candidateId; 
+
+     									if($steps=='Step2')
+     									{
+     										echo 'Step2';
+
+
+
+    
+     										 
+
+			     									if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")  
+													{                  
+														$ext = pathinfo($filedata, PATHINFO_EXTENSION);
+														$filename=$fname.' '.$lname.'.'.$ext;
+														$filecontent = file_get_contents($filedata);                
+											 			Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
+											   
+														$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);  
+											  
+														$file = chunk_split(base64_encode($path)); 
+
+														$changedEntityId =$candidateId;       
+
+
+														$url=$resturl."entityFiles/Candidate/".$changedEntityId."";   
+														$header = array('bhresttoken: '.$bhtoken);                     
+														$resource = curl_init();                 
+														curl_setopt($resource, CURLOPT_URL, $url);           
+														curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
+														curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);           
+														$result = json_decode(curl_exec($resource));  
+														curl_close($resource);
+
+														foreach ($result->EntityFiles as $rows)       
+														{
+															$rows->filename = $rows->name;                        
+														}          
+			 									  
+				 									if(in_array($filename, array_column($result->EntityFiles, 'filename'))) 
+				 									{    
+													    	echo 'notadded file';
+													}  
+													else   
+													{     
+				  											echo 'add file';
+													  
+															$url1=$resturl."file/Candidate/".$changedEntityId."";        
+															$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
+							      
+																$curl1 = curl_init();
+																curl_setopt_array($curl1, array(     
+																 CURLOPT_URL => $url1,                
+																 CURLOPT_RETURNTRANSFER => true,           
+																 CURLOPT_ENCODING => "",    
+																 CURLOPT_MAXREDIRS => 10,      
+																 CURLOPT_TIMEOUT => 30,    
+																 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+																 CURLOPT_CUSTOMREQUEST => "PUT",
+																 CURLOPT_POSTFIELDS => $postResume1,          
+																 CURLOPT_HTTPHEADER => array(         
+																 	"BhRestToken: ".$bhtoken,        
+																   "Content-Type: application/json",      
+																 ),   
+																));
+																$response1 = curl_exec($curl1);         
+																$err1 = curl_error($curl1);            
+																curl_close($curl1);  
+																if ($err1) {     
+																 echo "cURL Error #:" . $err1;
+																} else {    
+																 echo $response1;  
+				 
+																}   
+
+														}   
+
+													
+						$url=$resturl."resume/parseToCandidate?format=text&populateDescription=html";
+						$header = array('bhresttoken: '.$bhtoken,'Content-Type: multipart/form-data');
+    
+						
+						$cfile = new CURLFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,$applicant_name);
+									    
+											$fields = array('file' => $cfile);           
+											         
+										
+											$resource = curl_init();     
+											curl_setopt($resource, CURLOPT_URL, $url);        
+											curl_setopt($resource, CURLOPT_HTTPHEADER, $header);    
+											curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);
+											curl_setopt($resource, CURLOPT_POST, 1);
+											curl_setopt($resource, CURLOPT_POSTFIELDS, $fields);
+											$result = curl_exec($resource);  
+											/*echo $result;
+											exit; */    
+											$err = curl_error($resource);   
+											curl_close($resource);    
+											if ($err) 
+											{          
+									 			echo "cURL Error #:" . $err;     
+											} 
+											else 
+											{
+												$result_parse=json_decode($result);      
+												$parsedescription=$result_parse->candidate->description;   
+												$description=$parsedescription;  
+												$description = mysql_escape_mimic($description);  
+												 
+												
+											} 
+
+												unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);  	    
+
+												}
+												else
+												{
+													$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email." ";   
+												} 	
+												$postUpdate='{"id": "'.$candidateId.'","address": {
+            "address1": "'.$address1.'",
+            "address2": "'.$address2.'",   
+            "city": "'.$city.'",        
+            "state": "'.$state.'",                 
+            "zip": "'.$zip.'"                           
+        },"description":"'.$description.'"}';  
+
+     									}
+     									else if($steps=='Step3')
+     									{   
+     										echo 'Step3';   
+
+     										//$customTextBlock1="Are you 18 years or older - ".$age; 
+											$customTextBlock2="Shift Availability - ".$shift;
+											$customTextBlock3="Day Availability - ".$day; 
+
+
+     										$postUpdate='{"id": "'.$candidateId.'","address": {
+            "address1": "'.$address1.'",
+            "address2": "'.$address2.'",   
+            "city": "'.$city.'",         
+            "state": "'.$state.'",                
+            "zip": "'.$zip.'"                           
+        }}';   
+
+
+        $postUpdate='{"id": "'.$candidateId.'","customTextBlock2":"'.$customTextBlock2.'","customTextBlock3":"'.$customTextBlock3.'","occupation":"'.$jobtype.'","dateAvailable":"'.$savedateavailable.'"}';
+
+ 
+        //echo $postUpdate;   
+     									}
+     									else if($steps=='Step4')
+     									{ 
+ 
+     										echo 'Step4';
+
+     										$customTextBlock1="Are you 18 years or older - ".$age; 
+											
+
+
+     										$postUpdate='{"id": "'.$candidateId.'","address": {
+            "address1": "'.$address1.'",
+            "address2": "'.$address2.'",   
+            "city": "'.$city.'",         
+            "state": "'.$state.'",                 
+            "zip": "'.$zip.'"                           
+        }}';   
+
+
+        $postUpdate='{"id": "'.$candidateId.'","customTextBlock1":"'.$customTextBlock1.'","workAuthorized":"'.$workauthorized.'","educationDegree":"'.$educationdegree.'"}';
+
+
+
+        								$postEducation='{"candidate": {"id": "'.$candidateId.'"},"degree": "'.$educationdegree.'"}';
 										$urlCandidateEducation=$resturl."entity/CandidateEducation";  
 										$curl = curl_init();          
 										curl_setopt_array($curl, array(                 
 										 CURLOPT_URL => $urlCandidateEducation,               
-										 CURLOPT_RETURNTRANSFER => true,            
+										 CURLOPT_RETURNTRANSFER => true,             
 										 CURLOPT_ENCODING => "",          
 										 CURLOPT_MAXREDIRS => 10,        
 										 CURLOPT_TIMEOUT => 30,    
@@ -4046,6 +4236,43 @@ if ($err) {
 										
 										}
  
+   
+     									}     
+     
+     									$Posturl=$resturl."entity/Candidate/".$candidateId;      
+
+     									
+										     
+   	
+										if($steps!="Step1")
+										{ 
+											$curl = curl_init();           
+											curl_setopt_array($curl, array(                
+											 CURLOPT_URL => $Posturl,               
+											 CURLOPT_RETURNTRANSFER => true,            
+											 CURLOPT_ENCODING => "",         
+											 CURLOPT_MAXREDIRS => 10,        
+											 CURLOPT_TIMEOUT => 30,    
+											 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+											 CURLOPT_CUSTOMREQUEST => "POST",  
+											 CURLOPT_POSTFIELDS => $postUpdate,          
+											 CURLOPT_HTTPHEADER => array(       
+											   "BhRestToken: ".$bhtoken,           
+											   "Content-Type: application/json",           
+											 ),   
+											));
+											$response = curl_exec($curl);       
+											$err = curl_error($curl);            
+											curl_close($curl);  
+											if ($err) {     
+											 echo "cURL Error #:" . $err;       
+											} else {   
+											 echo $response;  
+											
+											 $responseTest = json_decode($response);  
+											}
+									    }
+
 
 									}    
 
