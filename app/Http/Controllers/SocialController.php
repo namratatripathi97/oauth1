@@ -4034,7 +4034,7 @@ if ($err) {
 									if(($clientname=='AtlasStaffing') && (!empty($candidateId)))
 									{        
      						
-     									echo 'hello';    
+     									//echo 'hello';    
 
      									echo $candidateId; 
 
@@ -4202,10 +4202,10 @@ if ($err) {
             "city": "'.$city.'",         
             "state": "'.$state.'",                 
             "zip": "'.$zip.'"                           
-        }}';   
+        }}';         
 
 
-        $postUpdate='{"id": "'.$candidateId.'","customTextBlock1":"'.$customTextBlock1.'","workAuthorized":"'.$workauthorized.'","educationDegree":"'.$educationdegree.'"}';
+        $postUpdate='{"id": "'.$candidateId.'","customText8":"'.$age.'","workAuthorized":"'.$workauthorized.'","educationDegree":"'.$educationdegree.'"}';
 
 
 
