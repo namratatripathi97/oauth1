@@ -2771,7 +2771,7 @@ $postContact=json_encode($json_array);
 					if(isset($response1->id))   
 					{
 						$contact_id =$response1->id;     
-					}
+					} 
 					else
 					{
 						$contact_id =''; 
@@ -2833,7 +2833,7 @@ $parseResumeCand='{"Title": "'.$filename.'","ContentLocation": "S","FirstPublish
 					}
 
 					if( ($clientname=='bruce811')  && (!empty($job_id)) )   
-					{             
+					{              
 						$curl = curl_init();                    
 						curl_setopt_array($curl, array(           
 						 CURLOPT_URL => $instance_url."/services/data/v48.0/sobjects/ts2__Application__c",    
@@ -2844,7 +2844,7 @@ $parseResumeCand='{"Title": "'.$filename.'","ContentLocation": "S","FirstPublish
 						 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
 						 CURLOPT_CUSTOMREQUEST => "POST",                 
 						//CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\", \"Division__c\": \"".$division."\",\"ts2__Job__c\": \"".$job_id."\"}", 
-						CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\", \"StaffingFuture_ID__c\": \"".$staffingfutureid."\", \"ts2__Job__c\": \"".$job_id."\"}", 
+						CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\", \"ts2__Job__c\": \"".$job_id."\"}", 
 						 CURLOPT_HTTPHEADER => array(                            
 						   "Authorization: Bearer ".$access_token,           
 						   "Content-Type: application/json" 
@@ -2853,15 +2853,46 @@ $parseResumeCand='{"Title": "'.$filename.'","ContentLocation": "S","FirstPublish
 						$response = curl_exec($curl);          
 						$err = curl_error($curl);    
 						//print_r($err);
-						curl_close($curl);     
+						curl_close($curl);        
 						if ($err) {
 						 echo "cURL Error #:" . $err;
-						} else {      
+						} else {       
 						 echo $response;   
 						  
 						 $response1 = json_decode($response);   
 						 $applicant_id = $response1->id;     
 						echo 'Applicant ID:'.$applicant_id;       
+						} 
+   
+
+						$curl = curl_init();                    
+						curl_setopt_array($curl, array(              
+						 CURLOPT_URL => $instance_url."/services/data/v48.0/sobjects/ts2__Job__c/$job_id",     
+						 CURLOPT_RETURNTRANSFER => true, 
+						 CURLOPT_ENCODING => "",        
+						 CURLOPT_MAXREDIRS => 10,    
+						 CURLOPT_TIMEOUT => 30,            
+						 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+						 CURLOPT_CUSTOMREQUEST => "PATCH",                  
+						//CURLOPT_POSTFIELDS => "{ \"Id\": \"".$job_id."\", \"StaffingFuture_ID__c\": \"".$staffingfutureid."\", \"Division__c\": \"".$division."\"}", 
+						//CURLOPT_POSTFIELDS => "{ \"Id\": \"".$job_id."\", \"StaffingFuture_ID__c\": \"".$staffingfutureid."\"}", 
+						CURLOPT_POSTFIELDS => "{\"StaffingFuture_ID__c\": \"".$staffingfutureid."\"}", 
+						 CURLOPT_HTTPHEADER => array(                               
+						   "Authorization: Bearer ".$access_token,           
+						   "Content-Type: application/json" 
+						 ),         
+						)); 
+						$response = curl_exec($curl);          
+						$err = curl_error($curl);    
+						//print_r($err); 
+						curl_close($curl);     
+						if ($err) {
+						 echo "cURL Error #:" . $err;
+						} else {    
+						echo "Add StaffingFuture_ID__c column";  
+						 echo $response;   
+						  
+						      
 						}       
 
        				
