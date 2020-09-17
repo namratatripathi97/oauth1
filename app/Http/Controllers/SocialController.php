@@ -605,8 +605,8 @@ class SocialController extends Controller
   			$fname = $_POST['1_3'];   
 			$lname = $_POST['1_6'];       
 			$email = $_POST['2']; 
-			$phone = $_POST['3'];    
-			$phone = str_ireplace( array( '\'', '"', ',' , ';', '<', '>', '(', ')', '-', ' ' ), '', $phone);             
+			$phone = $_POST['3'];
+			$phone = str_ireplace( array( '\'', '"', ',' , ';', '<', '>', '(', ')', '-', ' ' ), '', $phone);  
 			$resume_status = $_POST['4'];        
 			$filedata=$_POST['5'];        
 			$candidateStatus="New Candidate";	           
@@ -1366,7 +1366,7 @@ class SocialController extends Controller
 			$lname = $_POST['1_6'];           
 			$email = $_POST['2']; 
 			$phone = $_POST['3'];    
-			$phone = str_ireplace( array( '\'', '"', ',' , ';', '<', '>', '(', ')', '-', ' ' ), '', $phone);             
+			$phone = str_ireplace( array( '\'', '"', ',' , ';', '<', '>', '(', ')', '-', ' ' ), '', $phone);
 			$resume_status = $_POST['4'];        
 			$filedata=$_POST['5'];                
 			$job=$_POST['7'];
@@ -2733,53 +2733,69 @@ else
 	'LeadSource'=>$jobSource   
 	);*/
 }
-     
 
-          
-$postContact=json_encode($json_array);                           
-   
 
-					                       
 					$curl = curl_init();  
-					curl_setopt_array($curl, array(                 
-					 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
+					curl_setopt_array($curl, array(
+					 CURLOPT_URL => $instance_url."/services/data/v42.0/query/?q=SELECT+Email,Id+FROM+Contact+WHERE+Email='brucestander151@live.com'",
 					 CURLOPT_RETURNTRANSFER => true, 
 					 CURLOPT_ENCODING => "",       
 					 CURLOPT_MAXREDIRS => 10,    
 					 CURLOPT_TIMEOUT => 30,            
-					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
-					 CURLOPT_CUSTOMREQUEST => "POST",  
-					 CURLOPT_POSTFIELDS => $postContact,                
+					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					 CURLOPT_CUSTOMREQUEST => "GET",
 					 CURLOPT_HTTPHEADER => array(             
 					   "Authorization: Bearer ".$access_token,                  
 					   "Content-Type: application/json"         
 					 ),     
-					));
-					$response = curl_exec($curl);          
-					$err = curl_error($curl);         
-					print_r($err);    
-					curl_close($curl); 
-					if ($err) {
-					 echo "cURL Error #:" . $err;
-					} else {
-					  
-					echo 'firstclientrespnse';   
-					echo $response;         
+					));     
+					$response = curl_exec($curl);
 					$response1 = json_decode($response);
-					
-
-					if(isset($response1->id))   
-					{
-						$contact_id =$response1->id;     
-					} 
-					else
-					{
-						$contact_id =''; 
-					}      
-					
+										
+					if(empty($response1->records[0]->Id)) {          
+						$postContact=json_encode($json_array);                                                  
+						$curl = curl_init();  
+						curl_setopt_array($curl, array(                 
+						 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
+						 CURLOPT_RETURNTRANSFER => true, 
+						 CURLOPT_ENCODING => "",       
+						 CURLOPT_MAXREDIRS => 10,    
+						 CURLOPT_TIMEOUT => 30,            
+						 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+						 CURLOPT_CUSTOMREQUEST => "POST",  
+						 CURLOPT_POSTFIELDS => $postContact,                
+						 CURLOPT_HTTPHEADER => array(             
+						   "Authorization: Bearer ".$access_token,                  
+						   "Content-Type: application/json"         
+						 ),     
+						));
+						$response = curl_exec($curl);          
+						$err = curl_error($curl);         
+						print_r($err);    
+						curl_close($curl); 
+						if ($err) {
+						 echo "cURL Error #:" . $err;
+						} else {
+						  
+						echo 'firstclientrespnse';   
+						echo $response;         
+						$response1 = json_decode($response);
+						if(isset($response1->id))   
+						{
+							$contact_id =$response1->id;     
+						} 
+						else
+						{
+							$contact_id =''; 
+						}      
+						
+						}
+						echo "New contact created.";
+					} else {
+						$contact_id =$response1->records[0]->Id;
+						echo "Contact exists.";						
 					}
-					           
-					echo "CONTACT_ID:".$contact_id;           
+					echo "CONTACT_ID:".$contact_id; 
  
  				   if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
 					{       
@@ -2834,6 +2850,8 @@ $parseResumeCand='{"Title": "'.$filename.'","ContentLocation": "S","FirstPublish
 
 					if( ($clientname=='bruce811')  && (!empty($job_id)) )   
 					{              
+				echo "JOB_ID".$job_id;
+echo "CONTACT_ID".$contact_id;				
 						$curl = curl_init();                    
 						curl_setopt_array($curl, array(           
 						 CURLOPT_URL => $instance_url."/services/data/v48.0/sobjects/ts2__Application__c",    
@@ -3836,10 +3854,14 @@ if ($err) {
 									{
 										$candidateStatus="Unreviewed";	
 									}
-									else if($clientname=='professionalalternatives' || $clientname=='AtlasStaffing')
+									/*else if($clientname=='professionalalternatives' || $clientname=='AtlasStaffing')
 									{
 										$candidateStatus="New Candidate";	
-									}
+									}*/
+									else if($clientname=='professionalalternatives')
+									{
+										$candidateStatus="New Candidate";	
+									}									
 									else       
 									{   
 										$candidateStatus="New Lead";
