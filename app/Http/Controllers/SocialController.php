@@ -1370,6 +1370,7 @@ class SocialController extends Controller
 			$resume_status = $_POST['4'];        
 			$filedata=$_POST['5'];                
 			$job=$_POST['7'];
+			
 			 
 			if(isset($_POST['note']))   
 			{
@@ -1522,6 +1523,11 @@ class SocialController extends Controller
 			{          
 				$staffingfutureid="";     
 			}
+			if(isset($_POST['7']))    
+			{  
+				$job_id=$_POST['7'];
+			}			
+						
 
   			/*if($clientname=='LoyalSource')
   			{*/
@@ -2712,32 +2718,31 @@ $instance_url = $response->instance_url;
 					 
        
 if($clientname=='bruce811')
-{    
-	$json_array=array(
+{     
+	$json_array=array(      
 	'FirstName'=>$fname,       
 	'LastName'=>$lname,    
-	'Email'=>$email,        
+	'Email'=>$email,         
 	'Phone'=>$phone,
-	'LeadSource'=>$jobSource,
-	'ts2__Text_Resume__c'=>$html_content        
-	); 
+	'AccountId'=>'0013700000P9wqGAAR' 
+	);  
+
 }
 else    
 {    
 	
 	/*$json_array=array(
 	'FirstName'=>$fname,
-	'LastName'=>$lname,        
+	'LastName'=>$lname,             
 	'Email'=>$email,                
 	'Phone'=>$phone,
 	'LeadSource'=>$jobSource   
 	);*/
 }
 
-
 					$curl = curl_init();  
 					curl_setopt_array($curl, array(
-					 CURLOPT_URL => $instance_url."/services/data/v42.0/query/?q=SELECT+Email,Id+FROM+Contact+WHERE+Email='brucestander151@live.com'",
+					 CURLOPT_URL => $instance_url."/services/data/v42.0/query/?q=SELECT+Email,Id,Phone+FROM+Contact+WHERE+Email='".$email."'+OR+Phone='".$phone."'",
 					 CURLOPT_RETURNTRANSFER => true, 
 					 CURLOPT_ENCODING => "",       
 					 CURLOPT_MAXREDIRS => 10,    
@@ -2751,8 +2756,18 @@ else
 					));     
 					$response = curl_exec($curl);
 					$response1 = json_decode($response);
-										
-					if(empty($response1->records[0]->Id)) {          
+
+					echo "Email and Phone matching done.";
+					print_r($response1);
+					 
+					if(isset($response1->records[0]->Id))
+					{
+						
+						$contact_id =$response1->records[0]->Id;
+						echo "Contact exists.";	
+					}
+					else
+					{
 						$postContact=json_encode($json_array);                                                  
 						$curl = curl_init();  
 						curl_setopt_array($curl, array(                 
@@ -2777,26 +2792,25 @@ else
 						 echo "cURL Error #:" . $err;
 						} else {
 						  
-						echo 'firstclientrespnse';   
+						//echo 'firstclientrespnse';   
 						echo $response;         
 						$response1 = json_decode($response);
-						if(isset($response1->id))   
-						{
+						//echo "New Contact Created";
+						//print_r($response1); 
+						if(isset($response1->id))    
+						{ 
 							$contact_id =$response1->id;     
 						} 
 						else
 						{
-							$contact_id =''; 
+							$contact_id ='';  
 						}      
 						
 						}
 						echo "New contact created.";
-					} else {
-						$contact_id =$response1->records[0]->Id;
-						echo "Contact exists.";						
-					}
+					}					
 					echo "CONTACT_ID:".$contact_id; 
- 
+ 					//exit; 
  				   if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
 					{       
 								$ext = pathinfo($filedata, PATHINFO_EXTENSION);   
@@ -2849,9 +2863,9 @@ $parseResumeCand='{"Title": "'.$filename.'","ContentLocation": "S","FirstPublish
 					}
 
 					if( ($clientname=='bruce811')  && (!empty($job_id)) )   
-					{              
-				echo "JOB_ID".$job_id;
-echo "CONTACT_ID".$contact_id;				
+					{               
+						echo "JOB_ID: ".$job_id;
+						echo "CONTACT_ID: ".$contact_id;				
 						$curl = curl_init();                    
 						curl_setopt_array($curl, array(           
 						 CURLOPT_URL => $instance_url."/services/data/v48.0/sobjects/ts2__Application__c",    
