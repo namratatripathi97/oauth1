@@ -595,7 +595,7 @@ class SocialController extends Controller
 			$custom_source_status=$credential_details->custom_source_status;     
   	   		if(empty($source))    
   	   		{ 
-  	   			$jobSource="Jobs +";              
+  	   			$jobSource="Jobs +";
   	   		}
   	   		else
   	   		{
@@ -2327,7 +2327,7 @@ class SocialController extends Controller
 			if($apicall=='pushCandidate')   
 			{    
 					 
-
+ 
 			  $postdata='{   
 				  "authorise": { 
 				    "company": "'.$client_id.'",
@@ -2339,10 +2339,11 @@ class SocialController extends Controller
 				      "candidateName": "'.$fname.' '.$lname.'",
 				      "status": "Available",    
 				      "email": "'.$email.'",
-				      "phoneMobile":"'.$phone.'"
-				    }
-				  }
-				}';       
+				      "phoneMobile":"'.$phone.'",
+					  "source":"'.$jobSource.'"
+				    }   
+				  } 
+				}'; 
 
 				$curl = curl_init();
 
