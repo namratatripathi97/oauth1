@@ -1370,6 +1370,7 @@ class SocialController extends Controller
 			$resume_status = $_POST['4'];        
 			$filedata=$_POST['5'];                
 			$job=$_POST['7'];
+			$defineAccessKey="OKy4aukCze";   
 			
 			 
 			if(isset($_POST['note']))   
@@ -1506,7 +1507,6 @@ class SocialController extends Controller
 			}
 
 			
-
 			if(isset($_POST['educationdegree']))    
 			{  
 				$educationdegree=$_POST['educationdegree'];
@@ -1514,6 +1514,15 @@ class SocialController extends Controller
 			else 
 			{             
 				$educationdegree="";     
+			}
+
+			if(isset($_POST['accesskey']))    
+			{  
+				$accesskey=$_POST['accesskey'];
+			}
+			else 
+			{              
+				$accesskey="";     
 			}	   
 			if(isset($_POST['staffingfutureid']))    
 			{  
@@ -1605,6 +1614,19 @@ class SocialController extends Controller
 			$applicant_name=$fname.' '.$lname;    
   			 
 			  
+			 if(($clientname=="Bruce") && ($name=="Bullhorn"))
+			 {
+			 	if($defineAccessKey==$accesskey)
+			 	{ 
+			 		echo "MatchedKey";
+ 					//exit;
+			 	} 
+			 	else
+			 	{
+			 		echo "Accesskey Not Matched";  
+			 		exit;
+			 	} 
+			 }  
 			   
 		  
 
