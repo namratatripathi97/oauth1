@@ -407,7 +407,7 @@ class SocialController extends Controller
 		  {  
 		  		$BhRestToken=json_decode($response)->BhRestToken;
 		  		$restUrl=json_decode($response)->restUrl;
-
+    
  
 		  		$datastore = new DatastoreClient();      
 				//$dataInsert = $datastore->entity('stage-bullhorn-client');
@@ -421,6 +421,8 @@ class SocialController extends Controller
 				$dataInsert['refreshToken'] = $request['refreshToken'];    
 				$dataInsert['bhRestToken'] = $BhRestToken;    
 				$dataInsert['restUrl'] = $restUrl;     
+				$dataInsert['start'] = '0';     
+				$dataInsert['count'] = '500';     
 
 				$datastore->insert($dataInsert);  
 
@@ -1506,6 +1508,25 @@ class SocialController extends Controller
 				$savedateavailable=date("m/d/Y");
 			}
 
+			
+
+			if(isset($_POST['employmentPreference']))    
+			{  
+				$employmentPreference=$_POST['employmentPreference'];
+			}
+			else        
+			{             
+				$employmentPreference="";     
+			}
+
+			if(isset($_POST['noticePeriod']))    
+			{  
+				$noticePeriod=$_POST['noticePeriod'];
+			}
+			else        
+			{             
+				$noticePeriod="";        
+			}
 			
 			if(isset($_POST['educationdegree']))    
 			{  
@@ -4107,8 +4128,21 @@ if ($err) {
 
 
 										}
+										else if($clientname=='fisergroup1')        
+										{              
+ 
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
+								            "address1": "'.$address1.'",
+								            "address2": "'.$address2.'",  
+								            "city": "'.$city.'",     
+								            "state": "'.$state.'",                 
+								            "zip": "'.$zip.'"                              
+								        },"description":"'.$description.'","employmentPreference":"'.$employmentPreference.'","customText4":"'.$noticePeriod.'"}';
+      
+  
+										}  
 										else 
-										{     
+										{       
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
             "address1": "'.$address1.'",
             "address2": "'.$address2.'",  
