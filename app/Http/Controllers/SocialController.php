@@ -2739,7 +2739,7 @@ $instance_url = $response->instance_url;
 					$html_content=$description;    
 							
 					 
-       
+$eighteleven_jobSource = $_POST['source'];
 if($clientname=='bruce811')
 {     
 	$json_array=array(      
@@ -2748,7 +2748,9 @@ if($clientname=='bruce811')
 	'Email'=>$email,         
 	'Phone'=>$phone,
 	'AccountId'=>'0013700000P9wqGAAR' 
-	);  
+	);
+
+
 
 }
 else    
@@ -2899,7 +2901,7 @@ $parseResumeCand='{"Title": "'.$filename.'","ContentLocation": "S","FirstPublish
 						 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
 						 CURLOPT_CUSTOMREQUEST => "POST",                 
 						//CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\", \"Division__c\": \"".$division."\",\"ts2__Job__c\": \"".$job_id."\"}", 
-						CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\", \"ts2__Job__c\": \"".$job_id."\"}", 
+						CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"".$contact_id."\", \"ts2__Job__c\": \"".$job_id."\", \"ts2__Application_Source__c\": \"".$eighteleven_jobSource."\"}", 
 						 CURLOPT_HTTPHEADER => array(                            
 						   "Authorization: Bearer ".$access_token,           
 						   "Content-Type: application/json" 
@@ -3201,59 +3203,86 @@ else
 }
     
 /**/
-          
 $postContact=json_encode($json_array);                           
-   
-
-					                       
+					
+					// changes made by gaurav on 02-10-2020
 					$curl = curl_init();  
-					curl_setopt_array($curl, array(                 
-					 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
-					 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
-					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/ts2__Application__c",    
-					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Candidate",   
-					 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Account", 
+					curl_setopt_array($curl, array(
+					 CURLOPT_URL => $instance_url."/services/data/v42.0/query/?q=SELECT+Email,Id,Phone+FROM+Contact+WHERE+Email='".$email."'+OR+Phone='".$phone."'",
 					 CURLOPT_RETURNTRANSFER => true, 
 					 CURLOPT_ENCODING => "",       
 					 CURLOPT_MAXREDIRS => 10,    
 					 CURLOPT_TIMEOUT => 30,            
-					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
-					 CURLOPT_CUSTOMREQUEST => "POST",  
-					 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
-					 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",              
-					//CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"0033s0000105RnsAAE\",  \"ts2__Job__c\": \"a0K3s00000BpizZEAR\"}", 
-					 //CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"".$jobSource."\",\"ts2__Text_Resume__c\": \"".$description."\"}",   
-					 CURLOPT_POSTFIELDS => $postContact,                
+					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					 CURLOPT_CUSTOMREQUEST => "GET",
 					 CURLOPT_HTTPHEADER => array(             
 					   "Authorization: Bearer ".$access_token,                  
 					   "Content-Type: application/json"         
 					 ),     
-					));
-					$response = curl_exec($curl);          
-					$err = curl_error($curl);         
-					print_r($err);    
-					curl_close($curl); 
-					if ($err) {
-					 echo "cURL Error #:" . $err;
-					} else {
-					  
-					echo 'firstclientrespnse';   
-					echo $response;         
+					));     
+					$response = curl_exec($curl);
 					$response1 = json_decode($response);
-					
 
-					if(isset($response1->id))   
+					echo "Email and Phone matching done.";
+					//print_r($response1);
+					 
+					if(isset($response1->records[0]->Id))
 					{
-						$contact_id =$response1->id;     
+						
+						$contact_id =$response1->records[0]->Id;
+						echo "Contact exists.";	
 					}
-					else
-					{
-						$contact_id =''; 
-					}      
-					//echo 'appid'.$applicant_id;  
+
+
+					if(empty($contact_id)) {					                       
+						$curl = curl_init();  
+						curl_setopt_array($curl, array(                 
+						 CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Contact",    
+						 //CURLOPT_URL => $instance_url."/services/apexrest/ts2/ParseResume", 
+						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/ts2__Application__c",    
+						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Candidate",   
+						 //CURLOPT_URL => $instance_url."/services/data/v42.0/sobjects/Account", 
+						 CURLOPT_RETURNTRANSFER => true, 
+						 CURLOPT_ENCODING => "",       
+						 CURLOPT_MAXREDIRS => 10,    
+						 CURLOPT_TIMEOUT => 30,            
+						 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+						 CURLOPT_CUSTOMREQUEST => "POST",  
+						 //CURLOPT_POSTFIELDS => "{  \"AccountId\": \"".$accountid."\",  \"FirstName\": \"".$firstName."\",  \"LastName\": \"".$lastName."\"}",  
+						 //CURLOPT_POSTFIELDS => "{ \"ContactId\": \"0033s0000105RnsAAE\",  \"Name\": \"TestResume.pdf\",  \"ContentType\": \"application/pdf\",  \"Body\": \"".$pdfcontent."\"}",              
+						//CURLOPT_POSTFIELDS => "{ \"ts2__Candidate_Contact__c\": \"0033s0000105RnsAAE\",  \"ts2__Job__c\": \"a0K3s00000BpizZEAR\"}", 
+						 //CURLOPT_POSTFIELDS => "{ \"FirstName\": \"".$fname."\",  \"LastName\": \"".$lname."\",\"Email\": \"".$email."\",  \"Phone\": \"".$phone."\",  \"LeadSource\": \"".$jobSource."\",\"ts2__Text_Resume__c\": \"".$description."\"}",   
+						 CURLOPT_POSTFIELDS => $postContact,                
+						 CURLOPT_HTTPHEADER => array(             
+								"Authorization: Bearer ".$access_token,                  
+								"Content-Type: application/json"         
+							),     
+						));
+						$response = curl_exec($curl);          
+						$err = curl_error($curl);         
+						print_r($err);    
+						curl_close($curl); 
+						if ($err) {
+							echo "cURL Error #:" . $err;
+						} else {
+							echo 'firstclientrespnse';   
+							echo $response;         
+							$response1 = json_decode($response);					
+
+							if(isset($response1->id))   
+							{
+								$contact_id =$response1->id;     
+							}
+							else
+							{
+								$contact_id =''; 
+							}      
+							//echo 'appid'.$applicant_id;  
+						}
 					}
 					//echo "<br/>";               
-					echo "CONTACT_ID:".$contact_id;           
+					echo "CONTACT_ID: ".$contact_id;  
+					//exit;          
 					//echo "<br/>";            
 					// Create Application
 					
