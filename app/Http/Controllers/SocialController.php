@@ -2760,7 +2760,17 @@ $instance_url = $response->instance_url;
 					$html_content=$description;    
 							
 					 
-$eighteleven_jobSource = $_POST['source'];
+
+
+if(isset($_POST['source']))
+{
+
+	$eighteleven_jobSource = $_POST['source'];
+}
+else
+{
+	$eighteleven_jobSource = ""; 
+}
 if($clientname=='bruce811')
 {     
 	$json_array=array(      
@@ -3982,14 +3992,14 @@ if ($err) {
 										echo 'ifloop';
 										$candidateId=$email_status;  
 									}
-									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing") )
+									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing" || $clientname=="fisergroup1") )
 									{          
-										echo 'ifloop for AtlasStaffing update';
+										echo 'ifloop for AtlasStaffing and fisergroup1 update';
 										$candidateId=$email_status;  
 									}
 									else         
 									{       
-										echo 'elseloop executeapi';
+										echo 'elseloop executeapi';  
 										//exit;     
   										          
 										$url=$resturl."entity/Candidate";    
@@ -4131,16 +4141,10 @@ if ($err) {
 										else if($clientname=='fisergroup1')        
 										{              
  
-											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
-								            "address1": "'.$address1.'",
-								            "address2": "'.$address2.'",  
-								            "city": "'.$city.'",     
-								            "state": "'.$state.'",                 
-								            "zip": "'.$zip.'"                              
-								        },"description":"'.$description.'","employmentPreference":"'.$employmentPreference.'","customText4":"'.$noticePeriod.'"}';
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'"}';
       
-  
-										}  
+   
+										}   
 										else 
 										{       
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
@@ -4184,13 +4188,13 @@ if ($err) {
 									}    
 
 
-									if(($clientname=='AtlasStaffing') && (!empty($candidateId)))
+									if((($clientname=='AtlasStaffing') || ($clientname=='fisergroup1')) && (!empty($candidateId)))
 									{        
      						
      									//echo 'hello';    
 
      									echo $candidateId; 
-
+ 
      									if($steps=='Step2')
      									{
      										echo 'Step2';
@@ -4335,7 +4339,21 @@ if ($err) {
         }}';   
 
 
-        $postUpdate='{"id": "'.$candidateId.'","customTextBlock2":"'.$customTextBlock2.'","customTextBlock3":"'.$customTextBlock3.'","occupation":"'.$jobtype.'","dateAvailable":"'.$savedateavailable.'"}';
+
+
+        					if($clientname=='AtlasStaffing')
+        					{
+        						  $postUpdate='{"id": "'.$candidateId.'","customTextBlock2":"'.$customTextBlock2.'","customTextBlock3":"'.$customTextBlock3.'","occupation":"'.$jobtype.'","dateAvailable":"'.$savedateavailable.'"}';
+        					}
+        					else if($clientname=='fisergroup1')
+        					{ 
+        						  $postUpdate='{"id": "'.$candidateId.'","employmentPreference":"'.$employmentPreference.'","customText4":"'.$noticePeriod.'"}';
+        					}
+
+
+
+
+      
 
  
         //echo $postUpdate;   
@@ -4398,7 +4416,7 @@ if ($err) {
 										     
    	
 										if($steps!="Step1")
-										{ 
+										{  
 											$curl = curl_init();           
 											curl_setopt_array($curl, array(                
 											 CURLOPT_URL => $Posturl,               
