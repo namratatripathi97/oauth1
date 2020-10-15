@@ -1946,8 +1946,9 @@ class SocialController extends Controller
 					 CURLOPT_TIMEOUT => 30,
 					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 					 CURLOPT_CUSTOMREQUEST => "POST",
-					 CURLOPT_POSTFIELDS => "{  \"firstName\": \"".$fname."\",  \"lastName\": \"".$lname."\",  \"email\": \"".$email."\",  \"phone\": \"".$phone."\"}",
-					 CURLOPT_HTTPHEADER => array(               
+					/* CURLOPT_POSTFIELDS => "{  \"firstName\": \"".$fname."\",  \"lastName\": \"".$lname."\",  \"email\": \"".$email."\",  \"phone\": \"".$phone."\"}",*/
+					 CURLOPT_POSTFIELDS => "{  \"firstName\": \"".$fname."\",  \"lastName\": \"".$lname."\",  \"email\": \"".$email."\",  \"phone\": \"".$phone."\",  \"source\": \"".$jobSource."\"}",
+					 CURLOPT_HTTPHEADER => array(                 
 					   "Authorization: Bearer ".$access_token, 
 					   "Content-Type: application/json"   
 					 ),
