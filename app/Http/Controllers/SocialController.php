@@ -759,7 +759,7 @@ class SocialController extends Controller
 
 
 
-			echo $applicant_name=$fname.' '.$lname;    
+			$applicant_name=$fname.' '.$lname;    
   			     
 
 				$url = $apiurl;   
@@ -1997,7 +1997,7 @@ class SocialController extends Controller
 						curl_setopt($resource, CURLOPT_POST, 1);
 						curl_setopt($resource, CURLOPT_POSTFIELDS, $fields);
 						echo $result = curl_exec($resource);        
-						echo 'dd';  
+						//echo 'dd';  
 						unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);    
 					}
 					else   
@@ -2779,6 +2779,7 @@ if($clientname=='bruce811')
 	'LastName'=>$lname,    
 	'Email'=>$email,         
 	'Phone'=>$phone,
+	'RecordTypeId'=>'01237000000EvwYAAS',
 	'AccountId'=>'0013700000P9wqGAAR' 
 	);
 
@@ -4145,7 +4146,14 @@ if ($err) {
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'"}';
       
    
-										}   
+										}
+										/*else if($_POST['custom_step']=='hire_candidate')        
+										{              
+ 
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'"}';
+											print_r($postResume); exit;
+   
+										}*/										
 										else 
 										{       
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
