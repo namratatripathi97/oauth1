@@ -2118,138 +2118,293 @@ class SocialController extends Controller
 					 
  
 
-				//Code For Arithon Job Portal 
 
-			  $postdata='{   
-				  "authorise": { 
-				    "company": "'.$client_id.'",
-				    "key": "'.$apikey.'"
-				  },
-				  "request": {
-				    "command": "PushCandidate",
-				    "data": {
-				      "candidateName": "'.$fname.' '.$lname.'",
-				      "status": "Available",    
-				      "email": "'.$email.'",
-				      "phoneMobile":"'.$phone.'",
-					  "source":"'.$jobSource.'"
-				    }   
-				  } 
-				}'; 
 
-				$curl = curl_init();
 
-				curl_setopt_array($curl, array(    
-				  CURLOPT_URL => $apiurl,
-				  CURLOPT_RETURNTRANSFER => true,
-				  CURLOPT_ENCODING => "",
-				  CURLOPT_MAXREDIRS => 10,
-				  CURLOPT_TIMEOUT => 0,
-				  CURLOPT_FOLLOWLOCATION => true,
-				  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				  CURLOPT_CUSTOMREQUEST => "POST",
-				  CURLOPT_POSTFIELDS => $postdata,   
-				  CURLOPT_HTTPHEADER => array(  
-				    "Content-Type: text/plain",
-				    "Cookie: SERVERID=app3"
-				  ),
-				));
-
-				$response = curl_exec($curl);
-
-				curl_close($curl);
-				echo 'Candidate Create Done';
-				echo $response;
 
 				$postdata1='{
-				  "authorise": { 
-				    "company": "'.$client_id.'",
-				    "key": "'.$apikey.'"
-				  },
-				  "request": {
-				    "command": "CandidateDetails",
-				    "data": {
-				      "candidateName": "'.$fname.' '.$lname.'",
-				      "email": "'.$email.'"
-				    }
-				  }
-				}';          
+          "authorise": {  
+            "company": "'.$client_id.'",
+            "key": "'.$apikey.'" 
+          },  
+          "request": {
+            "command": "CandidateDetails",
+            "data": {
+              "candidateName": "'.$fname.' '.$lname.'",
+              "email": "'.$email.'",
+              "phoneMobile":"'.$phone.'"
+                     
+            }  
+          }
+        }';          
 
-				$curl = curl_init();
+        $curl = curl_init();
+ 
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => $apiurl,
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",   
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "POST",
+          CURLOPT_POSTFIELDS => $postdata1,   
+          CURLOPT_HTTPHEADER => array(     
+            "Content-Type: text/plain", 
+            "Cookie: SERVERID=app3"
+          ),
+        ));    
 
-				curl_setopt_array($curl, array(
-				  CURLOPT_URL => $apiurl,
-				  CURLOPT_RETURNTRANSFER => true,
-				  CURLOPT_ENCODING => "",   
-				  CURLOPT_MAXREDIRS => 10,
-				  CURLOPT_TIMEOUT => 0,
-				  CURLOPT_FOLLOWLOCATION => true,
-				  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				  CURLOPT_CUSTOMREQUEST => "POST",
-				  CURLOPT_POSTFIELDS => $postdata1,   
-				  CURLOPT_HTTPHEADER => array(     
-				    "Content-Type: text/plain", 
-				    "Cookie: SERVERID=app3"
-				  ),
-				));    
+        $response = curl_exec($curl);
+        
+        curl_close($curl);
+        $result=json_decode($response);
+        $candidateCount=$result->count; 
 
-				$response = curl_exec($curl);
-				
-				curl_close($curl);
-				$result=json_decode($response);
-				if(isset($result->records[0]->candidateID))
-				{ 
+        echo $candidateCount; 
 
-				  echo 'CandidateID -'.$candidateID=$result->records[0]->candidateID;
+        if($candidateCount==0) 
+        { 
+           
 
-				}
-				else
-				{ 
-				  echo $candidateID='';    
+            $postdata='{   
+          "authorise": { 
+            "company": "'.$client_id.'",
+            "key": "'.$apikey.'"
+          }, 
+          "request": {
+            "command": "PushCandidate",
+            "data": {
+              "candidateName": "'.$fname.' '.$lname.'",
+              "status": "Available",    
+              "email": "'.$email.'",
+              "phoneMobile":"'.$phone.'",
+              "source":"'.$jobSource.'",
+              "status":"New Record", 
+              "gdprAccept":"Yes"
+            }   
+          } 
+        }'; 
 
-				}
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(    
+          CURLOPT_URL => $apiurl,
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "POST",
+          CURLOPT_POSTFIELDS => $postdata,   
+          CURLOPT_HTTPHEADER => array(  
+            "Content-Type: text/plain",
+            "Cookie: SERVERID=app3"
+          ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo 'Candidate Create Done';
+        echo $response;
+
+          $postdata2='{
+            "authorise": { 
+              "company": "'.$client_id.'",
+              "key": "'.$apikey.'"
+            },
+            "request": {
+              "command": "CandidateDetails",
+              "data": {
+                "candidateName": "'.$fname.' '.$lname.'",
+                "email": "'.$email.'"
+              }
+            }
+          }';          
+
+          $curl = curl_init();
+
+          curl_setopt_array($curl, array(
+            CURLOPT_URL => $apiurl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",   
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => $postdata2,   
+            CURLOPT_HTTPHEADER => array(     
+              "Content-Type: text/plain", 
+              "Cookie: SERVERID=app3"
+            ),
+          ));    
+
+          $response = curl_exec($curl);
+          
+          curl_close($curl);
+          $result=json_decode($response);
+          if(isset($result->records[0]->candidateID))
+          { 
+ 
+            echo 'NewCandidateID -'.$candidateID=$result->records[0]->candidateID;
+
+          }
+         
+        }
+        else
+        {
+ 
+         
+          if(isset($result->records[0]->candidateID))
+          {
+              $candidateID=$result->records[0]->candidateID;  
+          }
+          
+          echo "Not Create Candidate";    
+          echo $candidateID;
+        }
+   
+
+
+
+
+        if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")  
+                    {            
+                       
+
+ 
+                      $ext = pathinfo($filedata, PATHINFO_EXTENSION);
+                      $filename=$fname.' '.$lname.'.'.$ext;
+                      $filecontent = file_get_contents($filedata);
+                      Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);
+                      $path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);
+          
+
+ 
+                      $curl = curl_init(); 
+                      curl_setopt_array($curl, array( 
+                        CURLOPT_URL => $apiurl, 
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => "",
+                        CURLOPT_MAXREDIRS => 10, 
+                        CURLOPT_TIMEOUT => 0,  
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,         
+                        CURLOPT_CUSTOMREQUEST => "POST", 
+                        CURLOPT_POSTFIELDS => array('authorise[key]' => ''.$apikey.'','authorise[company]' => ''.$client_id.'','request[command]' => 'PushCandidate','request[data][candidateID]' => ''.$candidateID.'', 'request[data][file][name]' => '/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'request[data][file][type]' => 'application/'.$ext,'attachedFile'=> new CurlFile('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext,'application/'.$ext,'/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext)),
+                        CURLOPT_HTTPHEADER => array( 
+                          "Cookie: SERVERID=app2" 
+                        ), 
+                      ));
+                        
+                      $response = curl_exec($curl); 
+                        
+                      curl_close($curl);  
+                      echo 'Resume Upload done'; 
+                      echo $response;        
+
+
+ 
+                    }    
+				   
+
 
 				if(!empty($job_id))
-				{ 
+				{  
 
-						  $jobdata='{
-						  "authorise": { 
-				    		"company": "'.$client_id.'",
-				    		"key": "'.$apikey.'"
-				  		  },
-						  "request": {
-						    "command": "PushSelection",
-						    "data": {
-						      "candidateID": '.$candidateID.',
-						      "vacancyID": '.$job_id.'
-						    }
-						  }
-						}'; 
+						 $postdataCheck='{ 
+          "authorise": {  
+            "company": "'.$client_id.'",
+            "key": "'.$apikey.'" 
+          },  
+          "request": { 
+            "command": "ListSelections",
+            "data": {
+              "candidateID": "'.$candidateID.'",
+              "vacancyID": "'.$job_id.'"
+            }   
+          } 
+        }';  
+           
 
-						$curl = curl_init();
+        $curl = curl_init();
+ 
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => $apiurl,
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",   
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "POST",
+          CURLOPT_POSTFIELDS => $postdataCheck,   
+          CURLOPT_HTTPHEADER => array(     
+            "Content-Type: text/plain", 
+            "Cookie: SERVERID=app3"
+          ),
+        ));    
 
-						curl_setopt_array($curl, array(
-						  CURLOPT_URL => $apiurl,
-						  CURLOPT_RETURNTRANSFER => true,
-						  CURLOPT_ENCODING => "",
-						  CURLOPT_MAXREDIRS => 10,
-						  CURLOPT_TIMEOUT => 0,
-						  CURLOPT_FOLLOWLOCATION => true,
-						  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-						  CURLOPT_CUSTOMREQUEST => "POST",
-						  CURLOPT_POSTFIELDS => $jobdata,      
-						  CURLOPT_HTTPHEADER => array(     
-						    "Content-Type: text/plain",
-						    "Cookie: SERVERID=app3"
-						  ),
-						));    
+        $response = curl_exec($curl);
+        
+        curl_close($curl); 
+ 
+        
+        $result=json_decode($response);
+        echo $jobcount=$result->count;
 
-						$response = curl_exec($curl); 
-						echo 'Job Apply Done';
-						echo 'VacancyID -'.$job_id;    
-						echo $response;
+        if($jobcount==0)
+        {  
+          echo 'Applied for job';
+
+           $jobdata='{
+              "authorise": { 
+                "company": "'.$client_id.'",
+                "key": "'.$apikey.'"
+                },
+              "request": {
+                "command": "PushSelection",
+                "data": {
+                  "candidateID": '.$candidateID.',
+                  "vacancyID": '.$job_id.'
+                }
+              }
+            }'; 
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+              CURLOPT_URL => $apiurl,
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => "",
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 0,
+              CURLOPT_FOLLOWLOCATION => true,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => "POST",
+              CURLOPT_POSTFIELDS => $jobdata,      
+              CURLOPT_HTTPHEADER => array(     
+                "Content-Type: text/plain",
+                "Cookie: SERVERID=app3"
+              ),
+            ));    
+
+            $response = curl_exec($curl); 
+            echo 'Job Apply Done';
+            echo 'VacancyID -'.$job_id;    
+            echo $response;
+
+        }  
+        else
+        {
+        	echo 'Already Applied for the JOb';
+        }
 				 
-				}     
+				}       
 
 
    
