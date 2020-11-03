@@ -1235,7 +1235,7 @@ class SocialController extends Controller
   											echo 'add file';
 									  
 											$url1=$resturl."file/Candidate/".$changedEntityId."";        
-											$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
+											$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","type": "CV","name": "'.$filename.'"}';  
 			      
 												$curl1 = curl_init();
 												curl_setopt_array($curl1, array(     
@@ -3621,6 +3621,10 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									else if($clientname=='professionalalternatives')
 									{
 										$candidateStatus="New Candidate";	
+									}
+									else if($clientname=='fisergroup1')
+									{
+										$candidateStatus="Available";	
 									}									
 									else       
 									{   
@@ -3867,11 +3871,11 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 													    	echo 'notadded file';
 													}  
 													else   
-													{     
+													{      
 				  											echo 'add file';
 													  
 															$url1=$resturl."file/Candidate/".$changedEntityId."";        
-															$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
+															$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","type": "CV","name": "'.$filename.'"}';
 							      
 																$curl1 = curl_init();
 																curl_setopt_array($curl1, array(     
@@ -4183,8 +4187,8 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
   											echo 'add file';
 									  
 											$url1=$resturl."file/Candidate/".$changedEntityId."";        
-											$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","name": "'.$filename.'"}';
-			      
+											
+			      							$postResume1='{"externalID": "portfolio","fileContent": "'.$file.'","fileType": "SAMPLE","type": "CV","name": "'.$filename.'"}';
 												$curl1 = curl_init();
 												curl_setopt_array($curl1, array(     
 												 CURLOPT_URL => $url1,                
