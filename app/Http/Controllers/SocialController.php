@@ -3659,9 +3659,9 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 										echo 'ifloop';
 										$candidateId=$email_status;  
 									}
-									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing" || $clientname=="fisergroup1") )
-									{          
-										echo 'ifloop for AtlasStaffing and fisergroup1 update';
+									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing" || $clientname=="fisergroup1" || $clientname=="ETSStaffingFuture") )
+									{           
+										echo 'ifloop for AtlasStaffing and fisergroup1  and ETSStaffingFuture update';
 										$candidateId=$email_status;  
 									}
 									else         
@@ -3777,6 +3777,15 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 
 
 										}
+										else if($clientname=='ETSStaffingFuture')        
+										{           
+
+											    
+  												 
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'"}';  
+
+
+										}
 										else if($clientname=='fisergroup1')        
 										{              
  
@@ -3825,15 +3834,15 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									}    
 
 
-									if((($clientname=='AtlasStaffing') || ($clientname=='fisergroup1')) && (!empty($candidateId)))
-									{        
+				if((($clientname=='AtlasStaffing') || ($clientname=='ETSStaffingFuture') || ($clientname=='fisergroup1')) && (!empty($candidateId)))
+									{           
      						
      									
 
      									echo $candidateId; 
  
      									if($steps=='Step2')
-     									{
+     									{   
      										echo 'Step2';
 
 
@@ -3982,8 +3991,18 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
         					{ 
         						  $postUpdate='{"id": "'.$candidateId.'","employmentPreference":"'.$employmentPreference.'","customText4":"'.$noticePeriod.'"}';
         					}
+        					else if($clientname=='ETSStaffingFuture')
+        					{     
+        						  $postUpdate='{"id": "'.$candidateId.'","address": {
+            "address1": "'.$address1.'",
+            "address2": "'.$address2.'",    
+            "city": "'.$city.'",            
+            "state": "'.$state.'",                
+            "zip": "'.$zip.'"                            
+        },"customTextBlock2":"'.$customTextBlock2.'","employeeType":"'.$jobtype.'","occupation":"'.$jobtype.'","dateAvailable":"'.$savedateavailable.'"}';
+        					}
 
-
+ 
 
 
       
