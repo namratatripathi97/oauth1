@@ -3546,6 +3546,9 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									if($resume_status=="Yes"  || $resume_status=="YES" || $resume_status=="yes")       
 									   {      
 
+									   	if(!empty($filedata))
+     												{
+
 									   	  $ext = pathinfo($filedata, PATHINFO_EXTENSION);   
 										  $filename=$fname.' '.$lname.'.'.$ext;
 										  $filecontent = file_get_contents($filedata);                
@@ -3582,7 +3585,8 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 										
 											unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);  
 										} 
-									   }
+									}
+									   } 
 									else     
 									  {         
 									  		$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email." ";  
@@ -3843,9 +3847,13 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
  
      									if($steps=='Step2')
      									{   
-     										echo 'Step2';
+     										echo 'Step2'; 
+
+ 
 
 
+     												if(!empty($filedata))
+     												{   
 
 			     									if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")  
 													{                  
@@ -3947,7 +3955,8 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 												
 											} 
 
-												unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);  	    
+												unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);  
+												}	    
 
 												}
 												else
@@ -3958,7 +3967,7 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
             "address1": "'.$address1.'",
             "address2": "'.$address2.'",   
             "city": "'.$city.'",        
-            "state": "'.$state.'",                 
+            "state": "'.$state.'",                  
             "zip": "'.$zip.'"                           
         },"description":"'.$description.'"}';  
 
@@ -4170,7 +4179,11 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 
 
 									if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")  
-										{                  
+										{              
+
+											if(!empty($filedata))
+     												{
+
 											$ext = pathinfo($filedata, PATHINFO_EXTENSION);
 											$filename=$fname.' '.$lname.'.'.$ext;
 											$filecontent = file_get_contents($filedata);                
@@ -4235,6 +4248,7 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 
 										}   
 										unlink('/var/www/html/wp/oauth/storage/app/public/'.$applicant_name.'.'.$ext);     
+									}
 
 									} 	  
 									
