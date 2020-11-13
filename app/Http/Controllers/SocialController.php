@@ -454,6 +454,14 @@ class SocialController extends Controller
 	 		}
 
 	 	}
+	 	else if($name=="TopEchelon")
+	 	{  
+	 		$call="newApply";    
+	 		if($url==null) 
+	 		{    
+	 			$request['url'] ='https://apigw.topechelon.com/v1/apply';          
+	 		}  
+	 	} 
 	 	else if($name=="Brightmove")
 	 	{ 
 	 		$call="createApplicant";    
@@ -1681,6 +1689,71 @@ class SocialController extends Controller
 
 				}
 			}
+			if($apicall=='newApply')   
+			{ 
+
+ 
+				echo 'New TopEchelon Start';   
+
+					if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
+				{
+					$ext = pathinfo($filedata, PATHINFO_EXTENSION);
+					$filename=$fname.' '.$lname.'.'.$ext;
+					$filecontent = base64_encode(file_get_contents($filedata));
+				}
+				else
+				{
+					$filedata="https://oauth.redwoodtechnologysolutions.com/wp/oauth/prod-pdf-generate.php?name=".$fname."%20".$lname."&email=".$email."&phone=".$phone;
+						$ext="pdf";
+						$filename=$fname.' '.$lname.'.'.$ext;
+					$filecontent = base64_encode(file_get_contents($filedata));
+				}
+
+					$postResume='{ 
+	"job_id": "'.$job_id.'",
+	"email_address": "'.$email.'",
+	"resume_data": "'.$filecontent.'",
+	"resume_filename": "'.$filename.'",
+	"first_name": "'.$fname.'",
+	"last_name": "'.$lname.'",
+	"phone_number": "'.$phone.'",
+	"venue": "'.$address1.'",
+	"city": "'.$city.'",  
+	"state": "'.$state.'", 
+	"zip": "'.$zip.'"
+}';       
+
+
+						     
+					$curl = curl_init();    
+					curl_setopt_array($curl, array(        
+					 CURLOPT_URL => $apiurl,   
+					 CURLOPT_RETURNTRANSFER => true,     
+					 CURLOPT_ENCODING => "",    
+					 CURLOPT_MAXREDIRS => 10,    
+					 CURLOPT_TIMEOUT => 30,
+					 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+					 CURLOPT_CUSTOMREQUEST => "POST",
+					 CURLOPT_POSTFIELDS => $postResume,          
+					 CURLOPT_HTTPHEADER => array( 
+					 "X-API-KEY: $apikey",           
+					   "Content-Type: application/json",      
+					 ),   
+					)); 
+					$response = curl_exec($curl);       
+					$err = curl_error($curl);           
+					curl_close($curl);
+					if ($err) {     
+					 echo "cURL Error #:" . $err;
+					} else { 
+					 echo $response;
+					
+
+									
+
+					}
+  
+			} 
 			if($apicall=='createResourceFromResume')   
 			{ 
 
@@ -2664,8 +2737,8 @@ else
 {
 	$eighteleven_jobSource = ""; 
 }
-if($clientname=='bruce811')
-{     
+if($clientname=='bruce811' || $clientname=='bruce811Dev')
+{      
 	$json_array=array(      
 	'FirstName'=>$fname,       
 	'LastName'=>$lname,    
@@ -2679,7 +2752,7 @@ if($clientname=='bruce811')
 
 }
 else    
-{    
+{     
 	
 	
 }
@@ -2801,8 +2874,8 @@ $parseResumeCand='{"Title": "'.$filename.'","ContentLocation": "S","FirstPublish
 							}  
 					}
 
-					if( ($clientname=='bruce811')  && (!empty($job_id)) )   
-					{               
+					if( ($clientname=='bruce811' || $clientname=='bruce811Dev')  && (!empty($job_id)) )   
+					{                
 						echo "JOB_ID: ".$job_id;
 						echo "CONTACT_ID: ".$contact_id;				
 						$curl = curl_init();                    
