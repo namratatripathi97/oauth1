@@ -502,6 +502,14 @@ class SocialController extends Controller
 	 			$request['url'] ='https://eu.arithon.com/ArithonAPI.php';          
 	 		}        
 	 	}  
+	 	else if($name=="PCRecruiter")      
+	 	{ 
+	 		$call="AddCandidate";
+	 		if($url==null)     
+	 		{  
+	 			$request['url'] ='https://www.pcrecruiter.net/rest/api/';          
+	 		}        
+	 	} 
 	 	else             
 	 	{    
 	 		$call=$apicall;  
@@ -1317,6 +1325,7 @@ class SocialController extends Controller
 			$refresh_token=$credential_details->refresh_token;  
 			$access_token=$credential_details->access_token;     
 			$source=$credential_details->source;
+			$DatabaseId=$credential_details->DatabaseId; 
 			$notification_status=$credential_details->notification_status;      
 			$custom_source_status=$credential_details->custom_source_status;     
   	   		if(empty($source))    
@@ -1752,6 +1761,178 @@ class SocialController extends Controller
 									
 
 					}
+  
+			} 
+			if($apicall=='AddCandidate')   
+			{   
+ 
+ 				
+				
+
+					$newData='
+							{
+							  "FirstName": "'.$fname.'",
+							  "LastName": "'.$lname.'",
+							  "HomePhone": "'.$phone.'",
+							  "MobilePhone": "'.$phone.'", 
+							  "WorkPhone": "'.$phone.'",
+							  "EmailAddress": "'.$email.'"
+							}';
+
+ 
+					$curl = curl_init(); 
+
+					curl_setopt_array($curl, array(    
+					  CURLOPT_URL => $apiurl."access-token/?Username=$username&Password=$password&DatabaseId=$DatabaseId&ApiKey=$apikey&AppId=$client_id",
+					  CURLOPT_RETURNTRANSFER => true,
+					  CURLOPT_ENCODING => "", 
+					  CURLOPT_MAXREDIRS => 10, 
+					  CURLOPT_TIMEOUT => 0,
+					  CURLOPT_FOLLOWLOCATION => true,
+					  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					  CURLOPT_CUSTOMREQUEST => "GET",
+					));
+
+					$response = curl_exec($curl);  
+ 
+					curl_close($curl);
+					$AccessToken=json_decode($response)->SessionId;  
+
+
+					$curl = curl_init();   
+						curl_setopt_array($curl, array(                       
+						 CURLOPT_URL => $apiurl."dupes/candidate/?EmailAddress=$email",    
+						 CURLOPT_RETURNTRANSFER => true,  
+						 CURLOPT_ENCODING => "",       
+						 CURLOPT_MAXREDIRS => 10,     
+						 CURLOPT_TIMEOUT => 30,             
+						 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+						 CURLOPT_CUSTOMREQUEST => "GET",  
+						 CURLOPT_HTTPHEADER => array(                
+								"Authorization: BEARER $AccessToken",                 
+								"Content-Type: application/json"         
+							),      
+						)); 
+						$response = curl_exec($curl);          
+						$err = curl_error($curl);   
+						   
+						$result=json_decode($response);
+						if(isset($result[0]->Candidate))
+						{ 
+							echo 'CandidateID '.$CandidateId=$result[0]->Candidate->CandidateId;
+
+						}
+						else
+						{  
+							echo 'Create Candidate'; 
+
+							$curl = curl_init();  
+							curl_setopt_array($curl, array(                  
+							 CURLOPT_URL => $apiurl."candidates/",    
+							 CURLOPT_RETURNTRANSFER => true, 
+							 CURLOPT_ENCODING => "",       
+							 CURLOPT_MAXREDIRS => 10,    
+							 CURLOPT_TIMEOUT => 30,            
+							 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+							 CURLOPT_CUSTOMREQUEST => "POST",  
+							 CURLOPT_POSTFIELDS => $newData,                
+							 CURLOPT_HTTPHEADER => array(             
+									"Authorization: BEARER $AccessToken",                 
+									"Content-Type: application/json"         
+								),     
+							)); 
+							$response = curl_exec($curl);          
+							$err = curl_error($curl);   
+							$result=json_decode($response);
+ 
+							echo 'NEW CandidateID '.$CandidateId=$result->CandidateId;
+
+
+						}
+
+						if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
+						{
+							$ext = pathinfo($filedata, PATHINFO_EXTENSION);
+							$filename=$fname.' '.$lname.'.'.$ext;
+							$filecontent = base64_encode(file_get_contents($filedata));
+						}
+						else
+						{ 
+							$filedata="https://oauth.redwoodtechnologysolutions.com/wp/oauth/prod-pdf-generate.php?name=".$fname."%20".$lname."&email=".$email."&phone=".$phone;
+								$ext="pdf";
+								$filename=$fname.' '.$lname.'.'.$ext;
+							$filecontent = base64_encode(file_get_contents($filedata));
+						}
+						$candidateParse='{     
+								"ContentType": "application/'.$ext.'",  
+							    "FileName": "'.$filename.'",
+							    "Resume": "'.$filecontent.'"
+							}';
+													
+							$curl = curl_init();  
+													curl_setopt_array($curl, array(                      
+													 CURLOPT_URL => $apiurl."candidates/$CandidateId/Resumes",    
+													 CURLOPT_RETURNTRANSFER => true,  
+													 CURLOPT_ENCODING => "",       
+													 CURLOPT_MAXREDIRS => 10,    
+													 CURLOPT_TIMEOUT => 30,            
+													 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+													 CURLOPT_CUSTOMREQUEST => "POST",  
+													 CURLOPT_POSTFIELDS => $candidateParse,                
+													 CURLOPT_HTTPHEADER => array(               
+															"Authorization: BEARER $AccessToken",                 
+															"Content-Type: application/json"         
+														),      
+													)); 
+													$response = curl_exec($curl);          
+													$err = curl_error($curl);    
+													echo "Resume Add Done";
+													echo $response; 
+
+				if(!empty($job_id))
+				{ 
+
+								$newUpdateData='
+								{
+								  "CandidateId": "'.$CandidateId.'",
+								  "EEOC": [
+								    {
+								      "Field": "string",
+								      "Values": [ 
+								        {
+								          "JobId": "'.$job_id.'",
+								          "Value": "string"
+								        }
+								      ] 
+								    }
+								  ] 
+								}';
+
+
+					$curl = curl_init();   
+											curl_setopt_array($curl, array(                         
+											 CURLOPT_URL => $apiurl."candidates/$CandidateId",    
+											 CURLOPT_RETURNTRANSFER => true,   
+											 CURLOPT_ENCODING => "",       
+											 CURLOPT_MAXREDIRS => 10,    
+											 CURLOPT_TIMEOUT => 30,            
+											 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,                     
+											 CURLOPT_CUSTOMREQUEST => "PUT",  
+											 CURLOPT_POSTFIELDS => $newUpdateData,                
+											 CURLOPT_HTTPHEADER => array(               
+													"Authorization: BEARER $AccessToken",                 
+													"Content-Type: application/json"         
+												),      
+											)); 
+											$response = curl_exec($curl);          
+											$err = curl_error($curl);   
+											echo "Job Apply Done";
+											echo $response;
+
+				}
+
+
+				
   
 			} 
 			if($apicall=='createResourceFromResume')   
