@@ -1599,13 +1599,15 @@ class SocialController extends Controller
 					}
      			   
 					if($resume_status=="No")  
-					{   
-     		         
+					{    
+     		          
      		           
    
 							$postResource = '{"trackerrms": {"createResource": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'", "lastname": "'.$lname.'", "fullname": "'.$fname.' '.$lname.'", "cellphone": "'.$phone.'", "email": "'.$email.'","jobtitle": " ","company": " ","address1": " ","address2": " ","city": " ","state": " ","zipcode": " ","country": " ","workphone": "","homephone": "'.$phone.'","linkedin": "","dateofbirth": "","nationality": "","languages": "","education": "","source": "'.$jobSource.'","jobhistory": [{"company": "","jobtitle": "","startdate": "","enddate": "","description": ""}],"salary": 0,"note": "'.$note.'","image": ""}}}}';          
    
 						
+
+
 				       
 									$curl = curl_init();                 
 									curl_setopt_array($curl, array(   
@@ -1648,6 +1650,9 @@ class SocialController extends Controller
 				{  
 
 
+								
+								  
+
 								$ext = pathinfo($filedata, PATHINFO_EXTENSION);
 								$filename=$fname.' '.$lname.'.'.$ext;
 								$filecontent = file_get_contents($filedata);                
@@ -1660,6 +1665,7 @@ class SocialController extends Controller
 								$apicall="createResourceFromResume";   
 								$postResume='{"trackerrms": {"createResourceFromResume": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'","lastname": "'.$lname.'","fullname": "'.$fname.' '.$lname.'","jobtitle": " ","email": "'.$email.'","source": "'.$jobSource.'","note": "'.$note.'"},"file": {"filename": "'.$filename.'","data": "'.$file.'"}}}}';          
              
+
   
 									$curl = curl_init();
 									curl_setopt_array($curl, array(     
@@ -3913,13 +3919,13 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 
 
 									if( (!empty($email_status)) && (!empty($phone_status)) )
-									{
-										echo 'ifloop';
+									{    
+										echo 'ifloop with ETSClient CHECK';
 										$candidateId=$email_status;  
 									}
-									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing" || $clientname=="fisergroup1" || $clientname=="ETSStaffingFuture") )
-									{           
-										echo 'ifloop for AtlasStaffing and fisergroup1  and ETSStaffingFuture update';
+									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing" || $clientname=="fisergroup1") )
+									{            
+										echo 'ifloop for AtlasStaffing and fisergroup1'; 
 										$candidateId=$email_status;  
 									}
 									else         
