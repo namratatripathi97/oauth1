@@ -122,7 +122,7 @@ class SocialController extends Controller
 	  }
 	 
 	 public function editBullhorn(Request $request)
-	 {
+	 { 
     
 	 	    
 	 	$url = 'https://auth.bullhornstaffing.com/oauth/authorize?client_id='.$request['client_id'].'&response_type=code';
@@ -1319,7 +1319,7 @@ class SocialController extends Controller
 	 		$username=$credential_details->username;
 		    $password=$credential_details->password;
 			$apiurl=$credential_details->url;   
-			$id=$credential_details->id; 
+			$id=$credential_details->id;  
 			$client_id=$credential_details->client_id;  
 			$apikey=$credential_details->client_secret;                 
 			$refresh_token=$credential_details->refresh_token;  
@@ -3608,19 +3608,19 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
 									$result1 = curl_exec($ch1);     
 
-									$response1 = json_decode($result1);
+									$response1 = json_decode($result1);    
 									$resturl = $response1->restUrl;     
 									$bhtoken = $response1->BhRestToken;                  
     
 									$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email." "; 
 
 									$url=$resturl."entity/Lead";         
-	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "New Lead","comments": "2020 salary guide download","leadSource": "'.$jobSource.'","phone": "'.$phone.'","mobile": "'.$phone.'","description":"'.mysql_escape_mimic($description).'"}';   
+	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "New Lead","comments": "2021 salary guide download","leadSource": "'.$jobSource.'","phone": "'.$phone.'","mobile": "'.$phone.'","description":"'.mysql_escape_mimic($description).'"}';   
     
 	 								     
 										$curl = curl_init();           
-										curl_setopt_array($curl, array(                         
-										 CURLOPT_URL => $url,             
+										curl_setopt_array($curl, array(                          
+										 CURLOPT_URL => $url,              
 										 CURLOPT_RETURNTRANSFER => true,            
 										 CURLOPT_ENCODING => "",         
 										 CURLOPT_MAXREDIRS => 10,        
@@ -4234,7 +4234,6 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 											$customTextBlock2="Shift Availability - ".$shift;
 											$customTextBlock3="Day Availability - ".$day; 
 
-
      										$postUpdate='{"id": "'.$candidateId.'","address": {
             "address1": "'.$address1.'",
             "address2": "'.$address2.'",   
@@ -4256,13 +4255,20 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
         					}
         					else if($clientname=='ETSStaffingFuture')
         					{     
-        						  $postUpdate='{"id": "'.$candidateId.'","address": {
+        						  /*$postUpdate='{"id": "'.$candidateId.'","address": {
             "address1": "'.$address1.'",
             "address2": "'.$address2.'",    
             "city": "'.$city.'",            
             "state": "'.$state.'",                
             "zip": "'.$zip.'"                            
-        },"customTextBlock2":"'.$customTextBlock2.'","employeeType":"'.$jobtype.'","occupation":"'.$jobtype.'","dateAvailable":"'.$savedateavailable.'"}';
+        },"customTextBlock3":"'.$customTextBlock2.'","employeeType":"'.$jobtype.'","occupation":"'.$jobtype.'","dateAvailable":"'.$savedateavailable.'"}';*/
+		$postUpdate='{"id": "'.$candidateId.'","address": {
+            "address1": "'.$address1.'",
+            "address2": "'.$address2.'",    
+            "city": "'.$city.'",            
+            "state": "'.$state.'",                
+            "zip": "'.$zip.'"                            
+        },"customText3":"'.$customTextBlock2.'","desiredLocations":"'.$jobtype.'","occupation":"'.$jobtype.'","dateAvailable":"'.$savedateavailable.'"}';
         					}
 
  
