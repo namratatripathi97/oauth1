@@ -1291,7 +1291,7 @@ class SocialController extends Controller
 
 	public function executeApi($name,$clientname,$apicall)
 	{
- 
+  
  		            	         
  			function mysql_escape_mimic($inp) 
  			{
@@ -3911,25 +3911,60 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 										$phone_status='';         
 									}  
 									else
-									{
+									{ 
 										$phone_status=$result->data[0]->entityId;   
 									}
-									echo 'email_status:'.$email_status;
+ 
+									$match_name=$fname.'%20'.$lname;
+									//Name Match Check for candidate
+									$url=$resturl."find?query=$match_name&countPerEntity=1";  
+									$header = array('bhresttoken: '.$bhtoken); 
+									$resource = curl_init();             
+									curl_setopt($resource, CURLOPT_URL, $url);               
+									curl_setopt($resource, CURLOPT_HTTPHEADER, $header);       
+									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);         
+									$result = json_decode(curl_exec($resource));  
+									curl_close($resource);
+									     
+
+									if(empty($result->data)) 
+									{   
+										$name_status='';          
+									}  
+									else
+									{   
+										$name_status=$result->data[0]->entityId;   
+									}
+
+
+
+									echo 'email_status:'.$email_status;   
 									echo 'phone status:'.$phone_status;    
-
-
+									echo 'name status:'.$name_status;    
+									
+									   
 									if( (!empty($email_status)) && (!empty($phone_status)) )
-									{    
+									{          
 										echo 'ifloop with ETSClient CHECK';
 										$candidateId=$email_status;  
 									}
+									else if( (!empty($name_status)) && (!empty($email_status))  && ($clientname=="ETSStaffingFuture"))
+									{       
+										echo 'Loop for check name and email exists for ETSStaffingFuture';
+										$candidateId=$name_status;  
+									}
+									else if( (!empty($name_status)) && (!empty($phone_status))  && ($clientname=="ETSStaffingFuture"))
+									{        
+										echo 'Loop for check name and phone exists for ETSStaffingFuture';
+										$candidateId=$name_status;  
+									}
 									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing" || $clientname=="fisergroup1") )
-									{            
+									{               
 										echo 'ifloop for AtlasStaffing and fisergroup1'; 
 										$candidateId=$email_status;  
 									}
 									else         
-									{       
+									{         
 										echo 'elseloop executeapi';  
 										 
   										          
