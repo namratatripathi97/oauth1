@@ -34,22 +34,22 @@ class SocialController extends Controller
 
      		    $mail = new PHPMailer(true); // notice the \  you have to use root namespace here
 			    try 
-			    {
+			    { 
 			        $mail->isSMTP(); // tell to use smtp
 			        $mail->CharSet = "utf-8"; // set charset to utf8
 			        $mail->SMTPAuth = true;  // use smpt auth
 			        $mail->SMTPSecure = "tls"; // or ssl
 			        $mail->Host = "smtp.sendgrid.net";       
 			        $mail->Port = 587; // most likely something different for you. This is the mailtrap.io port i use for testing. 
-			        $mail->Username = "apikey";
-			        $mail->Password = "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";
+			        $mail->Username = "";
+			        $mail->Password = "";
 			        $mail->setFrom($setfrom, "oAuth Support Staffing Future");
 			        $mail->Subject = $subject;     
 			        $mail->MsgHTML($message);                     
 			        $mail->addAddress($email, "Gaurav Pareek");
-			        $mail->addCC($addcc);       
+			        $mail->addCC($addcc);        
 			        $mail->send();    
-			    }   
+			    }    
 			    catch (phpmailerException $e) 
 			    {     
 			        dd($e);
