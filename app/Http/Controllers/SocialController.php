@@ -3889,9 +3889,13 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									else if($clientname=='fisergroup1')
 									{
 										$candidateStatus="Available";	
+									}	
+									else if($clientname=='ETSStaffingFuture')
+									{        
+										$candidateStatus="New Candidate";	
 									}									
 									else       
-									{   
+									{       
 										$candidateStatus="New Lead";
 									}
 									           
@@ -4446,7 +4450,13 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 														$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "Job Posting Response","source": "'.$jobSource.'"}';         
 
 
-													} else {
+													} 
+													else if($clientname=='ETSStaffingFuture')
+													{             
+														   
+			  											$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "Submitted","source": "'.$jobSource.'"}';
+													}
+													else {
 														$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead","source": "'.$jobSource.'"}';
 													}												
 													$curl2 = curl_init();  
