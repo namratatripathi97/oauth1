@@ -462,6 +462,14 @@ class SocialController extends Controller
 	 			$request['url'] ='https://apigw.topechelon.com/v1/apply';          
 	 		}  
 	 	} 
+	 	else if($name=="Healthcare")
+	 	{    
+	 		$call="newTemp";    
+	 		if($url==null) 
+	 		{       
+	 			$request['url'] ='https://ctmscs.contingenttalentmanagement.com/qsnurses_Training/clearConnect/2_0/index.cfm/';          
+	 		}  
+	 	} 
 	 	else if($name=="Brightmove")
 	 	{ 
 	 		$call="createApplicant";    
@@ -1739,6 +1747,8 @@ class SocialController extends Controller
 }';       
 
 
+ 
+				    
 						     
 					$curl = curl_init();    
 					curl_setopt_array($curl, array(        
@@ -1759,9 +1769,10 @@ class SocialController extends Controller
 					$err = curl_error($curl);           
 					curl_close($curl);
 					if ($err) {     
-					 echo "cURL Error #:" . $err;
+					 echo "cURL Error #:" . $err; 
 					} else { 
 					 echo $response;
+					 echo 'done';   
 					
 
 									
@@ -1769,8 +1780,182 @@ class SocialController extends Controller
 					}
   
 			} 
+			if($apicall=='newTemp')   
+			{ 
+ 
+ 	
+					echo 'Healthcare Integration Start';     
+
+				     $curl = curl_init();  
+
+					 curl_setopt_array($curl, array(      
+					  CURLOPT_URL => $apiurl."?action=getSessionKey&username=$username&password=$password&resultType=json",
+					  CURLOPT_RETURNTRANSFER => true,
+					  CURLOPT_ENCODING => "", 
+					  CURLOPT_MAXREDIRS => 10, 
+					  CURLOPT_TIMEOUT => 0,
+					  CURLOPT_FOLLOWLOCATION => true,
+					  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					  CURLOPT_CUSTOMREQUEST => "GET",
+					));
+
+					$response = curl_exec($curl);   
+
+					curl_close($curl);
+					$result=json_decode($response);     
+					$Access_Token=$result[0]->sessionKey;   
+
+
+					$curl = curl_init(); 
+
+					curl_setopt_array($curl, array(        
+					  CURLOPT_URL => $apiurl."?sessionKey=$Access_Token&action=getTemps&firstNameStartsWith=$fname&lastNameStartsWith=$lname&emailStartsWith=$email&resultType=json",
+					  CURLOPT_RETURNTRANSFER => true,
+					  CURLOPT_ENCODING => "",
+					  CURLOPT_MAXREDIRS => 10,
+					  CURLOPT_TIMEOUT => 0,
+					  CURLOPT_FOLLOWLOCATION => true,
+					  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					  CURLOPT_CUSTOMREQUEST => "GET",
+					));
+
+					$response = curl_exec($curl);
+					curl_close($curl);
+					$result=json_decode($response);
+
+					 
+
+
+			if(isset($result[0]->tempId))
+            {         
+              echo 'CandidateID '.$CandidateId=$result[0]->tempId;
+              
+
+            }
+            else
+            {            
+              		echo 'Create Candidate'; 
+
+					$curl = curl_init(); 
+
+					curl_setopt_array($curl, array(          
+					  CURLOPT_URL => $apiurl,
+					  CURLOPT_RETURNTRANSFER => true,
+					  CURLOPT_ENCODING => '',
+					  CURLOPT_MAXREDIRS => 10,
+					  CURLOPT_TIMEOUT => 0,
+					  CURLOPT_FOLLOWLOCATION => true,
+					  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					  CURLOPT_CUSTOMREQUEST => 'POST',
+					  CURLOPT_POSTFIELDS => array('sessionKey' => ''.$Access_Token.'','action' => 'insertTempRecords','tempRecords' => '<tempRecords>
+					    <tempRecord>
+					        <firstName>'.$fname.'</firstName>
+					        <lastName>'.$lname.'</lastName>
+					        <email>'.$email.'</email>    
+					        <phoneNumber>'.$phone.'</phoneNumber> 
+					        <homeRegion>5</homeRegion> 
+					        <certification>RN</certification>
+					        <specialty>ER</specialty> 
+					        <status>Active</status> 
+					    </tempRecord> 
+					</tempRecords>','resultType' => 'json'),
+					  CURLOPT_HTTPHEADER => array(
+					    'Cookie: BIGipServerpool.prod.ctm.csgpctm-c-ww01=67242506.20480.0000; JSESSIONID=63A4DBE6F63A0AB99AB65D932B7C9A97.cfusion'
+					  ),
+					));
+
+					$response = curl_exec($curl);    
+					curl_close($curl); 
+					echo $response; 
+					$result=json_decode($response); 
+					echo 'NEW CandidateID '.$CandidateId=$result[0]->tempId;
+
+ 
+            }
+
+	        if($resume_status=="Yes" || $resume_status=="YES" || $resume_status=="yes")
+	        {
+	          $ext = pathinfo($filedata, PATHINFO_EXTENSION);
+	          $filename=$fname.' '.$lname.'.'.$ext;
+	          $filecontent = base64_encode(file_get_contents($filedata));
+	        }
+	        else
+	        { 
+	          $filedata="https://oauth.redwoodtechnologysolutions.com/wp/oauth/prod-pdf-generate.php?name=".$fname."%20".$lname."&email=".$email."&phone=".$phone;
+	            $ext="pdf"; 
+	            $filename=$fname.' '.$lname.'.'.$ext;
+	          $filecontent = base64_encode(file_get_contents($filedata));
+	        }  
+
+
+	         	echo "Resume upload Start";
+        		$curl = curl_init();
+				curl_setopt_array($curl, array(        
+				  CURLOPT_URL => $apiurl."?sessionKey=$Access_Token&action=getDocumentTypes&resultType=json&descriptionLike=Resume", 
+				  CURLOPT_RETURNTRANSFER => true,
+				  CURLOPT_ENCODING => '',
+				  CURLOPT_MAXREDIRS => 10,
+				  CURLOPT_TIMEOUT => 0,
+				  CURLOPT_FOLLOWLOCATION => true, 
+				  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				  CURLOPT_CUSTOMREQUEST => 'GET', 
+				  CURLOPT_HTTPHEADER => array(  
+				    'Content-Type: text/plain',
+				    'Cookie: BIGipServerpool.prod.ctm.csgpctm-c-ww01=67242506.20480.0000; JSESSIONID=7F8D7AACED9BB10C8F133107902F0B8D.cfusion'
+				  ),
+				));
+
+				$response = curl_exec($curl);
+				   
+				curl_close($curl);
+				$resultNew=json_decode($response);
+				if(isset($resultNew))
+				{         
+				  $documentId=$resultNew[0]->id;      
+				}
+
+				
+
+				$ch = curl_init($filedata); 
+				 
+				 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+				 curl_setopt($ch, CURLOPT_HEADER, TRUE);
+				 curl_setopt($ch, CURLOPT_NOBODY, TRUE);
+
+				 $data = curl_exec($ch);
+				 $size = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD); 
+
+				 curl_close($ch);
+
+				 $curl = curl_init();    
+				curl_setopt_array($curl, array(             
+				  CURLOPT_URL => $apiurl,
+				  CURLOPT_RETURNTRANSFER => true,
+				  CURLOPT_ENCODING => "",
+				  CURLOPT_MAXREDIRS => 10,
+				  CURLOPT_TIMEOUT => 0, 
+				  CURLOPT_FOLLOWLOCATION => true,  
+				  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				  CURLOPT_CUSTOMREQUEST => "POST",
+				  CURLOPT_POSTFIELDS => array('sessionKey' => ''.$Access_Token.'','action' => 'insertDocument','documentType' => 'Temp','filename' => ''.$filename.'','contentType' => '.'.$ext.'','contentSubType' => 'application/'.''.$ext.'','tempId' => ''.$CandidateId.'','contents' => ''.$filecontent.'','resultType' => 'json','fileSize' => ''.$size.'','docTypeId' => ''.$documentId.''),  
+				)); 
+
+				$response = curl_exec($curl);          
+
+				curl_close($curl); 
+				echo $response; 
+
+				echo "resume Done";
+
+				  if(!empty($job_id))
+        		  {       
+ 						   
+        		  		echo 'Start Job Apply';  
+
+        		  }
+			} 
 			if($apicall=='AddCandidate')   
-			{   
+			{    
  
  				
 				
@@ -1896,7 +2081,7 @@ class SocialController extends Controller
 													echo $response; 
 
 				if(!empty($job_id))
-				{ 
+				{  
 
 								$newUpdateData='
 								{
@@ -1915,7 +2100,7 @@ class SocialController extends Controller
 								}';
 
 
-					$curl = curl_init();   
+											$curl = curl_init();   
 											curl_setopt_array($curl, array(                         
 											 CURLOPT_URL => $apiurl."candidates/$CandidateId",    
 											 CURLOPT_RETURNTRANSFER => true,   
