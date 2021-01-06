@@ -1365,6 +1365,14 @@ class SocialController extends Controller
 				$note=" ";                      
 			}	     
   
+  			if(isset($_POST['UTM']))    
+			{   
+				$UTM=$_POST['UTM'];
+			}
+			else
+			{ 
+				$UTM=""; 
+			} 
   			if(isset($_POST['address1']))    
 			{
 				$address1=$_POST['address1'];
@@ -1951,6 +1959,64 @@ class SocialController extends Controller
         		  {       
  						   
         		  		echo 'Start Job Apply';  
+
+			        	$curl = curl_init();
+						curl_setopt_array($curl, array(    
+						  CURLOPT_URL => $apiurl."?sessionKey=$Access_Token&action=getNoteTypes&resultType=json&noteTypeNameLike=Online%20Application%20Submitted",
+						  CURLOPT_RETURNTRANSFER => true,
+						  CURLOPT_ENCODING => '',
+						  CURLOPT_MAXREDIRS => 10,
+						  CURLOPT_TIMEOUT => 0,
+						  CURLOPT_FOLLOWLOCATION => true,
+						  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+						  CURLOPT_CUSTOMREQUEST => 'GET',
+						  CURLOPT_HTTPHEADER => array(  
+						    'Content-Type: text/plain',
+						    'Cookie: JSESSIONID=968B6CCDB30982BF3AC65D8B6DD424E1.cfusion; BIGipServerpool.prod.ctm.csgpctm-c-ww01=67242506.20480.0000'
+						  ),
+						));
+			 
+						$response = curl_exec($curl);
+
+						curl_close($curl);
+						echo $response; 
+
+						$resultNotes=json_decode($response);
+			 
+
+							if(isset($resultNotes))
+							{              
+									$noteTypeId=$resultNotes[0]->noteTypeId;     
+									$noteTypeName=$resultNotes[0]->noteTypeName;     
+							}
+
+								$curl = curl_init(); 
+
+								curl_setopt_array($curl, array(          
+								  CURLOPT_URL => $apiurl,
+								  CURLOPT_RETURNTRANSFER => true,
+								  CURLOPT_ENCODING => '',
+								  CURLOPT_MAXREDIRS => 10,
+								  CURLOPT_TIMEOUT => 0,
+								  CURLOPT_FOLLOWLOCATION => true,
+								  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+								  CURLOPT_CUSTOMREQUEST => 'POST',    
+								  CURLOPT_POSTFIELDS => array('sessionKey' => ''.$Access_Token.'','action' => 'insertNotes','noteRecords' => '<noteRecords>
+								    <noteRecord>
+								        <noteTypeId>'.$noteTypeId.'</noteTypeId>
+								        <noteType>'.$noteTypeName.'</noteType>
+								        <tempID>'.$CandidateId.'</tempID>    
+								        <OrderID>'.$job_id.'</OrderID>     
+								    </noteRecord> 
+								</noteRecords>','resultType' => 'json'),
+								  CURLOPT_HTTPHEADER => array(
+								    'Cookie: BIGipServerpool.prod.ctm.csgpctm-c-ww01=67242506.20480.0000; JSESSIONID=63A4DBE6F63A0AB99AB65D932B7C9A97.cfusion'
+								  ),
+								));
+
+								$response = curl_exec($curl);    
+								curl_close($curl);
+								echo $response;
 
         		  }
 			} 
@@ -4281,7 +4347,19 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
       
    
 										}
-																		
+										else if($clientname=='AllianceSolutionsGroup' || $clientname=='AllianceSolutionsGroup1')        
+										{                 
+  
+											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
+									            "address1": "'.$address1.'",
+									            "address2": "'.$address2.'",  
+									            "city": "'.$city.'", 
+									            "state": "'.$state.'",            
+									            "zip": "'.$zip.'"                          
+									        },"description":"'.$description.'","customText1":"'.$UTM.'"}'; 
+      
+    
+										}			 				
 										else 
 										{       
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
