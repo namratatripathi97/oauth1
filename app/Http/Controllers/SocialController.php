@@ -16,11 +16,11 @@ use Google\Cloud\Datastore\DatastoreClient;
     
 class SocialController extends Controller     
 {
-        
+         
      function sendEmail($integration_name,$client_name)
-     {          
+     {            
      		 	 		      
-     		$subject="Tokens revoked for ".$client_name." for ".$integration_name."";    
+     		$subject="Tokens revoked for ".$client_name." for ".$integration_name."";     
 
      		$message  = '';
 			$message .= "Hey!" ."<br><br>";
@@ -34,7 +34,7 @@ class SocialController extends Controller
 
      		    $mail = new PHPMailer(true); // notice the \  you have to use root namespace here
 			    try 
-			    { 
+			    {   
 			        $mail->isSMTP(); // tell to use smtp
 			        $mail->CharSet = "utf-8"; // set charset to utf8
 			        $mail->SMTPAuth = true;  // use smpt auth
@@ -51,10 +51,10 @@ class SocialController extends Controller
 			        $mail->send();    
 			    }    
 			    catch (phpmailerException $e) 
-			    {     
+			    {      
 			        dd($e);
 			    } catch (Exception $e) 
-			    {
+			    { 
 			        dd($e);   
 			    }
 			     
@@ -894,10 +894,10 @@ class SocialController extends Controller
 			if($im_a=='Hiring Manager')
 			{
 				echo 'CreateContact';        
-   
+    
 
 				
-				$url=$resturl."find?query=$company_name&countPerEntity=1";     
+									$url=$resturl."find?query=$company_name&countPerEntity=1";     
 									echo $url;	 								
 									$header = array('bhresttoken: '.$bhtoken); 
 									$resource = curl_init();             
@@ -1372,6 +1372,22 @@ class SocialController extends Controller
 			else
 			{ 
 				$UTM=""; 
+			} 
+			if(isset($_POST['branch_custom']))    
+			{   
+				$branch_custom=$_POST['branch_custom'];
+			}
+			else
+			{  
+				$branch_custom="";  
+			} 
+			if(isset($_POST['recruiterUserID']))    
+			{   
+				$recruiterUserID=$_POST['recruiterUserID'];
+			}
+			else 
+			{   
+				$recruiterUserID="";  
 			} 
   			if(isset($_POST['address1']))    
 			{
@@ -4143,7 +4159,8 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									}	
 									else if($clientname=='ETSStaffingFuture')
 									{        
-										$candidateStatus="New Candidate";	
+										//$candidateStatus="New Candidate";
+										$candidateStatus="New Lead";										
 									}									
 									else       
 									{       
@@ -4348,20 +4365,20 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
    
 										}
 										else if($clientname=='AllianceSolutionsGroup' || $clientname=='AllianceSolutionsGroup1')        
-										{                 
-  
+										{                     
+     
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
 									            "address1": "'.$address1.'",
 									            "address2": "'.$address2.'",  
 									            "city": "'.$city.'", 
-									            "state": "'.$state.'",            
+									            "state": "'.$state.'",             
 									            "zip": "'.$zip.'"                          
-									        },"description":"'.$description.'","customText1":"'.$UTM.'"}'; 
-      
+									        },"description":"'.$description.'","customText1":"'.$UTM.'","customText8":"'.$branch_custom.'","customText2":"'.$recruiterUserID.'"}'; 
+       
     
 										}			 				
 										else 
-										{       
+										{        
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
             "address1": "'.$address1.'",
             "address2": "'.$address2.'",  
