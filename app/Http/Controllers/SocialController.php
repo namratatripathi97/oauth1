@@ -1358,12 +1358,87 @@ class SocialController extends Controller
 			 
 			if(isset($_POST['note']))   
 			{
-    			$note=$_POST['note'];    
+    			$note=$_POST['note'];
 			}
 			else
 			{   
 				$note=" ";                      
-			}	     
+			}
+
+			if(isset($_POST['note_1']))   
+			{
+    			$note_1=$_POST['note_1'];    
+			}
+			else
+			{   
+				$note_1=" ";                      
+			}
+
+			if(isset($_POST['note_1_1']))   
+			{
+    			$note_1_1=$_POST['note_1_1'];
+				//$note_1=$note_1_1." ".$note_1;
+			}
+			else
+			{   
+				$note_1_1=" ";                      
+			}			
+
+			if(isset($_POST['note_2']))   
+			{
+    			$note_2=$_POST['note_2'];    
+			}
+			else
+			{   
+				$note_2=" ";                      
+			}
+			if(isset($_POST['note_2_1']))   
+			{
+    			$note_2_1=$_POST['note_2_1'];
+				//$note_2=$note_2_1." ".$note_2;
+			}
+			else
+			{   
+				$note_2_1=" ";                      
+			}			
+
+			if(isset($_POST['note_3']))   
+			{
+    			$note_3=$_POST['note_3'];    
+			}
+			else
+			{   
+				$note_3=" ";                      
+			}
+			if(isset($_POST['note_3_1']))   
+			{
+    			$note_3_1=$_POST['note_3_1'];
+				//$note_3=$note_3_1." ".$note_3;
+			}
+			else
+			{   
+				$note_3_1=" ";                      
+			}				
+
+			if(isset($_POST['note_4']))   
+			{
+    			$note_4=$_POST['note_4'];
+				
+			}
+			else
+			{   
+				$note_4=" ";                      
+			}
+			if(isset($_POST['note_4_1']))   
+			{
+    			$note_4_1=$_POST['note_4_1'];
+				//$note_4=$note_4_1." ".$note_4;
+				$note = $note_1_1." ".$note_1."\n".$note_2_1." ".$note_2."\n".$note_3_1." ".$note_3."\n".$note_4_1." ".$note_4;
+			}
+			else
+			{   
+				$note_4_1=" ";                      
+			}
   
   			if(isset($_POST['UTM']))    
 			{   
@@ -1372,6 +1447,14 @@ class SocialController extends Controller
 			else
 			{ 
 				$UTM=""; 
+			} 
+			if(isset($_POST['tearsheetsId']))    
+			{   
+				$tearsheetsId=$_POST['tearsheetsId'];
+			}
+			else 
+			{   
+				$tearsheetsId=""; 
 			} 
 			if(isset($_POST['branch_custom']))    
 			{   
@@ -1628,6 +1711,10 @@ class SocialController extends Controller
 					
 					if($clientname=='penfield') {
 						$jobSource = 'Jobs+';
+					}
+					
+					if($clientname=='hero') {
+						$jobSource = 'HERO Website';
 					}
      			   
 					if($resume_status=="No")  
@@ -3023,11 +3110,16 @@ class SocialController extends Controller
 			} 
 			if($apicall=='createCustomGrantContact')   
 			{
-
 					  
 
 
 					$url = $apiurl;
+					
+					if($clientname=='bruce811Dev')
+{
+	$url = "https://test.salesforce.com/services/oauth2/token";
+}
+
 
 					$curl = curl_init();   
 
@@ -3918,6 +4010,98 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 										echo "successfully";     
 				}   
 
+				if($clientname=='bridgeview2')
+				{   
+					/*Code for only 'bridgeview' CLient */
+
+									$url = $apiurl;   
+									   
+									$postdata  = "grant_type=refresh_token";  
+									$postdata .= "&refresh_token=".$refresh_token;
+									$postdata .= "&client_id=".$client_id;         
+									$postdata .= "&client_secret=".$apikey;           
+
+									$ch = curl_init($url);      
+									curl_setopt($ch, CURLOPT_POST, true);
+									curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);        
+									curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+									$result = curl_exec($ch);        
+									   
+									$response = json_decode($result);
+									if(isset($response->access_token))   
+									{
+										$access_token = $response->access_token; 
+ 										$refresh_token =$response->refresh_token;     
+									}     
+									else    
+									{  
+										if($notification_status==0)
+											{             
+												 
+												$credentials_update=Credential::find($id);
+					 							$credentials_update->notification_status=1;
+												$credentials_update->save();  
+												echo "update Status";         
+											}       
+									}
+									  
+
+ 									$credentials_update=Credential::find($id);
+ 									$credentials_update->access_token  = $access_token;
+									$credentials_update->refresh_token = $refresh_token; 
+									$credentials_update->save();            
+  
+									
+									$url1="https://rest.bullhornstaffing.com/rest-services/login";  
+									$postdata1  = "version=*";
+									$postdata1 .= "&access_token=".$access_token; 
+									   
+									   
+									$ch1 = curl_init($url1);
+									curl_setopt($ch1, CURLOPT_POST, true);
+									curl_setopt($ch1, CURLOPT_POSTFIELDS, $postdata1);   
+									curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
+									$result1 = curl_exec($ch1);     
+
+									$response1 = json_decode($result1);    
+									$resturl = $response1->restUrl;     
+									$bhtoken = $response1->BhRestToken;                  
+    
+									$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email." "; 
+									$jobSource = " ";
+
+									$url=$resturl."entity/Lead";         
+	 								    $postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "New Lead","comments": "Effective Hiring Techniques Guide.","leadSource": "'.$jobSource.'","phone": "'.$phone.'","mobile": "'.$phone.'","description":"'.mysql_escape_mimic($description).'"}';   
+    
+	 								     
+										$curl = curl_init();           
+										curl_setopt_array($curl, array(                          
+										 CURLOPT_URL => $url,              
+										 CURLOPT_RETURNTRANSFER => true,            
+										 CURLOPT_ENCODING => "",         
+										 CURLOPT_MAXREDIRS => 10,        
+										 CURLOPT_TIMEOUT => 30,    
+										 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
+										 CURLOPT_CUSTOMREQUEST => "PUT",  
+										 CURLOPT_POSTFIELDS => $postResume,          
+										 CURLOPT_HTTPHEADER => array(      
+										   "BhRestToken: ".$bhtoken,           
+										   "Content-Type: application/json",           
+										 ),   
+										));
+										$response = curl_exec($curl);       
+										$err = curl_error($curl);             
+										curl_close($curl);    
+										if ($err) {     
+										 echo "cURL Error #:" . $err;       
+										} else {  
+										 echo $response;  
+										 $responseTest = json_decode($response);  
+										}   
+										echo "successfully";     
+				}   
+
+
 			}
 			if($apicall=='createCandidate')   
 			{   
@@ -4066,6 +4250,7 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									$result1 = curl_exec($ch1);     
 									                   
 									$response1 = json_decode($result1);
+									//print_r($response1);
 									$resturl = $response1->restUrl;   
 									$bhtoken = $response1->BhRestToken;       
       
@@ -4157,13 +4342,21 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									{
 										$candidateStatus="Available";	
 									}	
+									else if($clientname=='AllianceSolutionsGroup')
+									{         
+										$candidateStatus="New Applicant";
+									}
+									else if($clientname=='AllianceSolutionsGroup2')
+									{         
+										$candidateStatus="New Lead";  
+									}
 									else if($clientname=='ETSStaffingFuture')
-									{        
+									{          
 										//$candidateStatus="New Candidate";
 										$candidateStatus="New Lead";										
 									}									
 									else       
-									{       
+									{         
 										$candidateStatus="New Lead";
 									}
 									           
@@ -4230,13 +4423,13 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 										echo 'Loop for check name and phone exists for ETSStaffingFuture';
 										$candidateId=$name_status;  
 									}
-									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing" || $clientname=="fisergroup1") )
-									{               
+									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing" || $clientname=="LoyalSource" || $clientname=="fisergroup1") )
+									{                
 										echo 'ifloop for AtlasStaffing and fisergroup1'; 
 										$candidateId=$email_status;  
 									}
 									else         
-									{         
+									{          
 										echo 'elseloop executeapi';  
 										 
   										          
@@ -4365,20 +4558,20 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
    
 										}
 										else if($clientname=='AllianceSolutionsGroup' || $clientname=='AllianceSolutionsGroup1')        
-										{                     
+										{                      
      
-											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
+											$postResume='{"customText8":"Test","name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
 									            "address1": "'.$address1.'",
-									            "address2": "'.$address2.'",  
+									            "address2": "'.$address2.'",   
 									            "city": "'.$city.'", 
-									            "state": "'.$state.'",             
+									            "state": "'.$state.'",              
 									            "zip": "'.$zip.'"                          
-									        },"description":"'.$description.'","customText1":"'.$UTM.'","customText8":"'.$branch_custom.'","customText2":"'.$recruiterUserID.'"}'; 
+									        },"description":"'.$description.'","customText1":"'.$UTM.'","customText8":"'.$branch_custom.'","owner" :{ "id" : "'.$recruiterUserID.'"}}'; 
        
-    
+     
 										}			 				
 										else 
-										{        
+										{         
 											$postResume='{"name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
             "address1": "'.$address1.'",
             "address2": "'.$address2.'",  
@@ -4414,12 +4607,12 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 										 $responseTest = json_decode($response);  
 										}
 										$candidateId =$responseTest->changedEntityId; 
-									}    
+									}     
 
 
-				if((($clientname=='AtlasStaffing') || ($clientname=='ETSStaffingFuture') || ($clientname=='fisergroup1')) && (!empty($candidateId)))
+				if((($clientname=='AtlasStaffing') || ($clientname=='ETSStaffingFuture') || ($clientname=='LoyalSource') || ($clientname=='fisergroup1')) && (!empty($candidateId)))
 									{           
-     						
+     						 
      									
 
      									echo $candidateId; 
@@ -4542,13 +4735,31 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 												{
 													$description="".$fname." ".$lname."  Phone: ".$phone."  Email: ".$email." ";   
 												} 	
-												$postUpdate='{"id": "'.$candidateId.'","address": {
-            "address1": "'.$address1.'",
-            "address2": "'.$address2.'",   
-            "city": "'.$city.'",        
-            "state": "'.$state.'",                  
-            "zip": "'.$zip.'"                           
-        },"description":"'.$description.'"}';  
+
+												if($clientname=='LoyalSource')        
+												{                   
+		  
+													$postUpdate='{"id": "'.$candidateId.'","description":"'.$description.'"}';  
+		      
+		   
+												}
+												else
+												{  
+
+														$postUpdate='{"id": "'.$candidateId.'","address": {
+											            "address1": "'.$address1.'",
+											            "address2": "'.$address2.'",   
+											            "city": "'.$city.'",        
+											            "state": "'.$state.'",                  
+											            "zip": "'.$zip.'"                           
+											        },"description":"'.$description.'"}';  
+
+
+												}
+
+
+
+												
 
      									}
      									else if($steps=='Step3')
@@ -4693,6 +4904,31 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 
 									}    
 
+
+
+
+
+									if( ($clientname=='LoyalSourceTearsheets') && (!empty($tearsheetsId)) )
+        							{  
+   											 
+ 	 
+        								$curl = curl_init();
+										curl_setopt_array($curl, array(  
+										  CURLOPT_URL => $resturl.'entity/Tearsheet/'.$tearsheetsId.'/candidates/'.$candidateId.'?BhRestToken='.$bhtoken,
+										  CURLOPT_RETURNTRANSFER => true,
+										  CURLOPT_ENCODING => '',
+										  CURLOPT_MAXREDIRS => 10,
+										  CURLOPT_TIMEOUT => 0, 
+										  CURLOPT_FOLLOWLOCATION => true,
+										  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, 
+										  CURLOPT_CUSTOMREQUEST => 'PUT', 
+										));
+
+										$response = curl_exec($curl);
+										curl_close($curl);
+										echo $response;   
+ 
+        							}	 
 
  
 
