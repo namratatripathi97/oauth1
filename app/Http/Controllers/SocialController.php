@@ -4423,13 +4423,13 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 										echo 'Loop for check name and phone exists for ETSStaffingFuture';
 										$candidateId=$name_status;  
 									}
-									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing" || $clientname=="LoyalSource" || $clientname=="fisergroup1") )
-									{                
+									else if( (!empty($email_status)) && ($clientname=="AtlasStaffing" || $clientname=="LoyalSource" || $clientname=="fisergroup1" || $clientname=="AllianceSolutionsGroup" || $clientname=="AllianceSolutionsGroup1" || $clientname=="AllianceSolutionsGroup2") )
+									{                 
 										echo 'ifloop for AtlasStaffing and fisergroup1'; 
 										$candidateId=$email_status;  
-									}
+									} 
 									else         
-									{          
+									{           
 										echo 'elseloop executeapi';  
 										 
   										          
