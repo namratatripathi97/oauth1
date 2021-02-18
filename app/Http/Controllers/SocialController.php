@@ -4558,8 +4558,18 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
    
 										}
 										else if($clientname=='AllianceSolutionsGroup' || $clientname=='AllianceSolutionsGroup1')        
-										{                      
+										{                         
      
+											if(!empty($UTM))
+											{       
+ 
+ 												$jobSource=$UTM;
+											}
+											else
+											{     
+												$jobSource=$jobSource;	
+											}
+
 											$postResume='{"customText8":"Test","name": "'.$fname.' '.$lname.'","firstName": "'.$fname.'","lastName": "'.$lname.'","email": "'.$email.'","status": "'.$candidateStatus.'","source": "'.$jobSource.'","phone": "'.$phone.'","address": {
 									            "address1": "'.$address1.'",
 									            "address2": "'.$address2.'",   
