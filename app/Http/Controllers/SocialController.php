@@ -1779,11 +1779,11 @@ class SocialController extends Controller
 								   
 								$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);  
 								  
-								$file = chunk_split(base64_encode($path));     
-
+								//$file = chunk_split(base64_encode($path));     
+								$file = base64_encode($path);
 								$apicall="createResourceFromResume";   
 								$postResume='{"trackerrms": {"createResourceFromResume": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'","lastname": "'.$lname.'","fullname": "'.$fname.' '.$lname.'","jobtitle": " ","email": "'.$email.'","source": "'.$jobSource.'","note": "'.$note.'"},"file": {"filename": "'.$filename.'","data": "'.$file.'"}}}}';          
-             
+								//print_r($postResume);
 
   
 									$curl = curl_init();
