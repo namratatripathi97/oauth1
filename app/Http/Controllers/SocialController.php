@@ -18,7 +18,7 @@ class SocialController extends Controller
 {
          
      function sendEmail($integration_name,$client_name)
-     {            
+     {             
      		 	 		      
      		$subject="Tokens revoked for ".$client_name." for ".$integration_name."";     
 
@@ -1684,7 +1684,7 @@ class SocialController extends Controller
   			 
 			  
 			 if(($clientname=="Bruce") && ($name=="Bullhorn"))
-			 {
+			 { 
 			 	if($defineAccessKey==$accesskey)
 			 	{ 
 			 		echo "MatchedKey";
@@ -1753,7 +1753,7 @@ class SocialController extends Controller
 									 $message=$result->message;     
 
 									 if(($notification_status==0) && ($message=="user or API Key not found")) 
-											{             
+											{              
 												   
 												$credentials_update=Credential::find($id);
 					 							$credentials_update->notification_status=1;
@@ -1766,32 +1766,66 @@ class SocialController extends Controller
 
 				}
 				else
-				{  
+				{            
 
 
-								
-								  
+								 
+								     
 
-								$ext = pathinfo($filedata, PATHINFO_EXTENSION);
-								$filename=$fname.' '.$lname.'.'.$ext;
+								$ext = pathinfo($filedata, PATHINFO_EXTENSION); 
+								$filename=$fname.' '.$lname.'.'.$ext;  
 								$filecontent = file_get_contents($filedata);                
 								 Storage::disk('local')->put("public/" .$applicant_name.'.'.$ext, $filecontent);         
 								   
-								$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);  
-								  
+								$path=Storage::disk('local')->get("public/" .$applicant_name.'.'.$ext);   
+								   
 								//$file = chunk_split(base64_encode($path));     
-								$file = base64_encode($path);
-								$apicall="createResourceFromResume";   
-								$postResume='{"trackerrms": {"createResourceFromResume": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'","lastname": "'.$lname.'","fullname": "'.$fname.' '.$lname.'","jobtitle": " ","email": "'.$email.'","source": "'.$jobSource.'","note": "'.$note.'"},"file": {"filename": "'.$filename.'","data": "'.$file.'"}}}}';          
-								//print_r($postResume);
+								$file = base64_encode($path);          
+								$apicall="createResourceFromResume"; 
+								$fullname = "$fname $lname"; 
+								$fullname = trim(preg_replace('/\s+/', '', $fullname));
+								$fullname = str_replace(array("\n", "\r"), ' ', $fullname);    
+								$filename = trim(preg_replace('/\s+/', '', $filename)); 
+								$postResume='{"trackerrms": {"createResourceFromResume": {"credentials": {"apikey": "'.$apikey.'", "username": "","password": "","oauthtoken": ""},"instructions":{"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short","shortlistedby": "resource"},"resource": {"firstname": "'.$fname.'","lastname": "'.$lname.'","fullname": "'.$fullname.'","jobtitle": " ","email": "'.$email.'","source": "'.$jobSource.'","note": "'.$note.'"},"file": {"filename": "'.$filename.'","data": "'.$file.'"}}}}'; 
+								
+								//echo $postResume;   
+								//exit;        
 
-  
+								/* $postResume='{        
+"trackerrms": {  
+"createResourceFromResume": {  
+"credentials":  {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},
+"instructions": {
+"assigntoopportunity": "'.$job_id.'",
+"assigntolist": "short"
+},
+"resource": { 
+"firstname": "Jane",
+"lastname": "Selby", 
+"fullname": "Jane Selby",
+"jobtitle": "Java Programmer",
+"email": "jane.selby@somewhere.com",
+"source": "Website"
+},
+"file": {  
+"filename": "Jane Selby Resume.docx",
+"data": "ADDSF48ghsz0qv34vew..."
+}
+}
+} 
+}'; */
+ 
+							/*echo $postResume;    
+								exit;*/ 
+								/*echo $apiurl.$apicall;
+								exit;  */  
+   
 									$curl = curl_init();
-									curl_setopt_array($curl, array(     
-									 CURLOPT_URL => $apiurl.$apicall,   
+									curl_setopt_array($curl, array(      
+									 CURLOPT_URL => $apiurl.$apicall,    
 									 CURLOPT_RETURNTRANSFER => true,     
 									 CURLOPT_ENCODING => "",    
-									 CURLOPT_MAXREDIRS => 10,    
+									 CURLOPT_MAXREDIRS => 10,     
 									 CURLOPT_TIMEOUT => 30,
 									 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
 									 CURLOPT_CUSTOMREQUEST => "POST",
@@ -1803,15 +1837,18 @@ class SocialController extends Controller
 									$response = curl_exec($curl);       
 									$err = curl_error($curl);           
 									curl_close($curl);
-									if ($err) {       
+									if ($err) {         
 									 echo "cURL Error #:" . $err;
-									} else {
-									 echo $response;
+									} else {       
+									   	
+									 echo $response;   
+
+									
 									 $result=json_decode($response);
 									 $message=$result->message;  
 
 									 if(($notification_status==0) && ($message=="user or API Key not found")) 
-											{             
+											{                 
 												
 												$credentials_update=Credential::find($id);
 					 							$credentials_update->notification_status=1;
@@ -1819,8 +1856,8 @@ class SocialController extends Controller
 												echo "update Status";            
 											}
 
-									}   
-
+									}
+								$apicall="";
 				}
 			}
 			if($apicall=='newApply')   
@@ -2298,7 +2335,9 @@ class SocialController extends Controller
 			if($apicall=='createResourceFromResume')   
 			{ 
 
-					$postResume='{"trackerrms": {"createResourceFromResume": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions": {"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short"},"resource": {"firstname": "'.$fname.'","lastname": "'.$lname.'","fullname": "'.$fname.' '.$lname.'","jobtitle": " ","email": "'.$email.'","source": "'.$jobSource.'","note": "'.$note.'},"file": {"filename": "'.$fname.' '.$lname.'Resume.docx","data": "'.$attach_resume.'"}}}}';       
+					//$attach_resume=""; 
+					$postResume='{"trackerrms": {"createResourceFromResume": {"credentials": {"apikey": "'.$apikey.'", "username": "", "password": "", "oauthtoken": ""},"instructions": {"overwriteresource": true,"assigntoopportunity": "'.$job_id.'","assigntolist": "short"},"resource": {"firstname": "'.$fname.'","lastname": "'.$lname.'","fullname": "'.$fname.' '.$lname.'","jobtitle": " ","email": "'.$email.'","source": "'.$jobSource.'","note": "'.$note.'"},"file": {"filename": "'.$fname.' '.$lname.'Resume.docx","data": "'.$attach_resume.'"}}}}';
+					//echo $postResume;
 	     
 					$curl = curl_init();    
 					curl_setopt_array($curl, array(        
@@ -4346,10 +4385,14 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									{         
 										$candidateStatus="New Applicant";
 									}
-									else if($clientname=='AllianceSolutionsGroup2')
+									else if($clientname=='JCW2')
+									{              
+										$candidateStatus="New Candidate";
+									}
+									/*else if($clientname=='AllianceSolutionsGroup2')
 									{         
 										$candidateStatus="New Lead";  
-									}
+									}*/
 									else if($clientname=='ETSStaffingFuture')
 									{          
 										//$candidateStatus="New Candidate";
@@ -4859,7 +4902,7 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 										 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,            
 										 CURLOPT_CUSTOMREQUEST => "PUT",  
 										 CURLOPT_POSTFIELDS => $postEducation,          
-										 CURLOPT_HTTPHEADER => array(      
+										 CURLOPT_HTTPHEADER => array(       
 										   "BhRestToken: ".$bhtoken,           
 										   "Content-Type: application/json",           
 										 ),    
@@ -4867,9 +4910,9 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 										$response = curl_exec($curl);       
 										$err = curl_error($curl);            
 										curl_close($curl);  
-										if ($err) {     
+										if ($err) {      
 										 echo "cURL Error #:" . $err;       
-										} else {  
+										} else {   
 										 echo $response;  
 										
 										}
@@ -4883,7 +4926,7 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 										     
    	
 										if($steps!="Step1")
-										{  
+										{    
 											$curl = curl_init();           
 											curl_setopt_array($curl, array(                
 											 CURLOPT_URL => $Posturl,               
@@ -4919,7 +4962,7 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 
 
 									if( ($clientname=='LoyalSourceTearsheets') && (!empty($tearsheetsId)) )
-        							{  
+        							{    
    											 
  	 
         								$curl = curl_init();
@@ -4943,8 +4986,8 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
  
 
 									//Check candiate apply for the job or not
-									echo "applied for job";
-									$url=$resturl."search/JobSubmission?query=candidate.id:$candidateId&fields=*";                                             
+									echo "applied for job"; 
+									$url=$resturl."search/JobSubmission?query=candidate.id:$candidateId&fields=jobOrder(id)";                                             
 									$header = array('bhresttoken: '.$bhtoken);                 
 									$resource = curl_init();                       
 									curl_setopt($resource, CURLOPT_URL, $url);           
@@ -4952,22 +4995,30 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 									curl_setopt($resource, CURLOPT_RETURNTRANSFER, 1);             
 									$result = json_decode(curl_exec($resource));  
 									curl_close($resource);    
-									
 
-									foreach ($result->data as $rows)       
-									{
-										$rows->JOBID = $rows->jobOrder->id;                        
-									}          
+									//echo 'In a loop check for job'; 
+									//print_r($result);
+									
+									if(isset($result->data))
+									{         
+										foreach ($result->data as $rows)       
+										{  
+											$rows->JOBID = $rows->jobOrder->id;                        
+										}
+									}
+								
+
+
  									  
  									if(!empty($job_id))    
- 									{  
+ 									{    
 		 									if(in_array($job_id, array_column($result->data, 'JOBID'))) 
-		 									{    
+		 									{       
 											   
 											}  
 											else      
-											{               
-												
+											{                
+												 
 
 													$url2=$resturl."entity/JobSubmission";
 													
