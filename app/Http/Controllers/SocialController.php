@@ -18,7 +18,7 @@ class SocialController extends Controller
 {
          
      function sendEmail($integration_name,$client_name)
-     {             
+     {               
      		 	 		      
      		$subject="Tokens revoked for ".$client_name." for ".$integration_name."";     
 
@@ -27,22 +27,23 @@ class SocialController extends Controller
 			$message .= "Logins have changed for ".$client_name." and ".$integration_name."<br><br>";
 			$message .= "Thanks!"."<br><br>";         
               
-     		$email="gaurav.ideabox@outlook.com";              
-     		$addcc="bruce@staffingfuture.com";                                    
-     		$setfrom="oauthsupport@staffingfuture.com";         
+     		$email="gaurav.ideabox@outlook.com";                
+     		//$addcc="bruce@staffingfuture.com";          
+     		$addcc="support@gymate.co.in";                                    
+     		$setfrom="oauthsupport@staffingfuture.com";          
      		
 
      		    $mail = new PHPMailer(true); // notice the \  you have to use root namespace here
 			    try 
-			    {   
+			    {      
 			        $mail->isSMTP(); // tell to use smtp
 			        $mail->CharSet = "utf-8"; // set charset to utf8
 			        $mail->SMTPAuth = true;  // use smpt auth
 			        $mail->SMTPSecure = "tls"; // or ssl
 			        $mail->Host = "smtp.sendgrid.net";       
 			        $mail->Port = 587; // most likely something different for you. This is the mailtrap.io port i use for testing. 
-			        $mail->Username = "";
-			        $mail->Password = "";
+			        $mail->Username = "apikey";
+			        $mail->Password = "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";
 			        $mail->setFrom($setfrom, "oAuth Support Staffing Future");
 			        $mail->Subject = $subject;     
 			        $mail->MsgHTML($message);                     
@@ -62,7 +63,7 @@ class SocialController extends Controller
             
      }
 	 public function redirect($provider)
-	 {   
+	 {    
 	     return Socialite::driver($provider)->redirect();
 	 }
 	 public function callback($provider)  
@@ -828,8 +829,10 @@ class SocialController extends Controller
 											}
 									    }
 									    else
-									    {
-									    	echo "invalid Client";   
+									    {    
+									    	echo "invalid Client";    
+
+									    	$this->sendEmail("Bullhorn",$clientname);
 
 									    	
 											echo 'send mail';  
@@ -4231,10 +4234,10 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 											}
 									    }
 									    else
-									    {
+									    {  
 									    	echo "invalid Client";   
 
-									    	 
+									    	 $this->sendEmail("Bullhorn",$clientname);
 											echo 'send mail';  
 									    }
 									     
@@ -5029,11 +5032,16 @@ $parseResumeCand='{"ParentId": "'.$contact_id.'","Name": "'.$filename.'","Conten
 
 													} 
 													else if($clientname=='ETSStaffingFuture')
-													{             
+													{              
 														   
 			  											$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "Submitted","source": "'.$jobSource.'"}';
 													}
-													else {
+													/*else if($clientname=='JCW2')
+													{                  
+														    
+			  											$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "Submitted","source": "'.$jobSource.'"}';
+													}*/
+													else {       
 														$postJob2='{"candidate": {"id": "'.$candidateId.'"},"jobOrder": {"id": "'.$job_id.'"},"status": "New Lead","source": "'.$jobSource.'"}';
 													}												
 													$curl2 = curl_init();  
