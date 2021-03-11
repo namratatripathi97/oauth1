@@ -14,7 +14,7 @@ class ImageuploadController extends Controller
      */
     public function image_upload()
     {
-        return view('image_upload');
+        return view('image-upload');
     }
   
     /**
